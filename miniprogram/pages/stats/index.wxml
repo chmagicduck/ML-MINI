@@ -1,0 +1,85 @@
+<!--pages/stats/index.wxml — 战报统计页 V2-->
+<view class="page">
+  <view class="header">
+    <text class="header-title">🏆 摸鱼战报</text>
+    <text class="header-sub">你的摸鱼成就一览</text>
+  </view>
+
+  <!-- 等级展示 -->
+  <view class="level-card {{isGoldLevel ? 'level-card-gold' : ''}}" style="border-color: {{levelColor}}">
+    <view class="level-top">
+      <text class="level-big-emoji">{{levelEmoji}}</text>
+      <view class="level-info">
+        <text class="level-title" style="color: {{levelColor}}">{{levelName}}</text>
+        <text class="level-desc" wx:if="{{!isMaxLevel}}">
+          距 {{nextLevelName}} 还差 {{nextLevelThreshold}}
+        </text>
+        <text class="level-desc gold-text" wx:else>你已是传说中的摸鱼大圣！👑</text>
+      </view>
+    </view>
+    <!-- 等级进度条 -->
+    <view class="progress-bar-bg" wx:if="{{!isMaxLevel}}">
+      <view class="progress-bar-fill" style="width: {{levelProgress}}%; background: {{levelColor}}"></view>
+    </view>
+    <text class="progress-pct" wx:if="{{!isMaxLevel}}">{{levelProgress}}%</text>
+  </view>
+
+  <!-- 累计统计三格 -->
+  <view class="stats-row">
+    <view class="stat-item">
+      <text class="stat-value">{{totalMoney}}</text>
+      <text class="stat-label">累计摸鱼收益</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{totalTimeStr}}</text>
+      <text class="stat-label">累计摸鱼时长</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{totalDays}}</text>
+      <text class="stat-label">摸鱼天数</text>
+    </view>
+  </view>
+
+  <!-- 摸鱼热力图 -->
+  <view class="section-card">
+    <text class="section-title">📅 摸鱼热力图（近16周）</text>
+    <view class="heatmap-wrap">
+      <canvas
+        id="heatmap-canvas"
+        type="2d"
+        class="heatmap-canvas"
+      ></canvas>
+    </view>
+    <!-- 图例 -->
+    <view class="legend-row">
+      <text class="legend-text">少</text>
+      <view class="legend-cell" style="background: #EEEEEE"></view>
+      <view class="legend-cell" style="background: #C8E6C9"></view>
+      <view class="legend-cell" style="background: #81C784"></view>
+      <view class="legend-cell" style="background: #43A047"></view>
+      <view class="legend-cell" style="background: #1B5E20"></view>
+      <text class="legend-text">多</text>
+    </view>
+    <text class="heatmap-tip" wx:if="{{totalDays === 0}}">还没有摸鱼记录，快去首页开始吧！🐟</text>
+  </view>
+
+  <!-- 每日语录 -->
+  <view class="quote-card">
+    <text class="quote-icon">💬</text>
+    <text class="quote-text">{{quote}}</text>
+  </view>
+
+  <!-- 分享按钮 -->
+  <view class="share-btn-wrap">
+    <view class="share-btn" bindtap="onGenerateShareCard">
+      <text class="share-btn-text">📸 生成摸鱼战报</text>
+    </view>
+  </view>
+
+  <!-- 隐藏的海报 Canvas -->
+  <canvas id="poster-canvas" type="2d" class="poster-canvas"></canvas>
+
+  <view class="safe-bottom"></view>
+</view>

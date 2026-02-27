@@ -1,0 +1,48 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/stats/index",
+    "pages/profile/index",
+    "pages/settings/basic",
+    "pages/poop/index",
+    "pages/food/index",
+    "pages/meeting/index",
+    "pages/calendar/index"
+  ],
+  "tabBar": {
+    "color": "#757575",
+    "selectedColor": "#2E7D32",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/images/tabbar/home.png",
+        "selectedIconPath": "assets/images/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/stats/index",
+        "text": "战报",
+        "iconPath": "assets/images/tabbar/stats.png",
+        "selectedIconPath": "assets/images/tabbar/stats-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "assets/images/tabbar/profile.png",
+        "selectedIconPath": "assets/images/tabbar/profile-active.png"
+      }
+    ]
+  },
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "吗喽薪事",
+    "navigationBarBackgroundColor": "#E8F5E9",
+    "backgroundColor": "#F0F4F0",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents"
+}

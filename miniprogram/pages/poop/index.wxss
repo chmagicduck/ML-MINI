@@ -1,0 +1,171 @@
+/* pages/poop/index.wxss */
+.page {
+  min-height: 100vh;
+  background: #F0F4F0;
+  padding: 0 32rpx 80rpx;
+}
+
+/* ===== 主卡片 ===== */
+.hero-card {
+  background: linear-gradient(160deg, #E8F5E9, #fff);
+  border-radius: 24rpx;
+  margin-top: 24rpx;
+  padding: 48rpx 32rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.08);
+}
+
+.hero-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.hero-emoji {
+  font-size: 96rpx;
+  margin-bottom: 12rpx;
+  display: block;
+}
+
+.emoji-spin {
+  animation: wiggle 0.6s ease-in-out infinite;
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+.status-badge {
+  border-radius: 40rpx;
+  padding: 6rpx 24rpx;
+}
+.badge-idle {
+  background: #E8F5E9;
+}
+.badge-active {
+  background: #FFEBEE;
+  animation: breathe 1.2s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.badge-text {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.timer-big {
+  font-size: 72rpx;
+  font-weight: 700;
+  color: #1B5E20;
+  letter-spacing: 4rpx;
+  margin: 24rpx 0 12rpx;
+  font-variant-numeric: tabular-nums;
+}
+
+.session-earn {
+  font-size: 32rpx;
+  color: #388E3C;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.encouragement {
+  font-size: 26rpx;
+  color: #757575;
+  text-align: center;
+  margin-bottom: 40rpx;
+  font-style: italic;
+  min-height: 40rpx;
+}
+
+/* ===== 按钮 ===== */
+.btn-toggle {
+  width: 100%;
+  border-radius: 48rpx;
+  padding: 28rpx 0;
+  text-align: center;
+}
+.btn-start {
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.35);
+}
+.btn-stop {
+  background: linear-gradient(135deg, #EF9A9A, #E57373);
+  box-shadow: 0 8rpx 24rpx rgba(239, 83, 80, 0.3);
+}
+.btn-toggle:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+.btn-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ===== 统计卡片 ===== */
+.stats-section {
+  margin-top: 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+}
+.stats-title {
+  font-size: 24rpx;
+  color: #9E9E9E;
+  display: block;
+  margin-bottom: 20rpx;
+}
+.stats-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+}
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stat-value {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1B5E20;
+  display: block;
+  margin-bottom: 6rpx;
+}
+.stat-label {
+  font-size: 22rpx;
+  color: #9E9E9E;
+}
+.stat-divider {
+  width: 1rpx;
+  height: 60rpx;
+  background: #F0F0F0;
+}
+
+/* ===== 提示 ===== */
+.tips-card {
+  margin-top: 24rpx;
+  background: #FFF8E1;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+}
+.tips-text {
+  font-size: 24rpx;
+  color: #F57F17;
+  display: block;
+  text-align: center;
+}
+
+.safe-bottom {
+  height: 80rpx;
+}

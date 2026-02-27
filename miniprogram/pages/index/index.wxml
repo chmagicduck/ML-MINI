@@ -1,0 +1,131 @@
+<!--index.wxml — 首页仪表盘 V2-->
+<view class="page">
+  <!-- 自定义导航栏 -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px">
+    <text class="nav-title">吗喽薪事 🐒</text>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- V2: 节假日/周末特殊提示条 -->
+  <view class="holiday-banner" wx:if="{{holidayText}}">
+    <text class="holiday-text">🌴 {{holidayText}}</text>
+  </view>
+
+  <!-- 标语 -->
+  <view class="slogan-bar">
+    <text class="slogan-text">{{slogan}}</text>
+  </view>
+
+  <!-- 圆形进度仪表盘 -->
+  <view class="dashboard-wrap">
+    <view class="ring-outer" bindtap="onToggleSlacking">
+      <view class="ring-track"></view>
+      <view class="ring-progress" style="{{progressStyle}}"></view>
+      <view class="ring-inner">
+        <view class="status-badge {{isSlacking ? 'badge-active' : 'badge-idle'}}">
+          <text class="badge-text">{{isSlacking ? '🐒 摸鱼中' : '🍃 待机中'}}</text>
+        </view>
+        <text class="timer-text">{{slackingTimeStr}}</text>
+        <text class="timer-hint">{{isSlacking ? '点击暂停' : '点击开摸'}}</text>
+      </view>
+    </view>
+    <text class="progress-label">今日工时进度 {{progressPercent}}%</text>
+  </view>
+
+  <!-- 未配置薪资提示 -->
+  <view class="tip-banner" wx:if="{{!hasSettings}}">
+    <text class="tip-text">👆 前往「我的」填写薪资，才能看到真实收益</text>
+  </view>
+
+  <!-- 卡片网格 -->
+  <view class="cards-container">
+
+    <!-- 今日摸鱼收入（全宽主卡片） -->
+    <view class="card card-highlight">
+      <view class="card-row">
+        <view>
+          <text class="card-label">🤑 今日摸鱼收入</text>
+          <text class="card-value {{isSlacking ? 'value-pulse' : ''}}">{{todayEarnings}}</text>
+          <text class="card-sub">{{secondSalary}}</text>
+        </view>
+        <view class="card-right">
+          <text class="card-emoji-big">💸</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- V2: 吗喽等级卡片 -->
+    <view class="card card-level {{isGoldLevel ? 'card-gold' : ''}}" style="border-color: {{levelColor}}">
+      <view class="card-row">
+        <view>
+          <text class="card-label">🏆 吗喽等级</text>
+          <view class="level-badge-row">
+            <text class="level-emoji">{{levelEmoji}}</text>
+            <text class="level-name" style="color: {{levelColor}}">{{levelName}}</text>
+          </view>
+          <text class="card-sub">累计摸鱼 {{totalMoney}}</text>
+        </view>
+        <view class="card-right">
+          <text class="card-emoji-big">{{isGoldLevel ? '👑' : '⭐'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 本月已赚 + 距离发薪日 -->
+    <view class="cards-row">
+      <view class="card card-half">
+        <text class="card-label">💰 本月已赚</text>
+        <text class="card-value">{{monthEarnings}}</text>
+        <text class="card-sub">努力打工中</text>
+      </view>
+      <view class="card card-half" bindtap="onGoToCalendar">
+        <text class="card-label">📅 距离发薪日</text>
+        <text class="card-value">{{daysToPayday}}</text>
+        <text class="card-sub">天后发钱 →</text>
+      </view>
+    </view>
+
+    <!-- 距离周末 + 距离退休 -->
+    <view class="cards-row">
+      <view class="card card-half" bindtap="onGoToCalendar">
+        <text class="card-label">🎉 距离周末</text>
+        <text class="card-value">{{daysToWeekend}}</text>
+        <text class="card-sub">天后解放 →</text>
+      </view>
+      <view class="card card-half">
+        <text class="card-label">🏖️ 距离退休</text>
+        <text class="card-value card-value-sm">{{daysToRetirement}}</text>
+        <text class="card-sub">天后自由</text>
+      </view>
+    </view>
+
+    <!-- V2: 特色功能入口行（会议烧钱机 + 带薪拉粑粑） -->
+    <view class="cards-row">
+      <view class="card card-half card-feature" bindtap="onGoToMeeting">
+        <text class="feature-icon">💼</text>
+        <text class="feature-name">会议烧钱机</text>
+        <text class="feature-sub">计算会议成本 →</text>
+      </view>
+      <view class="card card-half card-feature" bindtap="onGoToPoop">
+        <text class="feature-icon">💩</text>
+        <text class="feature-name">带薪拉粑粑</text>
+        <text class="feature-sub">查看年度收益 →</text>
+      </view>
+    </view>
+
+    <!-- 今天吃什么 -->
+    <view class="card card-feature card-food" bindtap="onGoToFood">
+      <view class="card-row">
+        <view>
+          <text class="card-label">🍱 今天吃什么</text>
+          <text class="food-subtitle">摸完鱼，吃点啥</text>
+        </view>
+        <text class="card-emoji-big">🎲</text>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 底部安全区占位（TabBar 高度补偿） -->
+  <view class="safe-bottom"></view>
+</view>

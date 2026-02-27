@@ -1,0 +1,57 @@
+<!--pages/meeting/index.wxml — 会议烧钱机 V2-->
+<view class="page">
+  <!-- 顶部提示 -->
+  <view class="tip-banner" wx:if="{{!hasSettings}}">
+    <text class="tip-text">⚠️ 未设置薪资，以0计算。请前往「我的」配置</text>
+  </view>
+
+  <!-- 主显示区：已烧金额 -->
+  <view class="burn-display {{isRunning ? 'burn-display-active' : ''}}">
+    <text class="burn-label">本场会议已消耗公司</text>
+    <text class="burn-amount {{isRunning ? 'amount-pulse' : ''}}">{{totalCost}}</text>
+    <text class="burn-rate">{{costPerSecond}}</text>
+  </view>
+
+  <!-- 参会人数控制 -->
+  <view class="section-card">
+    <text class="section-title">👥 参会人数</text>
+    <view class="participants-row">
+      <view class="adj-btn" bindtap="onDecParticipants">
+        <text class="adj-icon">−</text>
+      </view>
+      <text class="participants-num">{{participants}} 人</text>
+      <view class="adj-btn" bindtap="onIncParticipants">
+        <text class="adj-icon">+</text>
+      </view>
+    </view>
+    <slider
+      min="1"
+      max="50"
+      value="{{participants}}"
+      show-value
+      activeColor="#43A047"
+      block-color="#43A047"
+      bindchange="onParticipantsChange"
+      class="participants-slider"
+    />
+    <text class="slider-hint">（按当前月薪人均计算，1~50人）</text>
+  </view>
+
+  <!-- 控制按钮 -->
+  <view class="btn-row">
+    <view class="btn-main {{isRunning ? 'btn-stop' : 'btn-start'}}" bindtap="onToggle">
+      <text class="btn-main-text">{{isRunning ? '⏸ 暂停会议' : '▶ 开始计时'}}</text>
+    </view>
+    <view class="btn-reset" bindtap="onReset">
+      <text class="btn-reset-text">🔄 重置</text>
+    </view>
+  </view>
+
+  <!-- 趣味提示 -->
+  <view class="fun-tips">
+    <text class="fun-tip">💡 用这个数字说服老板缩短会议时长</text>
+    <text class="fun-tip">📊 把截图发给 HR，为全员加薪做贡献</text>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

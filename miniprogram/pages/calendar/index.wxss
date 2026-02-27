@@ -1,0 +1,175 @@
+/* pages/calendar/index.wxss — 节假日日历 V2 */
+
+.page {
+  min-height: 100vh;
+  background: #F0F4F0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 月份标题 ===== */
+.month-header {
+  background: linear-gradient(135deg, #2E7D32, #43A047);
+  padding: 40rpx 32rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+.month-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  display: block;
+}
+.month-sub {
+  font-size: 24rpx;
+  color: #A5D6A7;
+  display: block;
+}
+
+/* ===== 星期头 ===== */
+.week-header {
+  display: flex;
+  flex-direction: row;
+  background: #FFFFFF;
+  padding: 16rpx 16rpx 8rpx;
+}
+.week-label {
+  flex: 1;
+  text-align: center;
+  font-size: 24rpx;
+  color: #757575;
+  font-weight: 600;
+}
+.week-label.sun { color: #EF5350; }
+.week-label.sat { color: #42A5F5; }
+
+/* ===== 日历格 ===== */
+.calendar-grid {
+  background: #FFFFFF;
+  padding: 0 16rpx 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.07);
+}
+.week-row {
+  display: flex;
+  flex-direction: row;
+  margin-top: 8rpx;
+}
+.day-cell {
+  flex: 1;
+  min-height: 96rpx;
+  border-radius: 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 4rpx;
+  margin: 2rpx;
+  background: #FAFAFA;
+  border: 1rpx solid #E0E0E0;
+  position: relative;
+}
+.day-empty {
+  background: transparent;
+  border-color: transparent;
+}
+.day-holiday {
+  background: #E8F5E9;
+  border-color: #A5D6A7;
+}
+.day-weekend {
+  background: #FFEBEE;
+  border-color: #EF9A9A;
+}
+.day-makeup {
+  background: #FFF9C4;
+  border-color: #F9A825;
+}
+.day-today {
+  background: #1B5E20;
+  border-color: #1B5E20;
+}
+.day-payday {
+  background: #E3F2FD;
+  border-color: #90CAF9;
+}
+
+.day-num {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  display: block;
+}
+.day-num-today {
+  color: #FFFFFF !important;
+}
+
+.day-tag {
+  font-size: 18rpx;
+  background: #1B5E20;
+  color: #FFFFFF;
+  border-radius: 6rpx;
+  padding: 2rpx 6rpx;
+  margin-top: 2rpx;
+  display: block;
+}
+.day-tag-holiday {
+  background: #43A047;
+}
+.day-tag-makeup {
+  background: #F57F17;
+}
+
+/* ===== 图例 ===== */
+.legend-section {
+  margin: 24rpx 32rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.07);
+}
+.legend-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+  width: 45%;
+}
+.legend-dot {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 6rpx;
+  flex-shrink: 0;
+}
+.legend-text {
+  font-size: 24rpx;
+  color: #757575;
+}
+
+/* ===== 发薪日倒计时 ===== */
+.payday-banner {
+  margin: 0 32rpx 24rpx;
+  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+  border-radius: 20rpx;
+  padding: 28rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16rpx;
+  border: 1.5rpx solid #A5D6A7;
+}
+.payday-icon { font-size: 48rpx; }
+.payday-text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1B5E20;
+  flex: 1;
+}
+
+/* ===== 底部安全区 ===== */
+.safe-bottom { height: 80rpx; }

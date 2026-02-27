@@ -1,0 +1,54 @@
+<!--pages/calendar/index.wxml — 节假日日历 V2-->
+<view class="page">
+  <!-- 月份标题 -->
+  <view class="month-header">
+    <text class="month-title">{{monthStr}}</text>
+    <text class="month-sub">法定节假日 · 调休补班 · 发薪日</text>
+  </view>
+
+  <!-- 星期头 -->
+  <view class="week-header">
+    <text class="week-label sun">日</text>
+    <text class="week-label">一</text>
+    <text class="week-label">二</text>
+    <text class="week-label">三</text>
+    <text class="week-label">四</text>
+    <text class="week-label">五</text>
+    <text class="week-label sat">六</text>
+  </view>
+
+  <!-- 日历格 -->
+  <view class="calendar-grid">
+    <view class="week-row" wx:for="{{weeks}}" wx:key="index">
+      <view
+      class="day-cell {{item2.isEmpty ? 'day-empty' : ''}} {{item2.status === 'holiday' ? 'day-holiday' : ''}} {{item2.status === 'weekend' ? 'day-weekend' : ''}} {{item2.status === 'makeup' ? 'day-makeup' : ''}} {{item2.isToday ? 'day-today' : ''}} {{item2.isPayday && !item2.isToday ? 'day-payday' : ''}}"
+      wx:for="{{item}}"
+      wx:for-item="item2"
+      wx:key="index"
+    >
+        <text class="day-num {{item2.isToday ? 'day-num-today' : ''}}">
+          {{item2.isEmpty ? '' : item2.day}}
+        </text>
+        <text class="day-tag" wx:if="{{!item2.isEmpty && item2.isPayday}}">薪</text>
+        <text class="day-tag day-tag-holiday" wx:elif="{{!item2.isEmpty && item2.status === 'holiday'}}">假</text>
+        <text class="day-tag day-tag-makeup" wx:elif="{{!item2.isEmpty && item2.status === 'makeup'}}">班</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 图例 -->
+  <view class="legend-section">
+    <view class="legend-row" wx:for="{{legend}}" wx:key="index">
+      <view class="legend-dot" style="background: {{item.color}}; border: 1.5rpx solid {{item.border}}"></view>
+      <text class="legend-text">{{item.text}}</text>
+    </view>
+  </view>
+
+  <!-- 发薪日倒计时 -->
+  <view class="payday-banner">
+    <text class="payday-icon">💰</text>
+    <text class="payday-text">{{paydayStr}}</text>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

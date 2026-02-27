@@ -1,0 +1,212 @@
+/* pages/food/index.wxss */
+.page {
+  min-height: 100vh;
+  background: #F0F4F0;
+  padding: 0 32rpx 80rpx;
+}
+
+/* ===== 标题 ===== */
+.hero {
+  text-align: center;
+  padding: 48rpx 0 24rpx;
+}
+.hero-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1B5E20;
+  display: block;
+  margin-bottom: 8rpx;
+}
+.hero-sub {
+  font-size: 26rpx;
+  color: #757575;
+  font-style: italic;
+}
+
+/* ===== 老虎机 ===== */
+.slot-machine {
+  background: linear-gradient(160deg, #E8F5E9, #fff);
+  border-radius: 28rpx;
+  padding: 48rpx 32rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8rpx 32rpx rgba(0,0,0,0.1);
+}
+
+.slot-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 40rpx;
+  min-height: 240rpx;
+  justify-content: center;
+}
+
+.slot-emoji {
+  font-size: 120rpx;
+  display: block;
+  margin-bottom: 16rpx;
+  transition: all 0.1s;
+}
+
+.rolling .slot-emoji {
+  animation: slot-spin 0.08s linear infinite;
+}
+@keyframes slot-spin {
+  0% { transform: translateY(-4rpx); }
+  50% { transform: translateY(4rpx); }
+  100% { transform: translateY(-4rpx); }
+}
+
+.result-show .slot-emoji {
+  animation: result-bounce 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+@keyframes result-bounce {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.slot-name {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #1B5E20;
+  display: block;
+  margin-bottom: 12rpx;
+  text-align: center;
+}
+
+.slot-tag {
+  font-size: 26rpx;
+  color: #9E9E9E;
+  font-style: italic;
+  display: block;
+  min-height: 40rpx;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tag-visible {
+  opacity: 1;
+}
+
+/* ===== 抽奖按钮 ===== */
+.btn-roll {
+  width: 100%;
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  border-radius: 48rpx;
+  padding: 28rpx 0;
+  text-align: center;
+  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.35);
+  transition: all 0.15s;
+}
+.btn-roll:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+.btn-rolling {
+  background: linear-gradient(135deg, #AED581, #8BC34A);
+  animation: btn-pulse 0.5s ease-in-out infinite;
+}
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.35); }
+  50% { box-shadow: 0 12rpx 32rpx rgba(76, 175, 80, 0.55); }
+}
+.btn-roll-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ===== 结果操作 ===== */
+.result-actions {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 20rpx;
+}
+.btn-confirm {
+  flex: 1.5;
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  border-radius: 48rpx;
+  padding: 28rpx 0;
+  text-align: center;
+  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.3);
+}
+.btn-confirm:active { opacity: 0.85; }
+.btn-confirm-text {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #fff;
+}
+.btn-reroll {
+  flex: 1;
+  background: #fff;
+  border: 2rpx solid #C8E6C9;
+  border-radius: 48rpx;
+  padding: 28rpx 0;
+  text-align: center;
+}
+.btn-reroll:active { background: #F5F5F5; }
+.btn-reroll-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #388E3C;
+}
+
+/* ===== 历史记录 ===== */
+.history-section {
+  margin-top: 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+}
+.history-title {
+  font-size: 24rpx;
+  color: #9E9E9E;
+  display: block;
+  margin-bottom: 16rpx;
+}
+.history-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.history-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+  background: #F5F5F5;
+  border-radius: 40rpx;
+  padding: 10rpx 20rpx;
+}
+.history-emoji {
+  font-size: 28rpx;
+}
+.history-name {
+  font-size: 24rpx;
+  color: #555;
+}
+
+/* ===== 名言 ===== */
+.quote-card {
+  margin-top: 24rpx;
+  background: #FFF9C4;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+.quote-text {
+  font-size: 24rpx;
+  color: #F9A825;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.safe-bottom {
+  height: 80rpx;
+}

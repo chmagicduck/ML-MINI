@@ -1,0 +1,176 @@
+/* pages/meeting/index.wxss — 会议烧钱机 V2 */
+
+.page {
+  min-height: 100vh;
+  background: #F0F4F0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 提示条 ===== */
+.tip-banner {
+  background: #FFF8E1;
+  padding: 16rpx 32rpx;
+  border-bottom: 1rpx solid #FFE082;
+}
+.tip-text {
+  font-size: 24rpx;
+  color: #F57F17;
+  display: block;
+  text-align: center;
+}
+
+/* ===== 烧钱主显示 ===== */
+.burn-display {
+  background: #FFFFFF;
+  padding: 64rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1rpx solid #EEEEEE;
+  transition: background 0.3s;
+}
+.burn-display-active {
+  background: linear-gradient(135deg, #FFF9C4, #FFFDE7);
+}
+.burn-label {
+  font-size: 26rpx;
+  color: #757575;
+  display: block;
+  margin-bottom: 16rpx;
+}
+.burn-amount {
+  font-size: 80rpx;
+  font-weight: 700;
+  color: #C62828;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  line-height: 1.2;
+}
+.amount-pulse {
+  animation: pulse-red 0.5s ease-in-out infinite;
+}
+@keyframes pulse-red {
+  0%, 100% { transform: scale(1); color: #C62828; }
+  50% { transform: scale(1.03); color: #E53935; }
+}
+.burn-rate {
+  font-size: 26rpx;
+  color: #9E9E9E;
+  display: block;
+  margin-top: 12rpx;
+}
+
+/* ===== 参会人数卡片 ===== */
+.section-card {
+  margin: 24rpx 32rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.07);
+}
+.section-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #333;
+  display: block;
+  margin-bottom: 20rpx;
+}
+.participants-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 48rpx;
+  margin-bottom: 20rpx;
+}
+.adj-btn {
+  width: 72rpx;
+  height: 72rpx;
+  background: #E8F5E9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+}
+.adj-btn:active { transform: scale(0.92); }
+.adj-icon {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #2E7D32;
+  line-height: 1;
+}
+.participants-num {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #1B5E20;
+  min-width: 160rpx;
+  text-align: center;
+}
+.participants-slider {
+  margin: 8rpx 0;
+}
+.slider-hint {
+  font-size: 22rpx;
+  color: #9E9E9E;
+  display: block;
+  text-align: center;
+  margin-top: 8rpx;
+}
+
+/* ===== 控制按钮 ===== */
+.btn-row {
+  padding: 0 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.btn-main {
+  border-radius: 48rpx;
+  padding: 28rpx 0;
+  text-align: center;
+}
+.btn-main:active { opacity: 0.85; }
+.btn-start {
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  box-shadow: 0 8rpx 24rpx rgba(76,175,80,0.4);
+}
+.btn-stop {
+  background: linear-gradient(135deg, #EF9A9A, #E53935);
+  box-shadow: 0 8rpx 24rpx rgba(229,57,53,0.3);
+}
+.btn-main-text {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+.btn-reset {
+  background: #FFFFFF;
+  border-radius: 48rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  border: 1.5rpx solid #E0E0E0;
+}
+.btn-reset:active { background: #F5F5F5; }
+.btn-reset-text {
+  font-size: 30rpx;
+  color: #757575;
+}
+
+/* ===== 趣味提示 ===== */
+.fun-tips {
+  margin: 24rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.fun-tip {
+  font-size: 24rpx;
+  color: #9E9E9E;
+  display: block;
+  text-align: center;
+}
+
+/* ===== 底部安全区 ===== */
+.safe-bottom { height: 80rpx; }

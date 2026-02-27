@@ -1,0 +1,63 @@
+<!--pages/poop/index.wxml-->
+<view class="page">
+
+  <!-- 主计时区 -->
+  <view class="hero-card">
+    <!-- 马桶表情 + 状态 -->
+    <view class="hero-top">
+      <text class="hero-emoji {{isRunning ? 'emoji-spin' : ''}}">💩</text>
+      <view class="status-badge {{isRunning ? 'badge-active' : 'badge-idle'}}">
+        <text class="badge-text">{{isRunning ? '坐镇中' : '待命中'}}</text>
+      </view>
+    </view>
+
+    <!-- 计时器 -->
+    <text class="timer-big">{{sessionTimeStr}}</text>
+    <text class="session-earn">本次收益: {{sessionEarnings}}</text>
+    <text class="encouragement">{{encouragement}}</text>
+
+    <!-- 开始/停止按钮 -->
+    <view class="btn-toggle {{isRunning ? 'btn-stop' : 'btn-start'}}" bindtap="onToggle">
+      <text class="btn-text">{{isRunning ? '🚿 冲水下班' : '🚽 开始上厕所'}}</text>
+    </view>
+  </view>
+
+  <!-- 今日统计 -->
+  <view class="stats-section">
+    <text class="stats-title">今日战绩</text>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">{{todayEarnings}}</text>
+        <text class="stat-label">今日收益</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{todaySeconds}}</text>
+        <text class="stat-label">今日秒数</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 年度统计 -->
+  <view class="stats-section">
+    <text class="stats-title">历史总览</text>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">{{totalEarnings}}</text>
+        <text class="stat-label">累计收益</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{sessionCount}}</text>
+        <text class="stat-label">累计次数</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 温馨提示 -->
+  <view class="tips-card">
+    <text class="tips-text">💡 温馨提示：带薪拉粑粑是打工人神圣权利，请合理行使</text>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

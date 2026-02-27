@@ -1,0 +1,145 @@
+/* pages/settings/basic.wxss */
+.page {
+  min-height: 100vh;
+  background: #F0F4F0;
+  padding-bottom: 80rpx;
+}
+
+/* ===== 分区 ===== */
+.form-section {
+  margin: 24rpx 32rpx 0;
+}
+.section-title {
+  font-size: 24rpx;
+  color: #9E9E9E;
+  display: block;
+  margin-bottom: 12rpx;
+  padding-left: 4rpx;
+}
+
+/* ===== 表单卡片 ===== */
+.form-group {
+  background: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+}
+
+/* ===== 表单项 ===== */
+.form-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 28rpx;
+  min-height: 96rpx;
+  box-sizing: border-box;
+}
+.form-item-indent {
+  padding-left: 56rpx;
+  background: #FAFAFA;
+}
+
+.form-label {
+  font-size: 30rpx;
+  color: #333;
+  flex: 1;
+}
+
+.form-divider {
+  height: 1rpx;
+  background: #F5F5F5;
+  margin: 0 28rpx;
+}
+
+/* ===== 输入框 ===== */
+.input-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+}
+.input-prefix {
+  font-size: 30rpx;
+  color: #333;
+  margin-right: 6rpx;
+}
+.form-input {
+  font-size: 30rpx;
+  color: #333;
+  text-align: right;
+  width: 240rpx;
+}
+.placeholder {
+  color: #BDBDBD;
+}
+
+/* ===== Picker ===== */
+.picker-value {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: #333;
+  font-size: 30rpx;
+  gap: 8rpx;
+}
+.picker-arrow {
+  font-size: 40rpx;
+  color: #C8C8C8;
+  font-weight: 300;
+  margin-left: 4rpx;
+}
+
+/* ===== 工作日 Radio ===== */
+.radio-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 20rpx 28rpx;
+  gap: 16rpx;
+  border-bottom: 1rpx solid #F5F5F5;
+  transition: background 0.15s;
+}
+.radio-item:last-child {
+  border-bottom: none;
+}
+.radio-item-active {
+  background: #F1F8E9;
+}
+.radio-info {
+  display: flex;
+  flex-direction: column;
+}
+.radio-label {
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+.radio-desc {
+  font-size: 22rpx;
+  color: #9E9E9E;
+}
+
+/* ===== 保存按钮 ===== */
+.save-wrap {
+  padding: 40rpx 32rpx 0;
+}
+.save-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  color: #fff;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  padding: 24rpx 0;
+  border: none;
+  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.3);
+}
+.save-btn:active {
+  opacity: 0.85;
+}
+
+.safe-bottom {
+  height: 80rpx;
+}

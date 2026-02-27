@@ -1,0 +1,95 @@
+<!--pages/profile/index.wxml — 我的页 V2-->
+<view class="page">
+  <!-- 头部用户卡片 -->
+  <view class="header-card">
+    <text class="header-emoji">🐒</text>
+    <view class="header-info">
+      <text class="header-title">吗喽薪事</text>
+      <text class="header-salary">{{salaryDisplay}}</text>
+    </view>
+  </view>
+
+  <!-- 薪资配置 -->
+  <view class="section">
+    <text class="section-title">薪资与工时</text>
+    <view class="cell-group">
+      <view class="cell" bindtap="onGoToBasic">
+        <view class="cell-left">
+          <text class="cell-icon">💼</text>
+          <view>
+            <text class="cell-title">薪资与工时设置</text>
+            <text class="cell-sub">月薪、上下班时间、工作日模式</text>
+          </view>
+        </view>
+        <text class="cell-arrow">›</text>
+      </view>
+
+      <view class="cell-divider"></view>
+
+      <view class="cell" bindtap="onGoToCalendar">
+        <view class="cell-left">
+          <text class="cell-icon">📅</text>
+          <view>
+            <text class="cell-title">节假日日历</text>
+            <text class="cell-sub">发薪日、节假日、补班日一览</text>
+          </view>
+        </view>
+        <text class="cell-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 特效与体验 -->
+  <view class="section">
+    <text class="section-title">特效与体验</text>
+    <view class="cell-group">
+      <view class="cell">
+        <view class="cell-left">
+          <text class="cell-icon">🔔</text>
+          <view>
+            <text class="cell-title">金币音效</text>
+            <text class="cell-sub">开启摸鱼时播放</text>
+          </view>
+        </view>
+        <switch checked="{{soundEnabled}}" color="#4CAF50" bindchange="onToggleSound" />
+      </view>
+
+      <view class="cell-divider"></view>
+
+      <view class="cell">
+        <view class="cell-left">
+          <text class="cell-icon">📳</text>
+          <view>
+            <text class="cell-title">震动反馈</text>
+            <text class="cell-sub">点击切换摸鱼时震动</text>
+          </view>
+        </view>
+        <switch checked="{{vibrateEnabled}}" color="#4CAF50" bindchange="onToggleVibrate" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 关于我们 -->
+  <view class="section">
+    <text class="section-title">关于</text>
+    <view class="cell-group">
+      <view class="cell">
+        <view class="cell-left">
+          <text class="cell-icon">📖</text>
+          <view>
+            <text class="cell-title">关于吗喽薪事</text>
+            <text class="cell-sub">打工人情绪价值中心 v2.0.0</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 页脚 -->
+  <view class="footer">
+    <text class="footer-slogan">只要我不努力，老板就永远过不上想要的生活</text>
+    <text class="footer-version">吗喽薪事 v2.0.0 · 愿每一条鱼都被摸到</text>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

@@ -1,0 +1,54 @@
+<!--pages/food/index.wxml — 今天吃什么-->
+<view class="page">
+
+  <!-- 标题区 -->
+  <view class="hero">
+    <text class="hero-title">今天吃什么？</text>
+    <text class="hero-sub">困扰全体打工人的世纪难题</text>
+  </view>
+
+  <!-- 抽奖机 -->
+  <view class="slot-machine">
+    <!-- 主显示区 -->
+    <view class="slot-display {{isRolling ? 'rolling' : result ? 'result-show' : ''}}">
+      <text class="slot-emoji">{{displayEmoji}}</text>
+      <text class="slot-name">{{displayName}}</text>
+      <text class="slot-tag {{result ? 'tag-visible' : ''}}">{{displayTag}}</text>
+    </view>
+
+    <!-- 抽奖按钮 -->
+    <view wx:if="{{!result}}" class="btn-roll {{isRolling ? 'btn-rolling' : ''}}" bindtap="onRoll">
+      <text class="btn-roll-text">{{isRolling ? '抽取中...' : '🎲 帮我决定！'}}</text>
+    </view>
+
+    <!-- 结果操作 -->
+    <block wx:if="{{result}}">
+      <view class="result-actions">
+        <view class="btn-confirm">
+          <text class="btn-confirm-text">✅ 就这个了！</text>
+        </view>
+        <view class="btn-reroll" bindtap="onReroll">
+          <text class="btn-reroll-text">🔄 再抽一次</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 最近记录 -->
+  <view class="history-section" wx:if="{{history.length > 0}}">
+    <text class="history-title">最近吃过</text>
+    <view class="history-list">
+      <view class="history-item" wx:for="{{history}}" wx:key="index">
+        <text class="history-emoji">{{item.emoji}}</text>
+        <text class="history-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 吃饭名言 -->
+  <view class="quote-card">
+    <text class="quote-text">"民以食为天，打工人以摸鱼为天" — 某匿名员工</text>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

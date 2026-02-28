@@ -1,8 +1,5 @@
 // pages/stats/index.ts — 战报统计页 V2.2
 import { getMoyuStats, getTodaySlackingSeconds, getSettings, getPendingLevelUp, clearPendingLevelUp } from '../../utils/storage'
-
-// V1.0.1 Fix: 实时时钟，每秒刷新战报数据
-let _statsClock: ReturnType<typeof setInterval> | null = null
 import {
   getMoyuLevel,
   getNextMoyuLevel,
@@ -11,6 +8,9 @@ import {
   formatDuration,
 } from '../../utils/calculator'
 import { MOYU_LEVELS, MoyuLevel } from '../../utils/types'
+
+// V1.0.1 Fix: 实时时钟，每秒刷新战报数据
+let _statsClock: ReturnType<typeof setInterval> | null = null
 
 const MOYU_QUOTES = [
   '打工是不可能打工的，这辈子都不可能打工的',

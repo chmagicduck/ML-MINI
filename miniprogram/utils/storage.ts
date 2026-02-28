@@ -190,3 +190,13 @@ export function hasShownInitialIdentity(): boolean {
 export function setInitialIdentityShown(): void {
   try { wx.setStorageSync(KEYS.INITIAL_IDENTITY_SHOWN, true) } catch (_) {}
 }
+
+// ─────────── V1.0.1: 皮肤系统 ────────────────────────────────
+
+export function getCurrentSkin(): string {
+  try { return wx.getStorageSync('currentSkin') || 'default' } catch (_) { return 'default' }
+}
+
+export function setCurrentSkin(skinId: string): void {
+  try { wx.setStorageSync('currentSkin', skinId) } catch (_) {}
+}

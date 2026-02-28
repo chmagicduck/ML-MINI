@@ -70,7 +70,7 @@
 
   <!-- 摸鱼热力图 -->
   <view class="section-card">
-    <text class="section-title">📅 摸鱼热力图（近16周）</text>
+    <text class="section-title">📅 摸鱼热力图（近30天）</text>
     <view class="heatmap-wrap">
       <canvas id="heatmap-canvas" type="2d" class="heatmap-canvas"></canvas>
     </view>

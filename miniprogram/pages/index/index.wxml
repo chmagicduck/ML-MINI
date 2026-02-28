@@ -32,7 +32,7 @@
         <text class="timer-hint">{{isSlacking ? '点击暂停' : '点击开摸'}}</text>
       </view>
     </view>
-    <text class="progress-label">今日工时进度 {{progressPercent}}%</text>
+    <text class="progress-label">{{timeUntilOffWork}}</text>
   </view>
 
   <!-- 未配置薪资提示 -->

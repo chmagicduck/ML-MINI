@@ -69,6 +69,25 @@
     </view>
   </view>
 
+  <!-- V1.0.1 皮肤系统 -->
+  <view class="section">
+    <text class="section-title">🎨 外观</text>
+    <view class="skins-container">
+      <view
+        wx:for="{{availableSkins}}"
+        wx:key="id"
+        class="skin-item {{currentSkin === item.id ? 'skin-item-active' : ''}}"
+        bindtap="onSkinTap"
+        data-id="{{item.id}}"
+      >
+        <image class="skin-image" src="{{item.image}}" mode="aspectFit"></image>
+        <text class="skin-name">{{item.name}}</text>
+        <view class="skin-badge" wx:if="{{currentSkin === item.id}}">✓</view>
+      </view>
+    </view>
+    <text class="skins-tip">点击更换吗喽形象（广告解锁更多皮肤）</text>
+  </view>
+
   <!-- 关于我们 -->
   <view class="section">
     <text class="section-title">关于</text>

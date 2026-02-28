@@ -117,25 +117,21 @@
     </view>
   </view>
 
-  <!-- ===== 重要日期（仅保留退休日期）===== -->
-  <view class="form-section">
-    <text class="section-title">🗓️ 重要日期</text>
-    <view class="form-group">
-      <view class="form-item">
-        <text class="form-label">预计退休日期</text>
-        <picker mode="date" value="{{settings.retirementDate}}" start="2020-01-01" end="2100-12-31" bindchange="onRetirementDateChange">
-          <view class="picker-value">
-            <text>{{settings.retirementDate}}</text>
-            <text class="picker-arrow">›</text>
-          </view>
-        </picker>
-      </view>
-    </view>
-  </view>
-
   <!-- ===== 保存按钮 ===== -->
   <view class="save-wrap">
     <button class="save-btn" bindtap="onSave">💾 保存设置</button>
+  </view>
+
+  <!-- V1.0.1 广告位 -->
+  <view class="ad-wrap" wx:if="{{adUnitId}}">
+    <ad unit-id="{{adUnitId}}" ad-intervals="30"></ad>
+  </view>
+
+  <!-- V1.0.1 数据重置 -->
+  <view class="danger-zone">
+    <text class="danger-title">⚠️ 危险区域</text>
+    <button class="btn-danger" bindtap="resetAllData">🗑️ 重置所有数据</button>
+    <text class="danger-tips">此操作不可恢复，所有摸鱼记录和战报数据将清空</text>
   </view>
 
   <view class="safe-bottom"></view>

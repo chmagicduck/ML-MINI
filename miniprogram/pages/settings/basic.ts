@@ -1,6 +1,5 @@
-// pages/settings/basic.ts — 基本设置表单 V2.1
-// V2.1 变更：移除晚休字段（eveningBreak*）UI，移除入职日期 UI
-// 数据结构中这些字段仍保留，旧数据读取不受影响
+// pages/settings/basic.ts — 基本设置表单 V1.0.1
+// V1.0.1 变更：移除退休日期字段 UI，添加数据重置功能，增广告位
 import { getSettings, saveSettings } from '../../utils/storage'
 import { UserSettings, WorkdayMode } from '../../utils/types'
 
@@ -31,6 +30,9 @@ Page({
     workEndIndex: 36,
     lunchStartIndex: 24,
     lunchEndIndex: 26,
+
+    // V1.0.1: 广告位配置
+    adUnitId: '', // 待配置真实 unit-id
   },
 
   onLoad() {
@@ -88,11 +90,7 @@ Page({
     this.setData({ 'settings.workdayMode': e.detail.value as WorkdayMode })
   },
 
-  onRetirementDateChange(e: WechatMiniprogram.PickerChange) {
-    this.setData({ 'settings.retirementDate': e.detail.value as string })
-  },
-
-  // H-6: 保存前校验，V2.1 移除 eveningBreak 校验（UI 已移除）
+  // V1.0.1 保存前校验
   onSave() {
     const { settings } = this.data
     if (!settings.monthlySalary || settings.monthlySalary <= 0) {
@@ -110,5 +108,40 @@ Page({
     saveSettings(settings)
     wx.showToast({ title: '保存成功 🎉', icon: 'success' })
     setTimeout(() => wx.navigateBack(), 1200)
+  },
+
+  // V1.0.1: 数据重置
+  resetAllData() {
+    wx.showModal({
+      title: '⚠️ 确认重置？',
+      content: '此操作将清空所有摸鱼记录、战报数据和带薪拉粑粑数据，不可恢复。',
+      confirmText: '确认重置',
+      confirmColor: '#EF5350',
+      success: (res) => {
+        if (res.confirm) {
+          try {
+            // 清除摸鱼累计统计
+            wx.removeStorageSync('moyuStats')
+            // 清除带薪拉粑粑统计
+            wx.removeStorageSync('poopStats')
+            // 清除带薪拉粑粑运行状态
+            wx.removeStorageSync('poopRunningState')
+            // 清除升级弹窗持久化状态
+            wx.removeStorageSync('pendingLevelUp')
+            // 清除离线收益弹窗状态
+            wx.removeStorageSync('lastExitState')
+            // 清除初始身份标记
+            wx.removeStorageSync('initialIdentityShown')
+
+            wx.showToast({ title: '已重置所有数据 🗑️', icon: 'success', duration: 2000 })
+            setTimeout(() => {
+              wx.reLaunch({ url: '/pages/index/index' })
+            }, 2000)
+          } catch (err) {
+            wx.showToast({ title: '重置失败，请重试', icon: 'none' })
+          }
+        }
+      }
+    })
   },
 })

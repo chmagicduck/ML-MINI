@@ -92,3 +92,53 @@ export const DEFAULT_MOYU_STATS: MoyuStats = {
   totalSeconds: 0,
   moyuDaysMap: {},
 }
+
+// ─────────── V1.0.1: 皮肤系统 ────────────────────────────────
+
+export type SkinId = 'default' | 'suit' | 'rich' | 'cute' | 'bamboo'
+
+export type UnlockType = 'default' | 'ad' | 'level'
+
+export interface Skin {
+  name: string
+  primaryColor: string
+  image: string
+  unlockType: UnlockType
+  unlockLevel?: number  // 仅 unlockType: 'level' 时有效
+}
+
+export const SKINS: Record<SkinId, Skin> = {
+  default: {
+    name: '默认',
+    primaryColor: '#4CAF50',
+    image: 'assets/images/skins/malou-default.png',
+    unlockType: 'default',
+  },
+  suit: {
+    name: '西装',
+    primaryColor: '#2196F3',
+    image: 'assets/images/skins/malou-suit.png',
+    unlockType: 'ad',
+  },
+  rich: {
+    name: '土豪',
+    primaryColor: '#FFD700',
+    image: 'assets/images/skins/malou-rich.png',
+    unlockType: 'level',
+    unlockLevel: 50000,
+  },
+  cute: {
+    name: '萌系',
+    primaryColor: '#FF69B4',
+    image: 'assets/images/skins/malou-cute.png',
+    unlockType: 'ad',
+  },
+  bamboo: {
+    name: '竹子',
+    primaryColor: '#00897B',
+    image: 'assets/images/skins/malou-bamboo.png',
+    unlockType: 'ad',
+  },
+}
+
+export const DEFAULT_SKIN: SkinId = 'default'

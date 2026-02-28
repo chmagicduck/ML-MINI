@@ -236,11 +236,32 @@ Page({
           totalTimeStr: this.data.totalTimeStr,
         })
 
+        // V1.0.1: 生成后弹出操作菜单
         wx.canvasToTempFilePath({
           canvas,
           success: (result) => {
             wx.hideToast()
-            wx.previewImage({ urls: [result.tempFilePath] })
+            wx.showActionSheet({
+              itemList: ['分享给朋友', '保存到相册'],
+              success: (res) => {
+                if (res.tapIndex === 0) {
+                  // 分享给朋友（调用小程序分享）
+                  wx.showToast({ title: '长按图片分享给朋友', icon: 'none', duration: 2000 })
+                  wx.previewImage({ urls: [result.tempFilePath] })
+                } else if (res.tapIndex === 1) {
+                  // 保存到相册
+                  wx.saveImageToPhotosAlbum({
+                    filePath: result.tempFilePath,
+                    success: () => {
+                      wx.showToast({ title: '已保存到相册', icon: 'success', duration: 2000 })
+                    },
+                    fail: () => {
+                      wx.showToast({ title: '保存失败，请检查相册权限', icon: 'none', duration: 2000 })
+                    }
+                  })
+                }
+              },
+            })
           },
           fail: () => {
             wx.hideToast()
@@ -257,32 +278,27 @@ function buildHeatmapData(moyuDaysMap: Record<string, number>): {
   rows: HeatmapCell[][]
   maxSeconds: number
 } {
-  const WEEKS = 16
+  // V1.0.1: 重构为近 30 天单行展示
+  const DAYS = 30
   const cells: HeatmapCell[] = []
   const today = new Date()
-  const todayDow = today.getDay()
-  const alignedToday = new Date(today)
-  alignedToday.setDate(today.getDate() - todayDow)
-
-  const startDate = new Date(alignedToday)
-  startDate.setDate(alignedToday.getDate() - (WEEKS - 1) * 7)
 
   let maxSeconds = 0
 
-  for (let w = 0; w < WEEKS; w++) {
-    for (let d = 0; d < 7; d++) {
-      const date = new Date(startDate)
-      date.setDate(startDate.getDate() + w * 7 + d)
-      const y = date.getFullYear()
-      const mo = String(date.getMonth() + 1).padStart(2, '0')
-      const da = String(date.getDate()).padStart(2, '0')
-      const dateStr = `${y}-${mo}-${da}`
-      const seconds = moyuDaysMap[dateStr] || 0
-      if (seconds > maxSeconds) maxSeconds = seconds
-      cells.push({ dateStr, seconds, level: 0 })
-    }
+  // 生成近 30 天的数据（从 29 天前开始，到今天）
+  for (let i = DAYS - 1; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(date.getDate() - i)
+    const y = date.getFullYear()
+    const mo = String(date.getMonth() + 1).padStart(2, '0')
+    const da = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${y}-${mo}-${da}`
+    const seconds = moyuDaysMap[dateStr] || 0
+    if (seconds > maxSeconds) maxSeconds = seconds
+    cells.push({ dateStr, seconds, level: 0 })
   }
 
+  // 计算色阶（5 档）
   for (const cell of cells) {
     if (cell.seconds === 0) {
       cell.level = 0
@@ -292,14 +308,8 @@ function buildHeatmapData(moyuDaysMap: Record<string, number>): {
     }
   }
 
-  const rows: HeatmapCell[][] = []
-  for (let d = 0; d < 7; d++) {
-    const row: HeatmapCell[] = []
-    for (let w = 0; w < WEEKS; w++) {
-      row.push(cells[w * 7 + d])
-    }
-    rows.push(row)
-  }
+  // V1.0.1: 单行展示（30 个格子横向排列）
+  const rows: HeatmapCell[][] = [cells]
 
   return { rows, maxSeconds }
 }
@@ -313,22 +323,23 @@ function drawHeatmapOnCanvas(
   width: number,
   height: number,
 ) {
-  const WEEKS = rows[0]?.length || 16
-  const cellSize = Math.floor((width - 8) / WEEKS)
+  // V1.0.1: 单行 30 天展示，计算格子大小
+  const DAYS = 30
+  const cellSize = Math.floor((width - 8) / DAYS)
   const gap = 2
   const colors = ['#EEEEEE', '#C8E6C9', '#81C784', '#43A047', '#1B5E20']
 
   ctx.clearRect(0, 0, width, height)
 
-  for (let d = 0; d < 7; d++) {
-    for (let w = 0; w < WEEKS; w++) {
-      const cell = rows[d][w]
-      const x = w * (cellSize + gap)
-      const y = d * (cellSize + gap)
-      ctx.fillStyle = colors[cell.level]
-      roundRect(ctx, x, y, cellSize, cellSize, 3)
-      ctx.fill()
-    }
+  // 单行展示
+  const row = rows[0] || []
+  for (let d = 0; d < DAYS && d < row.length; d++) {
+    const cell = row[d]
+    const x = d * (cellSize + gap)
+    const y = 0
+    ctx.fillStyle = colors[cell.level]
+    roundRect(ctx, x, y, cellSize, cellSize, 3)
+    ctx.fill()
   }
 }
 

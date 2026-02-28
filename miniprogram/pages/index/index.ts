@@ -114,6 +114,9 @@ Page({
     // V2.2 金币雨
     showCoinRain: false,
 
+    // V1.0.1 倒计时
+    timeUntilOffWork: '还有 8 小时 30 分钟下班',
+
     hasSettings: false,
     slogan: SLOGANS[0],
   },
@@ -182,6 +185,7 @@ Page({
 
     this._refresh()
     this._updateStaticCards()
+    this._updateTimeUntilOffWork()  // V1.0.1: 初始化倒计时
     this._startClock()
 
     // V2.2: 检查持久化的升级通知（冷启动后仍可弹窗）
@@ -258,6 +262,29 @@ Page({
       progressPercent: pct,
       progressStyle: `background: conic-gradient(#66BB6A ${pct}%, #C8E6C9 ${pct}%)`,
     })
+  },
+
+  // ─────────── V1.0.1 下班倒计时 ─────────────────────────────
+  _updateTimeUntilOffWork() {
+    if (!_settings) return
+    const [eh, em] = _settings.workEndTime.split(':').map(Number)
+    const now = new Date()
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eh, em, 0, 0)
+    const remaining = endOfDay.getTime() - now.getTime()
+
+    let text: string
+    if (remaining <= 0) {
+      text = '🎉 已下班，尽情摸鱼！'
+    } else {
+      const totalMinutes = Math.floor(remaining / 60000)
+      const hours = Math.floor(totalMinutes / 60)
+      const minutes = totalMinutes % 60
+      text = hours > 0
+        ? `还有 ${hours} 小时 ${minutes} 分钟下班`
+        : `还有 ${minutes} 分钟下班！`
+    }
+
+    this.setData({ timeUntilOffWork: text })
   },
 
   // ─────────── 刷新（静态时机调用）────────────────────────────
@@ -337,6 +364,7 @@ Page({
         monthEarnings: formatMoney(calcMonthEarnings(_settings)),
       })
       this._updateProgress()
+      this._updateTimeUntilOffWork()  // V1.0.1: 每秒更新倒计时
     }, 1000)
   },
 
@@ -372,12 +400,14 @@ Page({
         totalMoney: formatMoney(currentTotalMoney),
       })
 
-      // V2.2: 金币雨——每突破 ¥10 整数门槛触发一次
+      // V1.0.1: 金币雨——每突破 ¥5 整数门槛触发一次（提升触发频率）
       const earnedInt = Math.floor(calcTodayEarnings(_settings, seconds))
-      const coinThreshold = Math.floor(earnedInt / 10) * 10
-      if (coinThreshold > _lastCoinThreshold && earnedInt >= 10) {
+      const coinThreshold = Math.floor(earnedInt / 5) * 5
+      if (coinThreshold > _lastCoinThreshold && earnedInt >= 5) {
         _lastCoinThreshold = coinThreshold
         this._triggerCoinRain()
+        // V1.0.1: 金币音效与金币雨同步
+        if (_settings?.soundEnabled) playCoinsSound()
       }
 
       // 等级升级检测
@@ -425,19 +455,37 @@ Page({
     const W = canvas.width / dpr
     const H = canvas.height / dpr
 
-    interface Particle { x: number; y: number; vx: number; vy: number; size: number; opacity: number }
-    const particles: Particle[] = Array.from({ length: 18 }, () => ({
+    // V1.0.1: 增强粒子系统（粒子数、旋转、椭圆、重力）
+    interface Particle {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      size: number
+      opacity: number
+      rotation: number
+      rotationSpeed: number
+      aspect: number
+      color: string
+    }
+
+    const COLORS = ['#FFD700', '#FFA000', '#FF8F00']
+    const particles: Particle[] = Array.from({ length: 40 }, () => ({
       x: 40 + Math.random() * (W - 80),
       y: -20 - Math.random() * 60,
       vx: (Math.random() - 0.5) * 3,
-      vy: 5 + Math.random() * 5,
-      size: 18 + Math.random() * 16,
+      vy: 6 + Math.random() * 6,
+      size: 14 + Math.random() * 18,
       opacity: 1,
+      rotation: Math.random() * Math.PI * 2,
+      rotationSpeed: (Math.random() - 0.5) * 0.1,
+      aspect: 0.4 + Math.random() * 0.2,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
     }))
 
     let frame = 0
     const TOTAL = 50
-    const FADE_AT = 32
+    const FADE_AT = 28
 
     _coinAnimTimer = setInterval(() => {
       _coinCtx.clearRect(0, 0, W, H)
@@ -446,14 +494,24 @@ Page({
       for (const p of particles) {
         p.y += p.vy
         p.x += p.vx
-        p.vy *= 0.98  // 空气阻力
+        p.vy += 0.4  // V1.0.1: 重力加速度（替代纯空气阻力）
+        p.rotation += p.rotationSpeed
+
         if (frame > FADE_AT) {
           p.opacity = Math.max(0, 1 - (frame - FADE_AT) / (TOTAL - FADE_AT))
         }
+
+        // V1.0.1: 椭圆金币绘制（模拟硬币侧面倾斜）
+        _coinCtx.save()
         _coinCtx.globalAlpha = p.opacity
-        _coinCtx.font = `${p.size}px sans-serif`
-        _coinCtx.textAlign = 'center'
-        _coinCtx.fillText('🪙', p.x, p.y)
+        _coinCtx.translate(p.x, p.y)
+        _coinCtx.rotate(p.rotation)
+        _coinCtx.scale(1, p.aspect)
+        _coinCtx.fillStyle = p.color
+        _coinCtx.beginPath()
+        _coinCtx.arc(0, 0, p.size, 0, Math.PI * 2)
+        _coinCtx.fill()
+        _coinCtx.restore()
       }
 
       if (frame >= TOTAL) {
@@ -490,7 +548,11 @@ Page({
 
       this._startTimer()
       if (_settings?.soundEnabled) playCoinsSound()
-      if (_settings?.vibrateEnabled) wx.vibrateShort({ type: 'light' })
+      if (_settings?.vibrateEnabled) {
+        try {
+          wx.vibrateShort({ type: 'light' })
+        } catch (_) {}
+      }
     } else {
       this._pause()
     }

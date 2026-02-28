@@ -6,6 +6,8 @@ const KEYS = {
   POOP_STATS: 'poopStats',
   MOYU_STATS: 'moyuStats',
   SLACKING_PREFIX: 'slackingToday_',
+  PENDING_LEVEL_UP: 'pendingLevelUp',
+  LAST_EXIT_STATE: 'lastExitState',
 }
 
 function todayKey(): string {
@@ -117,4 +119,45 @@ function trimOldDays(map: Record<string, number>, keepDays: number): Record<stri
     trimmed[k] = map[k]
   }
   return trimmed
+}
+
+// ─────────── V2.2: 升级提示持久化 ────────────────────────────
+
+interface PendingLevel {
+  name: string
+  emoji: string
+  color: string
+  isGold: boolean
+  threshold: number
+}
+
+export function setPendingLevelUp(level: PendingLevel): void {
+  try { wx.setStorageSync(KEYS.PENDING_LEVEL_UP, level) } catch (_) {}
+}
+
+export function getPendingLevelUp(): PendingLevel | null {
+  try { return wx.getStorageSync(KEYS.PENDING_LEVEL_UP) || null } catch (_) { return null }
+}
+
+export function clearPendingLevelUp(): void {
+  try { wx.removeStorageSync(KEYS.PENDING_LEVEL_UP) } catch (_) {}
+}
+
+// ─────────── V2.2: 离线收益弹窗状态 ─────────────────────────
+
+interface ExitState {
+  ts: number        // 退出时刻 timestamp
+  workedSecs: number  // 退出时已上班秒数
+}
+
+export function saveLastExitState(workedSecs: number): void {
+  try { wx.setStorageSync(KEYS.LAST_EXIT_STATE, { ts: Date.now(), workedSecs }) } catch (_) {}
+}
+
+export function getLastExitState(): ExitState | null {
+  try { return wx.getStorageSync(KEYS.LAST_EXIT_STATE) || null } catch (_) { return null }
+}
+
+export function clearLastExitState(): void {
+  try { wx.removeStorageSync(KEYS.LAST_EXIT_STATE) } catch (_) {}
 }

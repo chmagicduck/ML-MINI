@@ -155,6 +155,24 @@
   color: #388E3C;
 }
 
+/* ===== V2.2 食物分享按钮 ===== */
+.btn-share-food {
+  display: block;
+  margin: 16rpx 0 0;
+  background: #FFFFFF;
+  border-radius: 48rpx;
+  padding: 20rpx 0;
+  text-align: center;
+  border: 1.5rpx solid #A5D6A7;
+}
+.btn-share-food::after { border: none; }
+.btn-share-food:active { background: #F1F8E9; }
+.btn-share-food-text {
+  font-size: 28rpx;
+  color: #2E7D32;
+  font-weight: 600;
+}
+
 /* ===== 历史记录 ===== */
 .history-section {
   margin-top: 24rpx;

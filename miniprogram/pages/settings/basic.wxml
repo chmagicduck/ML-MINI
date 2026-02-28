@@ -1,4 +1,5 @@
-<!--pages/settings/basic.wxml — 基本设置表单-->
+<!--pages/settings/basic.wxml — 基本设置表单 V2.1-->
+<!-- V2.1 变更：移除晚休/加班间隙，移除入职日期 -->
 <scroll-view scroll-y class="page">
 
   <!-- ===== 薪资配置 ===== -->
@@ -6,7 +7,6 @@
     <text class="section-title">💰 薪资配置</text>
     <view class="form-group">
 
-      <!-- 月薪 -->
       <view class="form-item">
         <text class="form-label">月薪（税前）</text>
         <view class="input-row">
@@ -24,7 +24,6 @@
 
       <view class="form-divider"></view>
 
-      <!-- 发薪日 -->
       <view class="form-item">
         <text class="form-label">发薪日</text>
         <picker range="{{payDays}}" value="{{payDayIndex}}" bindchange="onPayDayChange">
@@ -43,7 +42,6 @@
     <text class="section-title">⏰ 工时配置</text>
     <view class="form-group">
 
-      <!-- 上班时间 -->
       <view class="form-item">
         <text class="form-label">上班时间</text>
         <picker range="{{timeOptions}}" value="{{workStartIndex}}" bindchange="onWorkStartChange">
@@ -56,7 +54,6 @@
 
       <view class="form-divider"></view>
 
-      <!-- 下班时间 -->
       <view class="form-item">
         <text class="form-label">下班时间</text>
         <picker range="{{timeOptions}}" value="{{workEndIndex}}" bindchange="onWorkEndChange">
@@ -69,7 +66,6 @@
 
       <view class="form-divider"></view>
 
-      <!-- 午休 -->
       <view class="form-item">
         <text class="form-label">午休</text>
         <switch checked="{{settings.lunchBreakEnabled}}" color="#4CAF50" bindchange="onLunchBreakToggle" />
@@ -98,41 +94,10 @@
         </view>
       </block>
 
-      <view class="form-divider"></view>
-
-      <!-- 晚休 -->
-      <view class="form-item">
-        <text class="form-label">晚休/加班间隙</text>
-        <switch checked="{{settings.eveningBreakEnabled}}" color="#4CAF50" bindchange="onEveningBreakToggle" />
-      </view>
-
-      <block wx:if="{{settings.eveningBreakEnabled}}">
-        <view class="form-divider"></view>
-        <view class="form-item form-item-indent">
-          <text class="form-label">晚休开始</text>
-          <picker range="{{timeOptions}}" value="{{eveningStartIndex}}" bindchange="onEveningStartChange">
-            <view class="picker-value">
-              <text>{{timeOptions[eveningStartIndex]}}</text>
-              <text class="picker-arrow">›</text>
-            </view>
-          </picker>
-        </view>
-        <view class="form-divider"></view>
-        <view class="form-item form-item-indent">
-          <text class="form-label">晚休结束</text>
-          <picker range="{{timeOptions}}" value="{{eveningEndIndex}}" bindchange="onEveningEndChange">
-            <view class="picker-value">
-              <text>{{timeOptions[eveningEndIndex]}}</text>
-              <text class="picker-arrow">›</text>
-            </view>
-          </picker>
-        </view>
-      </block>
-
     </view>
   </view>
 
-  <!-- ===== 工作日设置 ===== -->
+  <!-- ===== 工作日模式 ===== -->
   <view class="form-section">
     <text class="section-title">📅 工作日模式</text>
     <view class="form-group">
@@ -152,25 +117,10 @@
     </view>
   </view>
 
-  <!-- ===== 重要日期 ===== -->
+  <!-- ===== 重要日期（仅保留退休日期）===== -->
   <view class="form-section">
     <text class="section-title">🗓️ 重要日期</text>
     <view class="form-group">
-
-      <!-- 入职日期 -->
-      <view class="form-item">
-        <text class="form-label">入职日期</text>
-        <picker mode="date" value="{{settings.joinDate}}" start="2000-01-01" end="2030-12-31" bindchange="onJoinDateChange">
-          <view class="picker-value">
-            <text>{{settings.joinDate}}</text>
-            <text class="picker-arrow">›</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="form-divider"></view>
-
-      <!-- 退休日期 -->
       <view class="form-item">
         <text class="form-label">预计退休日期</text>
         <picker mode="date" value="{{settings.retirementDate}}" start="2020-01-01" end="2100-12-31" bindchange="onRetirementDateChange">
@@ -180,7 +130,6 @@
           </view>
         </picker>
       </view>
-
     </view>
   </view>
 

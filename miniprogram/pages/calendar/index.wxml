@@ -1,9 +1,19 @@
-<!--pages/calendar/index.wxml — 节假日日历 V2-->
+<!--pages/calendar/index.wxml — 节假日日历 V2.2-->
 <view class="page">
-  <!-- 月份标题 -->
+  <!-- 月份标题 + 翻页 -->
   <view class="month-header">
-    <text class="month-title">{{monthStr}}</text>
-    <text class="month-sub">法定节假日 · 调休补班 · 发薪日</text>
+    <view class="month-nav">
+      <view class="nav-arrow {{canPrev ? '' : 'nav-arrow-disabled'}}" bindtap="onPrevMonth">
+        <text class="nav-arrow-text">‹</text>
+      </view>
+      <view class="month-title-wrap">
+        <text class="month-title">{{monthStr}}</text>
+        <text class="month-sub">法定节假日 · 调休补班 · 发薪日</text>
+      </view>
+      <view class="nav-arrow {{canNext ? '' : 'nav-arrow-disabled'}}" bindtap="onNextMonth">
+        <text class="nav-arrow-text">›</text>
+      </view>
+    </view>
   </view>
 
   <!-- 星期头 -->
@@ -21,11 +31,11 @@
   <view class="calendar-grid">
     <view class="week-row" wx:for="{{weeks}}" wx:key="index">
       <view
-      class="day-cell {{item2.isEmpty ? 'day-empty' : ''}} {{item2.status === 'holiday' ? 'day-holiday' : ''}} {{item2.status === 'weekend' ? 'day-weekend' : ''}} {{item2.status === 'makeup' ? 'day-makeup' : ''}} {{item2.isToday ? 'day-today' : ''}} {{item2.isPayday && !item2.isToday ? 'day-payday' : ''}}"
-      wx:for="{{item}}"
-      wx:for-item="item2"
-      wx:key="index"
-    >
+        class="day-cell {{item2.isEmpty ? 'day-empty' : ''}} {{item2.status === 'holiday' ? 'day-holiday' : ''}} {{item2.status === 'weekend' ? 'day-weekend' : ''}} {{item2.status === 'makeup' ? 'day-makeup' : ''}} {{item2.isToday ? 'day-today' : ''}} {{item2.isPayday && !item2.isToday ? 'day-payday' : ''}}"
+        wx:for="{{item}}"
+        wx:for-item="item2"
+        wx:key="index"
+      >
         <text class="day-num {{item2.isToday ? 'day-num-today' : ''}}">
           {{item2.isEmpty ? '' : item2.day}}
         </text>

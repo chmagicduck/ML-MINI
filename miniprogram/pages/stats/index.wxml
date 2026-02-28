@@ -1,11 +1,11 @@
-<!--pages/stats/index.wxml — 战报统计页 V2-->
+<!--pages/stats/index.wxml — 战报统计页 V2.1-->
 <view class="page">
   <view class="header">
     <text class="header-title">🏆 摸鱼战报</text>
     <text class="header-sub">你的摸鱼成就一览</text>
   </view>
 
-  <!-- 等级展示 -->
+  <!-- 等级展示卡 -->
   <view class="level-card {{isGoldLevel ? 'level-card-gold' : ''}}" style="border-color: {{levelColor}}">
     <view class="level-top">
       <text class="level-big-emoji">{{levelEmoji}}</text>
@@ -17,7 +17,6 @@
         <text class="level-desc gold-text" wx:else>你已是传说中的摸鱼大圣！👑</text>
       </view>
     </view>
-    <!-- 等级进度条 -->
     <view class="progress-bar-bg" wx:if="{{!isMaxLevel}}">
       <view class="progress-bar-fill" style="width: {{levelProgress}}%; background: {{levelColor}}"></view>
     </view>
@@ -42,17 +41,39 @@
     </view>
   </view>
 
+  <!-- V2.1 等级路线图 -->
+  <view class="section-card">
+    <text class="section-title">🗺️ 等级路线图</text>
+    <scroll-view scroll-x class="roadmap-scroll">
+      <view class="roadmap-track">
+        <view
+          class="roadmap-item {{item.isUnlocked ? 'item-unlocked' : 'item-locked'}} {{item.isCurrent ? 'item-current' : ''}} {{item.isGold && item.isUnlocked ? 'item-gold' : ''}}"
+          wx:for="{{levelRoadmap}}"
+          wx:key="name"
+          style="{{item.isCurrent ? 'border-color: ' + item.color : ''}}"
+        >
+          <text class="roadmap-emoji">{{item.emoji}}</text>
+          <text class="roadmap-name" style="{{item.isCurrent ? 'color: ' + item.color : ''}}">
+            {{item.name}}
+          </text>
+          <text class="roadmap-threshold">{{item.thresholdStr}}</text>
+          <view class="roadmap-status-row">
+            <text class="roadmap-tag roadmap-tag-unlocked" wx:if="{{item.isUnlocked && !item.isCurrent}}">✓ 已解锁</text>
+            <text class="roadmap-tag roadmap-tag-current" wx:elif="{{item.isCurrent}}" style="background: {{item.color}}">当前</text>
+            <text class="roadmap-tag roadmap-tag-locked" wx:else>🔒</text>
+          </view>
+          <text class="roadmap-progress" wx:if="{{item.progressStr}}">{{item.progressStr}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
   <!-- 摸鱼热力图 -->
   <view class="section-card">
     <text class="section-title">📅 摸鱼热力图（近16周）</text>
     <view class="heatmap-wrap">
-      <canvas
-        id="heatmap-canvas"
-        type="2d"
-        class="heatmap-canvas"
-      ></canvas>
+      <canvas id="heatmap-canvas" type="2d" class="heatmap-canvas"></canvas>
     </view>
-    <!-- 图例 -->
     <view class="legend-row">
       <text class="legend-text">少</text>
       <view class="legend-cell" style="background: #EEEEEE"></view>
@@ -65,7 +86,7 @@
     <text class="heatmap-tip" wx:if="{{totalDays === 0}}">还没有摸鱼记录，快去首页开始吧！🐟</text>
   </view>
 
-  <!-- 每日语录 -->
+  <!-- 语录 -->
   <view class="quote-card">
     <text class="quote-icon">💬</text>
     <text class="quote-text">{{quote}}</text>
@@ -78,7 +99,7 @@
     </view>
   </view>
 
-  <!-- 隐藏的海报 Canvas -->
+  <!-- 隐藏海报 Canvas -->
   <canvas id="poster-canvas" type="2d" class="poster-canvas"></canvas>
 
   <view class="safe-bottom"></view>

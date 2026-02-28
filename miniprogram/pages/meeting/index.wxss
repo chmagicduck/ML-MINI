@@ -174,3 +174,64 @@
 
 /* ===== 底部安全区 ===== */
 .safe-bottom { height: 80rpx; }
+
+/* ===== V2.2 自定义月薪 ===== */
+.custom-salary-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4rpx;
+}
+.custom-salary-body {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+.custom-salary-label {
+  font-size: 24rpx;
+  color: #757575;
+  display: block;
+  margin-bottom: 12rpx;
+}
+.custom-salary-input-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: #F5F5F5;
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  gap: 8rpx;
+}
+.salary-prefix {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2E7D32;
+}
+.custom-salary-input {
+  flex: 1;
+  font-size: 32rpx;
+  color: #333;
+}
+.custom-salary-hint {
+  font-size: 22rpx;
+  color: #BDBDBD;
+  display: block;
+  margin-top: 10rpx;
+}
+
+/* ===== V2.2 分享按钮 ===== */
+.btn-share-meeting {
+  background: #FFFFFF;
+  border-radius: 48rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  border: 1.5rpx solid #A5D6A7;
+  margin: 0;
+}
+.btn-share-meeting::after { border: none; }
+.btn-share-meeting:active { background: #F1F8E9; }
+.btn-share-meeting-text {
+  font-size: 30rpx;
+  color: #2E7D32;
+}

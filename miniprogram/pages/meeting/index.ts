@@ -1,51 +1,54 @@
-// pages/meeting/index.ts — 会议烧钱机 V2
+// pages/meeting/index.ts — 会议烧钱机 V2.2（支持自定义人均月薪 + 分享）
 import { getSettings } from '../../utils/storage'
-import { getSecondSalary, formatMoney } from '../../utils/calculator'
+import { getSecondSalary, formatMoney, getWorkingDaysInMonth, getDailyWorkMinutes } from '../../utils/calculator'
 
-// 模块级状态
 let _timer: ReturnType<typeof setInterval> | null = null
 let _startAt = 0
-let _secondCost = 0  // 每秒总花费（所有参会者）
+let _secondCost = 0
 
 Page({
   data: {
-    participants: 5,         // 参会人数（默认5人）
+    participants: 5,
     isRunning: false,
     elapsedSeconds: 0,
     totalCost: '¥0.00',
     costPerSecond: '¥0.00/秒',
-    perSecondRaw: 0,
+    perSecondRaw: 0,          // 自己的秒薪
     hasSettings: false,
+
+    // V2.2 自定义人均月薪
+    useCustomSalary: false,
+    customSalaryStr: '',      // input 绑定的字符串
+    customSalaryNum: 0,       // 解析后的数值
   },
 
   onLoad() {
     const settings = getSettings()
     const hasSettings = settings.monthlySalary > 0
     const perSec = getSecondSalary(settings)
-    this.setData({
-      hasSettings,
-      perSecondRaw: perSec,
-    })
+    this.setData({ hasSettings, perSecondRaw: perSec })
     this._updateCostDisplay()
   },
 
-  onUnload() {
-    this._stop()
-  },
-
-  onHide() {
-    this._stop()
-  },
+  onUnload() { this._stop() },
+  onHide()   { this._stop() },
 
   _updateCostDisplay() {
-    const { participants, perSecondRaw } = this.data
-    _secondCost = perSecondRaw * participants
-    this.setData({
-      costPerSecond: `${formatMoney(_secondCost)}/秒`,
-    })
+    const { participants, perSecondRaw, useCustomSalary, customSalaryNum } = this.data
+
+    let perSec = perSecondRaw
+    if (useCustomSalary && customSalaryNum > 0) {
+      const settings = getSettings()
+      const now = new Date()
+      const workDays = getWorkingDaysInMonth(now.getFullYear(), now.getMonth(), settings.workdayMode)
+      const dailySecs = getDailyWorkMinutes(settings) * 60
+      perSec = customSalaryNum / workDays / dailySecs
+    }
+
+    _secondCost = perSec * participants
+    this.setData({ costPerSecond: `${formatMoney(_secondCost)}/秒` })
   },
 
-  // -------- 参会人数调整 --------
   onDecParticipants() {
     const n = Math.max(1, this.data.participants - 1)
     this.setData({ participants: n })
@@ -59,49 +62,56 @@ Page({
   },
 
   onParticipantsChange(e: WechatMiniprogram.SliderChange) {
-    const n = e.detail.value
-    this.setData({ participants: n })
+    this.setData({ participants: e.detail.value })
     this._updateCostDisplay()
   },
 
-  // -------- 开始/停止 --------
+  // V2.2: 自定义月薪开关
+  onToggleCustomSalary() {
+    const useCustomSalary = !this.data.useCustomSalary
+    this.setData({ useCustomSalary })
+    this._updateCostDisplay()
+  },
+
+  // V2.2: 自定义月薪输入
+  onCustomSalaryInput(e: WechatMiniprogram.Input) {
+    const str = e.detail.value
+    const num = parseFloat(str) || 0
+    this.setData({ customSalaryStr: str, customSalaryNum: num })
+    this._updateCostDisplay()
+  },
+
   onToggle() {
-    if (this.data.isRunning) {
-      this._stop()
-    } else {
-      this._start()
-    }
+    if (this.data.isRunning) { this._stop() } else { this._start() }
   },
 
   onReset() {
     this._stop()
-    this.setData({
-      elapsedSeconds: 0,
-      totalCost: '¥0.00',
-    })
+    this.setData({ elapsedSeconds: 0, totalCost: '¥0.00' })
   },
 
   _start() {
     if (_timer !== null) return
     _startAt = Date.now() - this.data.elapsedSeconds * 1000
     this.setData({ isRunning: true })
-
     _timer = setInterval(() => {
       const elapsed = (Date.now() - _startAt) / 1000
-      const cost = elapsed * _secondCost
-      this.setData({
-        elapsedSeconds: elapsed,
-        totalCost: formatMoney(cost),
-      })
+      this.setData({ elapsedSeconds: elapsed, totalCost: formatMoney(elapsed * _secondCost) })
     }, 100)
   },
 
   _stop() {
-    if (_timer !== null) {
-      clearInterval(_timer)
-      _timer = null
-    }
+    if (_timer !== null) { clearInterval(_timer); _timer = null }
     this.setData({ isRunning: false })
   },
 
+  // V2.2: 分享
+  onShareAppMessage() {
+    const { participants, totalCost } = this.data
+    const costRate = formatMoney(_secondCost)
+    return {
+      title: `正在参加一个 ${costRate}/秒 的高端会议，${participants}人已烧掉 ${totalCost}，速来帮我算算这会开完公司还剩多少钱 💸`,
+      path: '/pages/meeting/index',
+    }
+  },
 })

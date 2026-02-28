@@ -1,7 +1,13 @@
-// pages/stats/index.ts — 战报统计页 V2
-import { getMoyuStats } from '../../utils/storage'
-import { getMoyuLevel, getNextMoyuLevel, formatMoney, formatDuration } from '../../utils/calculator'
-import { MOYU_LEVELS } from '../../utils/types'
+// pages/stats/index.ts — 战报统计页 V2.2
+import { getMoyuStats, getTodaySlackingSeconds, getSettings, getPendingLevelUp, clearPendingLevelUp } from '../../utils/storage'
+import {
+  getMoyuLevel,
+  getNextMoyuLevel,
+  calcTodayEarnings,
+  formatMoney,
+  formatDuration,
+} from '../../utils/calculator'
+import { MOYU_LEVELS, MoyuLevel } from '../../utils/types'
 
 const MOYU_QUOTES = [
   '打工是不可能打工的，这辈子都不可能打工的',
@@ -14,30 +20,50 @@ const MOYU_QUOTES = [
   '上班摸鱼，下班躺平，这就是我的一生',
 ]
 
+interface LevelRoadmapItem {
+  name: string
+  emoji: string
+  threshold: number
+  thresholdStr: string
+  isUnlocked: boolean
+  isCurrent: boolean
+  isGold: boolean
+  color: string
+  progressStr: string   // "还差 ¥XX.XX" 或 ""
+}
+
+interface HeatmapCell {
+  dateStr: string
+  seconds: number
+  level: number  // 0=空, 1~4 色阶
+}
+
 Page({
   data: {
-    // 累计统计
+    // 累计统计（V2.1 Fix：包含实时未提交会话）
     totalMoney: '¥0.00',
     totalSeconds: 0,
     totalTimeStr: '00:00:00',
     totalDays: 0,
 
-    // 等级信息
+    // 等级
     levelName: '职场牛马',
     levelEmoji: '🐂',
     levelColor: '#9E9E9E',
     isGoldLevel: false,
-    levelProgress: 0,         // 0~100，距离下一级进度
+    levelProgress: 0,
     nextLevelName: '',
-    nextLevelThreshold: '¥500',
+    nextLevelThreshold: '¥500.00',
     isMaxLevel: false,
 
-    // 热力图数据（最近16周 = 112天）
-    heatmapRows: [] as HeatmapCell[][],
-    heatmapLabels: [] as string[],  // 月份标签 ["1月","","","2月",...]
-    heatmapMaxSeconds: 1,           // 用于色阶计算
+    // V2.1 等级路线图
+    levelRoadmap: [] as LevelRoadmapItem[],
 
-    // 随机语录
+    // 热力图
+    heatmapRows: [] as HeatmapCell[][],
+    heatmapMaxSeconds: 1,
+
+    // 语录
     quote: MOYU_QUOTES[0],
   },
 
@@ -45,48 +71,69 @@ Page({
     const quote = MOYU_QUOTES[Math.floor(Math.random() * MOYU_QUOTES.length)]
     this.setData({ quote })
     this._loadStats()
+
+    // V2.2: 战报页也检查持久化的升级通知
+    const pendingLevel = getPendingLevelUp()
+    if (pendingLevel) {
+      clearPendingLevelUp()
+      setTimeout(() => {
+        wx.showToast({ title: `🎉 ${pendingLevel.emoji} ${pendingLevel.name} 解锁！`, icon: 'none', duration: 3000 })
+      }, 400)
+    }
   },
 
   onReady() {
-    // 等页面渲染完成后绘制热力图
     this._drawHeatmap()
   },
 
   _loadStats() {
     const stats = getMoyuStats()
-    const level = getMoyuLevel(stats.totalMoney)
-    const nextLevel = getNextMoyuLevel(stats.totalMoney)
 
-    // 等级进度
+    // V2.1 Fix：累计收益中叠加当前会话未提交的增量
+    // moyuDaysMap[today] 记录已提交的今日秒数
+    // getTodaySlackingSeconds() 获取当前实际累计秒数（含正在进行中的）
+    const settings = getSettings()
+    const now = new Date()
+    const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
+    const committedTodaySecs = stats.moyuDaysMap[todayKey] || 0
+    const actualTodaySecs = getTodaySlackingSeconds()
+    const uncommittedSecs = Math.max(0, actualTodaySecs - committedTodaySecs)
+    const uncommittedMoney = uncommittedSecs > 0 ? calcTodayEarnings(settings, uncommittedSecs) : 0
+    const displayTotalMoney = stats.totalMoney + uncommittedMoney
+
+    // 等级与进度
+    const level = getMoyuLevel(displayTotalMoney)
+    const nextLevel = getNextMoyuLevel(displayTotalMoney)
+
     let levelProgress = 100
     let nextLevelName = ''
     let nextLevelThreshold = ''
     let isMaxLevel = false
 
     if (nextLevel) {
-      // 找当前等级的起点
-      const currentThreshold = level.threshold
-      const nextThreshold = nextLevel.threshold
-      const span = nextThreshold - currentThreshold
-      const earned = stats.totalMoney - currentThreshold
+      const span = nextLevel.threshold - level.threshold
+      const earned = displayTotalMoney - level.threshold
       levelProgress = Math.min(100, Math.round((earned / span) * 100))
       nextLevelName = nextLevel.name
-      nextLevelThreshold = formatMoney(nextThreshold)
+      nextLevelThreshold = formatMoney(nextLevel.threshold)
     } else {
       isMaxLevel = true
       levelProgress = 100
     }
 
-    // 总天数（有摸鱼记录的天数）
+    // 等级路线图
+    const levelRoadmap = this._buildLevelRoadmap(displayTotalMoney)
+
+    // 总天数
     const totalDays = Object.keys(stats.moyuDaysMap).length
 
-    // 构建热力图数据（16周 × 7天）
-    const { rows, labels, maxSeconds } = buildHeatmapData(stats.moyuDaysMap)
+    // 热力图
+    const { rows, maxSeconds } = buildHeatmapData(stats.moyuDaysMap)
 
     this.setData({
-      totalMoney: formatMoney(stats.totalMoney),
-      totalSeconds: stats.totalSeconds,
-      totalTimeStr: formatDuration(stats.totalSeconds),
+      totalMoney: formatMoney(displayTotalMoney),
+      totalSeconds: stats.totalSeconds + uncommittedSecs,
+      totalTimeStr: formatDuration(stats.totalSeconds + uncommittedSecs),
       totalDays,
       levelName: level.name,
       levelEmoji: level.emoji,
@@ -96,13 +143,41 @@ Page({
       nextLevelName,
       nextLevelThreshold,
       isMaxLevel,
+      levelRoadmap,
       heatmapRows: rows,
-      heatmapLabels: labels,
       heatmapMaxSeconds: maxSeconds || 1,
     })
 
-    // 数据加载后重绘热力图
     setTimeout(() => this._drawHeatmap(), 100)
+  },
+
+  // V2.1 等级路线图构建
+  _buildLevelRoadmap(totalMoney: number): LevelRoadmapItem[] {
+    const currentLevel = getMoyuLevel(totalMoney)
+    return MOYU_LEVELS.map((level, idx) => {
+      const isUnlocked = totalMoney >= level.threshold
+      const isCurrent = level.threshold === currentLevel.threshold
+      const nextLevel = MOYU_LEVELS[idx + 1]
+      let progressStr = ''
+      if (isCurrent && nextLevel && !isUnlocked && nextLevel) {
+        const remaining = nextLevel.threshold - totalMoney
+        progressStr = `还差 ${formatMoney(remaining)}`
+      } else if (isCurrent && nextLevel) {
+        const remaining = nextLevel.threshold - totalMoney
+        progressStr = remaining > 0 ? `还差 ${formatMoney(remaining)}` : ''
+      }
+      return {
+        name: level.name,
+        emoji: level.emoji,
+        threshold: level.threshold,
+        thresholdStr: formatMoney(level.threshold),
+        isUnlocked,
+        isCurrent,
+        isGold: level.isGold,
+        color: level.color,
+        progressStr,
+      }
+    })
   },
 
   _drawHeatmap() {
@@ -133,8 +208,7 @@ Page({
   },
 
   onGenerateShareCard() {
-    wx.showToast({ title: '生成分享图中...', icon: 'loading', duration: 1500 })
-    // 使用 canvas 生成分享海报
+    wx.showToast({ title: '生成战报中...', icon: 'loading', duration: 1500 })
     this._generatePoster()
   },
 
@@ -151,10 +225,9 @@ Page({
         const ctx = canvas.getContext('2d')
         const dpr = wx.getSystemInfoSync().pixelRatio || 2
         canvas.width = 750 * dpr
-        canvas.height = 1000 * dpr
+        canvas.height = 1080 * dpr
         ctx.scale(dpr, dpr)
 
-        // 绘制海报
         drawPoster(ctx, {
           quote: this.data.quote,
           levelName: this.data.levelName,
@@ -163,7 +236,6 @@ Page({
           totalTimeStr: this.data.totalTimeStr,
         })
 
-        // 导出图片
         wx.canvasToTempFilePath({
           canvas,
           success: (result) => {
@@ -179,49 +251,28 @@ Page({
   },
 })
 
-// -------- 热力图数据构建 --------
-
-interface HeatmapCell {
-  dateStr: string
-  seconds: number
-  level: number  // 0=空，1~4色阶
-}
+// ─────────── 热力图数据构建 ──────────────────────────────────
 
 function buildHeatmapData(moyuDaysMap: Record<string, number>): {
   rows: HeatmapCell[][]
-  labels: string[]
   maxSeconds: number
 } {
   const WEEKS = 16
-  const DAYS = WEEKS * 7
-
-  // 从今天往前推 DAYS 天
   const cells: HeatmapCell[] = []
   const today = new Date()
-  // 对齐到本周日（从周日开始每列）
   const todayDow = today.getDay()
   const alignedToday = new Date(today)
-  alignedToday.setDate(today.getDate() - todayDow)  // 本周日
+  alignedToday.setDate(today.getDate() - todayDow)
 
-  // 往前推 WEEKS 周
   const startDate = new Date(alignedToday)
   startDate.setDate(alignedToday.getDate() - (WEEKS - 1) * 7)
 
   let maxSeconds = 0
-  const weekLabels: string[] = []  // 每列对应的周起始月份
 
   for (let w = 0; w < WEEKS; w++) {
-    const weekStart = new Date(startDate)
-    weekStart.setDate(startDate.getDate() + w * 7)
-    const m = weekStart.getMonth() + 1
-    // 若是该月的第一周显示月份标签
-    const prevWeekStart = new Date(weekStart)
-    prevWeekStart.setDate(weekStart.getDate() - 7)
-    weekLabels.push(weekStart.getMonth() !== prevWeekStart.getMonth() ? `${m}月` : '')
-
     for (let d = 0; d < 7; d++) {
-      const date = new Date(weekStart)
-      date.setDate(weekStart.getDate() + d)
+      const date = new Date(startDate)
+      date.setDate(startDate.getDate() + w * 7 + d)
       const y = date.getFullYear()
       const mo = String(date.getMonth() + 1).padStart(2, '0')
       const da = String(date.getDate()).padStart(2, '0')
@@ -232,7 +283,6 @@ function buildHeatmapData(moyuDaysMap: Record<string, number>): {
     }
   }
 
-  // 计算色阶
   for (const cell of cells) {
     if (cell.seconds === 0) {
       cell.level = 0
@@ -242,8 +292,6 @@ function buildHeatmapData(moyuDaysMap: Record<string, number>): {
     }
   }
 
-  // 转为 7 行（每行代表一个周几，7列代表7周中每周的对应天）
-  // 实际 wxml 用 16列×7行，这里输出为 rows[天][周]
   const rows: HeatmapCell[][] = []
   for (let d = 0; d < 7; d++) {
     const row: HeatmapCell[] = []
@@ -253,10 +301,10 @@ function buildHeatmapData(moyuDaysMap: Record<string, number>): {
     rows.push(row)
   }
 
-  return { rows, labels: weekLabels, maxSeconds }
+  return { rows, maxSeconds }
 }
 
-// -------- Canvas 绘制热力图 --------
+// ─────────── Canvas 热力图绘制 ───────────────────────────────
 
 function drawHeatmapOnCanvas(
   ctx: any,
@@ -278,8 +326,7 @@ function drawHeatmapOnCanvas(
       const x = w * (cellSize + gap)
       const y = d * (cellSize + gap)
       ctx.fillStyle = colors[cell.level]
-      const r = 3
-      roundRect(ctx, x, y, cellSize, cellSize, r)
+      roundRect(ctx, x, y, cellSize, cellSize, 3)
       ctx.fill()
     }
   }
@@ -299,7 +346,16 @@ function roundRect(ctx: any, x: number, y: number, w: number, h: number, r: numb
   ctx.closePath()
 }
 
-// -------- 分享海报绘制 --------
+// ─────────── 分享海报绘制 ────────────────────────────────────
+
+// V2.2: 等级反讽文案
+const LEVEL_SARCASM: Record<string, string> = {
+  '职场牛马': '刚踏上摸鱼之路，革命尚未成功，同志继续偷懒。',
+  '摸鱼学徒': '已初窥摸鱼门道，但距大师境界，还差三年摸瓜。',
+  '带薪锦鲤': '我这辈子唯一的坚持，就是每天带薪拉屎。',
+  '划水宗师': '上班是我的副业，摸鱼才是我的正业。',
+  '摸鱼大圣': '老板的钱，最终都要回到打工人的口袋。',
+}
 
 interface PosterData {
   quote: string
@@ -310,75 +366,65 @@ interface PosterData {
 }
 
 function drawPoster(ctx: any, data: PosterData) {
-  const W = 750, H = 1000
-
-  // 背景
+  const W = 750, H = 1080
   ctx.fillStyle = '#F0F4F0'
   ctx.fillRect(0, 0, W, H)
-
-  // 顶部绿色区域
   ctx.fillStyle = '#2E7D32'
-  ctx.fillRect(0, 0, W, 320)
+  ctx.fillRect(0, 0, W, 340)
 
-  // APP名称
   ctx.fillStyle = '#FFFFFF'
   ctx.font = 'bold 56px sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('吗喽薪事 🐒', W / 2, 100)
-
-  // slogan
   ctx.font = '28px sans-serif'
   ctx.fillStyle = '#A5D6A7'
   ctx.fillText('只要我不努力，老板就永远过不上想要的生活', W / 2, 160)
-
-  // 等级徽章
   ctx.font = 'bold 80px sans-serif'
+  ctx.fillStyle = '#FFFFFF'
   ctx.fillText(data.levelEmoji, W / 2, 260)
-
-  // 等级名
   ctx.font = 'bold 40px sans-serif'
   ctx.fillStyle = '#FFD700'
   ctx.fillText(data.levelName, W / 2, 310)
 
-  // 白色卡片区
-  ctx.fillStyle = '#FFFFFF'
-  roundRect(ctx, 40, 360, W - 80, 200, 20)
-  ctx.fill()
+  // V2.2: 等级反讽文案（小字）
+  const sarcasm = LEVEL_SARCASM[data.levelName] || ''
+  if (sarcasm) {
+    ctx.font = '22px sans-serif'
+    ctx.fillStyle = 'rgba(165,214,167,0.9)'
+    ctx.fillText(sarcasm, W / 2, 340)
+  }
 
+  ctx.fillStyle = '#FFFFFF'
+  roundRect(ctx, 40, 380, W - 80, 200, 20)
+  ctx.fill()
   ctx.fillStyle = '#1B5E20'
   ctx.font = 'bold 28px sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText('累计摸鱼收益', W / 2, 410)
+  ctx.fillText('累计摸鱼收益', W / 2, 430)
   ctx.font = 'bold 72px sans-serif'
-  ctx.fillText(data.totalMoney, W / 2, 500)
+  ctx.fillText(data.totalMoney, W / 2, 520)
   ctx.font = '26px sans-serif'
   ctx.fillStyle = '#757575'
-  ctx.fillText(`累计摸鱼时长 ${data.totalTimeStr}`, W / 2, 540)
+  ctx.fillText(`累计摸鱼时长 ${data.totalTimeStr}`, W / 2, 560)
 
-  // 语录区
   ctx.fillStyle = '#FFFFFF'
-  roundRect(ctx, 40, 600, W - 80, 160, 20)
+  roundRect(ctx, 40, 620, W - 80, 160, 20)
   ctx.fill()
-
   ctx.fillStyle = '#333'
   ctx.font = '28px sans-serif'
   ctx.textAlign = 'center'
   const lines = wrapText(ctx, `"${data.quote}"`, W - 120)
-  lines.forEach((line, i) => {
-    ctx.fillText(line, W / 2, 660 + i * 44)
-  })
+  lines.forEach((line, i) => ctx.fillText(line, W / 2, 660 + i * 44))
 
-  // 底部
   ctx.fillStyle = '#9E9E9E'
   ctx.font = '24px sans-serif'
-  ctx.fillText('扫码加入摸鱼大军 · 吗喽薪事', W / 2, 950)
+  ctx.fillText('扫码加入摸鱼大军 · 吗喽薪事', W / 2, 1030)
 }
 
 function wrapText(ctx: any, text: string, maxWidth: number): string[] {
-  const words = text.split('')
   const lines: string[] = []
   let line = ''
-  for (const char of words) {
+  for (const char of text.split('')) {
     const testLine = line + char
     if (ctx.measureText(testLine).width > maxWidth && line.length > 0) {
       lines.push(line)

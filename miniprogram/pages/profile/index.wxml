@@ -78,7 +78,7 @@
           <text class="cell-icon">📖</text>
           <view>
             <text class="cell-title">关于吗喽薪事</text>
-            <text class="cell-sub">打工人情绪价值中心 v2.0.0</text>
+            <text class="cell-sub">打工人情绪价值中心 v1.0.0</text>
           </view>
         </view>
       </view>
@@ -88,7 +88,7 @@
   <!-- 页脚 -->
   <view class="footer">
     <text class="footer-slogan">只要我不努力，老板就永远过不上想要的生活</text>
-    <text class="footer-version">吗喽薪事 v2.0.0 · 愿每一条鱼都被摸到</text>
+    <text class="footer-version">吗喽薪事 v1.0.0 · 愿每一条鱼都被摸到</text>
   </view>
 
   <view class="safe-bottom"></view>

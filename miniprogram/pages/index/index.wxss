@@ -1,6 +1,5 @@
-/* pages/index/index.wxss — V2 */
+/* pages/index/index.wxss — V2.1 */
 
-/* ===== 页面整体 ===== */
 .page {
   min-height: 100vh;
   background: #F0F4F0;
@@ -11,7 +10,6 @@
 /* ===== 自定义导航栏 ===== */
 .nav-bar {
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: center;
   padding: 12rpx 32rpx 16rpx;
@@ -23,11 +21,8 @@
   color: #2E7D32;
   letter-spacing: 2rpx;
 }
-.nav-placeholder {
-  width: 80rpx;
-}
 
-/* ===== V2: 节假日提示横幅 ===== */
+/* ===== 节假日横幅 ===== */
 .holiday-banner {
   background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
   padding: 14rpx 32rpx;
@@ -61,7 +56,6 @@
   align-items: center;
   padding: 32rpx 0 16rpx;
 }
-
 .ring-outer {
   position: relative;
   width: 300rpx;
@@ -69,15 +63,13 @@
   border-radius: 50%;
 }
 .ring-track {
-  position: absolute;
-  top: 0; left: 0;
+  position: absolute; top: 0; left: 0;
   width: 300rpx; height: 300rpx;
   border-radius: 50%;
   background: #C8E6C9;
 }
 .ring-progress {
-  position: absolute;
-  top: 0; left: 0;
+  position: absolute; top: 0; left: 0;
   width: 300rpx; height: 300rpx;
   border-radius: 50%;
 }
@@ -93,26 +85,21 @@
   justify-content: center;
   box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.08);
 }
-
 .status-badge {
   border-radius: 40rpx;
   padding: 6rpx 18rpx;
   margin-bottom: 12rpx;
 }
-.badge-idle { background: #E8F5E9; }
+.badge-idle  { background: #E8F5E9; }
 .badge-active {
   background: #FFEBEE;
   animation: badge-breathe 1.5s ease-in-out infinite;
 }
 @keyframes badge-breathe {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  50%       { opacity: 0.6; }
 }
-.badge-text {
-  font-size: 22rpx;
-  font-weight: 600;
-  color: #333;
-}
+.badge-text { font-size: 22rpx; font-weight: 600; color: #333; }
 .timer-text {
   font-size: 42rpx;
   font-weight: 700;
@@ -120,16 +107,8 @@
   letter-spacing: 2rpx;
   font-variant-numeric: tabular-nums;
 }
-.timer-hint {
-  font-size: 20rpx;
-  color: #9E9E9E;
-  margin-top: 8rpx;
-}
-.progress-label {
-  margin-top: 16rpx;
-  font-size: 24rpx;
-  color: #757575;
-}
+.timer-hint { font-size: 20rpx; color: #9E9E9E; margin-top: 8rpx; }
+.progress-label { margin-top: 16rpx; font-size: 24rpx; color: #757575; }
 
 /* ===== 提示横幅 ===== */
 .tip-banner {
@@ -138,12 +117,7 @@
   border-radius: 16rpx;
   padding: 16rpx 24rpx;
 }
-.tip-text {
-  font-size: 24rpx;
-  color: #F57F17;
-  display: block;
-  text-align: center;
-}
+.tip-text { font-size: 24rpx; color: #F57F17; display: block; text-align: center; }
 
 /* ===== 卡片网格 ===== */
 .cards-container {
@@ -157,6 +131,8 @@
   flex-direction: row;
   gap: 20rpx;
 }
+
+/* ─── 通用卡片 ─── */
 .card {
   background: #fff;
   border-radius: 20rpx;
@@ -170,15 +146,32 @@
   display: flex;
   flex-direction: column;
 }
+.card-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-label  { font-size: 24rpx; color: #757575; display: block; margin-bottom: 8rpx; }
+.card-value  { font-size: 44rpx; font-weight: 700; color: #1B5E20; display: block; line-height: 1.1; }
+.card-sub    { font-size: 22rpx; color: #9E9E9E; display: block; margin-top: 8rpx; }
+.card-emoji-big { font-size: 80rpx; }
+
+/* ─── 今日摸鱼收入 ─── */
 .card-highlight {
   background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
   border: 1.5rpx solid #A5D6A7;
 }
 
-/* ===== V2: 等级卡片 ===== */
-.card-level {
-  border: 2rpx solid #9E9E9E;
+/* ─── V2.1 今日入账工资 ─── */
+.card-worked {
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  border: 1.5rpx solid #90CAF9;
 }
+.value-worked { color: #1565C0; }
+
+/* ─── 等级卡 ─── */
+.card-level { border: 2rpx solid #9E9E9E; }
 .card-gold {
   background: linear-gradient(135deg, #FFFDE7, #FFF9C4);
   border-color: #FFD700 !important;
@@ -191,56 +184,28 @@
   gap: 12rpx;
   margin: 8rpx 0;
 }
-.level-emoji {
-  font-size: 52rpx;
-}
-.level-name {
-  font-size: 36rpx;
-  font-weight: 700;
-}
+.level-emoji { font-size: 52rpx; }
+.level-name  { font-size: 36rpx; font-weight: 700; }
 
-.card-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-.card-label {
-  font-size: 24rpx;
-  color: #757575;
-  display: block;
-  margin-bottom: 8rpx;
-}
-.card-value {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #1B5E20;
-  display: block;
-  line-height: 1.1;
-}
-.card-value-sm {
-  font-size: 36rpx;
-}
-.card-sub {
-  font-size: 22rpx;
-  color: #9E9E9E;
-  display: block;
-  margin-top: 8rpx;
-}
-.card-emoji-big { font-size: 80rpx; }
-.card-right { margin-left: 16rpx; }
-
-/* 数值跳动动画 */
+/* ─── 数值动画 ─── */
 .value-pulse {
-  animation: pulse 0.3s ease-in-out infinite;
+  animation: pulse-green 0.3s ease-in-out infinite;
   color: #4CAF50;
 }
-@keyframes pulse {
+@keyframes pulse-green {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
+  50%       { transform: scale(1.04); }
+}
+.value-pulse-blue {
+  animation: pulse-blue 0.3s ease-in-out infinite;
+  color: #1565C0;
+}
+@keyframes pulse-blue {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.04); }
 }
 
-/* ===== 特色功能卡片 ===== */
+/* ─── 特色功能卡片 ─── */
 .card-feature {
   align-items: flex-start;
   cursor: pointer;
@@ -248,33 +213,96 @@
   background: linear-gradient(135deg, #fff, #F1F8E9);
 }
 .card-feature:active { transform: scale(0.97); }
-.feature-icon {
-  font-size: 64rpx;
-  display: block;
-  margin-bottom: 8rpx;
+.feature-icon  { font-size: 64rpx; display: block; margin-bottom: 8rpx; }
+.feature-name  { font-size: 28rpx; font-weight: 700; color: #333; display: block; margin-bottom: 4rpx; }
+.feature-sub   { font-size: 22rpx; color: #4CAF50; display: block; }
+.card-food { background: linear-gradient(135deg, #fff, #FFF8E1); }
+
+/* ===== V2.1 计算说明 ===== */
+.calc-explain-wrap {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.07);
+  overflow: hidden;
 }
-.feature-name {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #333;
-  display: block;
-  margin-bottom: 4rpx;
+.calc-explain-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 28rpx;
 }
-.feature-sub {
-  font-size: 22rpx;
-  color: #4CAF50;
-  display: block;
-}
-.card-food {
-  background: linear-gradient(135deg, #fff, #FFF8E1);
-}
-.food-subtitle {
-  font-size: 30rpx;
+.calc-explain-header:active { background: #F9F9F9; }
+.calc-explain-title {
+  font-size: 26rpx;
   font-weight: 600;
-  color: #333;
+  color: #555;
+}
+.calc-explain-arrow {
+  font-size: 32rpx;
+  color: #9E9E9E;
+  transition: transform 0.2s;
   display: block;
-  margin-top: 4rpx;
+}
+.arrow-up { transform: rotate(180deg); }
+
+.calc-explain-body {
+  padding: 0 28rpx 24rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+.calc-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx dashed #F0F0F0;
+}
+.calc-key {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #2E7D32;
+  min-width: 180rpx;
+  flex-shrink: 0;
+}
+.calc-eq {
+  font-size: 24rpx;
+  color: #555;
+  flex: 1;
+  line-height: 1.5;
+}
+.calc-divider { height: 16rpx; }
+.calc-current {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #1B5E20;
+  display: block;
+  margin-top: 8rpx;
+}
+.calc-tip {
+  font-size: 22rpx;
+  color: #9E9E9E;
+  display: block;
+  margin-top: 8rpx;
 }
 
 /* ===== 底部安全区 ===== */
 .safe-bottom { height: 120rpx; }
+
+/* ===== V2.2 圆环呼吸发光 ===== */
+.ring-glow {
+  animation: ring-breathe 2s ease-in-out infinite;
+}
+@keyframes ring-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.3); }
+  50%       { box-shadow: 0 0 40rpx 20rpx rgba(76,175,80,0.18); }
+}
+
+/* ===== V2.2 金币雨 Canvas（固定全屏，不拦截事件）===== */
+.coin-rain-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}

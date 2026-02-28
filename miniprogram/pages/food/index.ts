@@ -81,4 +81,16 @@ Page({
   onReroll() {
     this.setData({ result: null, displayName: '???', displayEmoji: '🎰', displayTag: '点击开始抽奖' })
   },
+
+  // V2.2: 分享
+  onShareAppMessage() {
+    const { result } = this.data
+    if (result) {
+      return {
+        title: `别卷了！吗喽助手建议大家今天吃 ${result.emoji}${result.name}`,
+        path: '/pages/food/index',
+      }
+    }
+    return { title: '今天吃什么？让吗喽助手帮你决定！', path: '/pages/food/index' }
+  },
 })

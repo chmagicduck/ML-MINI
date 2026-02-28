@@ -1,11 +1,10 @@
-<!--pages/meeting/index.wxml — 会议烧钱机 V2-->
+<!--pages/meeting/index.wxml — 会议烧钱机 V2.2-->
 <view class="page">
-  <!-- 顶部提示 -->
   <view class="tip-banner" wx:if="{{!hasSettings}}">
     <text class="tip-text">⚠️ 未设置薪资，以0计算。请前往「我的」配置</text>
   </view>
 
-  <!-- 主显示区：已烧金额 -->
+  <!-- 主显示区 -->
   <view class="burn-display {{isRunning ? 'burn-display-active' : ''}}">
     <text class="burn-label">本场会议已消耗公司</text>
     <text class="burn-amount {{isRunning ? 'amount-pulse' : ''}}">{{totalCost}}</text>
@@ -16,25 +15,36 @@
   <view class="section-card">
     <text class="section-title">👥 参会人数</text>
     <view class="participants-row">
-      <view class="adj-btn" bindtap="onDecParticipants">
-        <text class="adj-icon">−</text>
-      </view>
+      <view class="adj-btn" bindtap="onDecParticipants"><text class="adj-icon">−</text></view>
       <text class="participants-num">{{participants}} 人</text>
-      <view class="adj-btn" bindtap="onIncParticipants">
-        <text class="adj-icon">+</text>
-      </view>
+      <view class="adj-btn" bindtap="onIncParticipants"><text class="adj-icon">+</text></view>
     </view>
-    <slider
-      min="1"
-      max="50"
-      value="{{participants}}"
-      show-value
-      activeColor="#43A047"
-      block-color="#43A047"
-      bindchange="onParticipantsChange"
-      class="participants-slider"
-    />
-    <text class="slider-hint">（按当前月薪人均计算，1~50人）</text>
+    <slider min="1" max="50" value="{{participants}}" show-value
+      activeColor="#43A047" block-color="#43A047"
+      bindchange="onParticipantsChange" class="participants-slider" />
+    <text class="slider-hint">（1~50人）</text>
+  </view>
+
+  <!-- V2.2 自定义人均月薪 -->
+  <view class="section-card">
+    <view class="custom-salary-header" bindtap="onToggleCustomSalary">
+      <text class="section-title" style="margin-bottom:0">💵 自定义人均月薪</text>
+      <switch checked="{{useCustomSalary}}" color="#43A047" bindchange="onToggleCustomSalary" />
+    </view>
+    <view class="custom-salary-body" wx:if="{{useCustomSalary}}">
+      <text class="custom-salary-label">人均月薪（元）</text>
+      <view class="custom-salary-input-wrap">
+        <text class="salary-prefix">¥</text>
+        <input
+          class="custom-salary-input"
+          type="digit"
+          placeholder="如 20000"
+          value="{{customSalaryStr}}"
+          bindinput="onCustomSalaryInput"
+        />
+      </view>
+      <text class="custom-salary-hint">* 不填则使用「我的」中的月薪</text>
+    </view>
   </view>
 
   <!-- 控制按钮 -->
@@ -45,6 +55,9 @@
     <view class="btn-reset" bindtap="onReset">
       <text class="btn-reset-text">🔄 重置</text>
     </view>
+    <button class="btn-share-meeting" open-type="share">
+      <text class="btn-share-meeting-text">📤 分享给同事</text>
+    </button>
   </view>
 
   <!-- 趣味提示 -->

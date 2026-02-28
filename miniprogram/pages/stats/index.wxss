@@ -1,4 +1,4 @@
-/* pages/stats/index.wxss — 战报统计页 V2 */
+/* pages/stats/index.wxss — V2.1 */
 
 .page {
   min-height: 100vh;
@@ -15,18 +15,8 @@
   flex-direction: column;
   align-items: center;
 }
-.header-title {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #FFFFFF;
-  display: block;
-}
-.header-sub {
-  font-size: 26rpx;
-  color: #A5D6A7;
-  display: block;
-  margin-top: 8rpx;
-}
+.header-title { font-size: 44rpx; font-weight: 700; color: #FFFFFF; display: block; }
+.header-sub   { font-size: 26rpx; color: #A5D6A7; display: block; margin-top: 8rpx; }
 
 /* ===== 等级卡片 ===== */
 .level-card {
@@ -48,84 +38,33 @@
   gap: 24rpx;
   margin-bottom: 20rpx;
 }
-.level-big-emoji {
-  font-size: 80rpx;
-}
-.level-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-.level-title {
-  font-size: 44rpx;
-  font-weight: 700;
-  display: block;
-}
-.level-desc {
-  font-size: 24rpx;
-  color: #757575;
-  display: block;
-}
-.gold-text {
-  color: #F57F17 !important;
-  font-weight: 600;
-}
+.level-big-emoji { font-size: 80rpx; }
+.level-info { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
+.level-title { font-size: 44rpx; font-weight: 700; display: block; }
+.level-desc  { font-size: 24rpx; color: #757575; display: block; }
+.gold-text   { color: #F57F17 !important; font-weight: 600; }
+
 .progress-bar-bg {
-  height: 16rpx;
-  background: #EEEEEE;
-  border-radius: 8rpx;
-  overflow: hidden;
-  margin-top: 8rpx;
+  height: 16rpx; background: #EEEEEE; border-radius: 8rpx; overflow: hidden; margin-top: 8rpx;
 }
-.progress-bar-fill {
-  height: 100%;
-  border-radius: 8rpx;
-  transition: width 0.5s ease;
-}
-.progress-pct {
-  font-size: 22rpx;
-  color: #9E9E9E;
-  display: block;
-  text-align: right;
-  margin-top: 4rpx;
-}
+.progress-bar-fill { height: 100%; border-radius: 8rpx; transition: width 0.5s ease; }
+.progress-pct { font-size: 22rpx; color: #9E9E9E; display: block; text-align: right; margin-top: 4rpx; }
 
 /* ===== 累计统计三格 ===== */
 .stats-row {
-  display: flex;
-  flex-direction: row;
+  display: flex; flex-direction: row;
   margin: 24rpx 32rpx;
   background: #FFFFFF;
   border-radius: 20rpx;
   padding: 28rpx 0;
   box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.07);
 }
-.stat-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-}
-.stat-value {
-  font-size: 34rpx;
-  font-weight: 700;
-  color: #1B5E20;
-  display: block;
-}
-.stat-label {
-  font-size: 22rpx;
-  color: #9E9E9E;
-  display: block;
-}
-.stat-divider {
-  width: 1rpx;
-  background: #EEEEEE;
-  margin: 4rpx 0;
-}
+.stat-item  { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx; }
+.stat-value { font-size: 32rpx; font-weight: 700; color: #1B5E20; display: block; }
+.stat-label { font-size: 22rpx; color: #9E9E9E; display: block; }
+.stat-divider { width: 1rpx; background: #EEEEEE; margin: 4rpx 0; }
 
-/* ===== 热力图 ===== */
+/* ===== 通用 section 卡片 ===== */
 .section-card {
   margin: 0 32rpx 24rpx;
   background: #FFFFFF;
@@ -133,47 +72,80 @@
   padding: 28rpx;
   box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.07);
 }
-.section-title {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #333;
-  display: block;
-  margin-bottom: 20rpx;
-}
-.heatmap-wrap {
+.section-title { font-size: 28rpx; font-weight: 700; color: #333; display: block; margin-bottom: 20rpx; }
+
+/* ===== V2.1 等级路线图 ===== */
+.roadmap-scroll {
   width: 100%;
+  white-space: nowrap;
 }
-.heatmap-canvas {
-  width: 100%;
-  height: 140rpx;
-  display: block;
-}
-.legend-row {
+.roadmap-track {
   display: flex;
   flex-direction: row;
+  gap: 16rpx;
+  padding-bottom: 8rpx;
+}
+.roadmap-item {
+  flex-shrink: 0;
+  width: 200rpx;
+  background: #F5F5F5;
+  border-radius: 16rpx;
+  padding: 20rpx 16rpx;
+  border: 2rpx solid #E0E0E0;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8rpx;
-  margin-top: 16rpx;
-  justify-content: flex-end;
 }
-.legend-cell {
-  width: 24rpx;
-  height: 24rpx;
-  border-radius: 4rpx;
+.item-unlocked {
+  background: #F1F8E9;
+  border-color: #A5D6A7;
 }
-.legend-text {
+.item-current {
+  background: #FFFFFF;
+  border-width: 3rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.12);
+}
+.item-gold.item-unlocked {
+  background: linear-gradient(135deg, #FFFDE7, #FFF9C4);
+  border-color: #FFD700;
+}
+.item-locked {
+  opacity: 0.55;
+}
+.roadmap-emoji      { font-size: 56rpx; }
+.roadmap-name       { font-size: 24rpx; font-weight: 700; color: #555; text-align: center; }
+.roadmap-threshold  { font-size: 22rpx; color: #9E9E9E; text-align: center; }
+.roadmap-status-row { margin-top: 4rpx; }
+.roadmap-tag {
   font-size: 20rpx;
-  color: #9E9E9E;
+  border-radius: 20rpx;
+  padding: 4rpx 12rpx;
 }
-.heatmap-tip {
-  font-size: 24rpx;
-  color: #9E9E9E;
-  display: block;
+.roadmap-tag-unlocked { background: #E8F5E9; color: #2E7D32; }
+.roadmap-tag-current  { color: #FFFFFF; }
+.roadmap-tag-locked   { background: #F5F5F5; color: #9E9E9E; }
+.roadmap-progress {
+  font-size: 20rpx;
+  color: #F57F17;
   text-align: center;
-  padding: 20rpx 0;
+  display: block;
+  white-space: normal;
+  word-break: break-all;
 }
 
-/* ===== 语录卡片 ===== */
+/* ===== 热力图 ===== */
+.heatmap-wrap { width: 100%; }
+.heatmap-canvas { width: 100%; height: 140rpx; display: block; }
+.legend-row {
+  display: flex; flex-direction: row; align-items: center;
+  gap: 8rpx; margin-top: 16rpx; justify-content: flex-end;
+}
+.legend-cell { width: 24rpx; height: 24rpx; border-radius: 4rpx; }
+.legend-text { font-size: 20rpx; color: #9E9E9E; }
+.heatmap-tip { font-size: 24rpx; color: #9E9E9E; display: block; text-align: center; padding: 20rpx 0; }
+
+/* ===== 语录 ===== */
 .quote-card {
   margin: 0 32rpx 24rpx;
   background: linear-gradient(135deg, #E8F5E9, #F1F8E9);
@@ -184,22 +156,11 @@
   gap: 16rpx;
   align-items: flex-start;
 }
-.quote-icon {
-  font-size: 40rpx;
-  flex-shrink: 0;
-}
-.quote-text {
-  font-size: 26rpx;
-  color: #2E7D32;
-  line-height: 1.6;
-  font-style: italic;
-  flex: 1;
-}
+.quote-icon { font-size: 40rpx; flex-shrink: 0; }
+.quote-text { font-size: 26rpx; color: #2E7D32; line-height: 1.6; font-style: italic; flex: 1; }
 
 /* ===== 分享按钮 ===== */
-.share-btn-wrap {
-  padding: 0 32rpx 24rpx;
-}
+.share-btn-wrap { padding: 0 32rpx 24rpx; }
 .share-btn {
   background: linear-gradient(135deg, #66BB6A, #43A047);
   border-radius: 48rpx;
@@ -208,19 +169,12 @@
   box-shadow: 0 8rpx 24rpx rgba(76,175,80,0.4);
 }
 .share-btn:active { opacity: 0.85; }
-.share-btn-text {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #FFFFFF;
-}
+.share-btn-text { font-size: 32rpx; font-weight: 700; color: #FFFFFF; }
 
 /* ===== 隐藏海报 Canvas ===== */
 .poster-canvas {
-  position: fixed;
-  left: -9999rpx;
-  top: -9999rpx;
-  width: 750rpx;
-  height: 1000rpx;
+  position: fixed; left: -9999rpx; top: -9999rpx;
+  width: 750rpx; height: 1080rpx;
 }
 
 /* ===== 底部安全区 ===== */

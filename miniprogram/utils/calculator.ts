@@ -1,4 +1,4 @@
-// 薪资与时间计算引擎
+// 薪资与时间计算引擎 V2.1
 import { UserSettings, WorkdayMode, MoyuLevel, MOYU_LEVELS } from './types'
 
 /** 解析 "HH:MM" 为当天分钟数（H-2: 加防御性校验） */
@@ -19,13 +19,14 @@ export function getDailyWorkMinutes(settings: UserSettings): number {
   if (settings.lunchBreakEnabled) {
     total -= parseTimeToMinutes(settings.lunchBreakEnd) - parseTimeToMinutes(settings.lunchBreakStart)
   }
+  // eveningBreak 保留向后兼容（UI 已移除，旧数据仍生效）
   if (settings.eveningBreakEnabled) {
     total -= parseTimeToMinutes(settings.eveningBreakEnd) - parseTimeToMinutes(settings.eveningBreakStart)
   }
   return Math.max(total, 1)
 }
 
-/** 获取 ISO 周数（年内第几周），用于大小周判定（H-3: 修复月内周 → ISO 周） */
+/** 获取 ISO 周数（年内第几周），用于大小周判定 */
 function getISOWeekNumber(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
   const dayNum = d.getUTCDay() || 7
@@ -34,15 +35,14 @@ function getISOWeekNumber(date: Date): number {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
 }
 
-/** 判断给定月份中某一天是否为工作日 */
+/** 判断给定日期是否为工作日 */
 function isWorkingDay(year: number, month: number, day: number, mode: WorkdayMode): boolean {
   const date = new Date(year, month, day)
-  const dow = date.getDay() // 0=Sun,6=Sat
+  const dow = date.getDay()
   if (mode === 'double') return dow !== 0 && dow !== 6
-  if (mode === 'sat-off') return dow !== 6  // 仅周六休
-  if (mode === 'sun-off') return dow !== 0  // 仅周日休
+  if (mode === 'sat-off') return dow !== 6
+  if (mode === 'sun-off') return dow !== 0
   if (mode === 'big-small') {
-    // H-3: 使用 ISO 周数保证跨月连续性，奇数周双休，偶数周仅周日休
     const isoWeek = getISOWeekNumber(date)
     return isoWeek % 2 === 1 ? (dow !== 0 && dow !== 6) : dow !== 0
   }
@@ -81,12 +81,64 @@ export function getSecondSalary(settings: UserSettings): number {
   return dailySalary / dailySeconds
 }
 
+/**
+ * V2.1: 今日实际已上班秒数（秒精度，钳位到 [0, dailyWorkSeconds]）
+ * 从上班时间到当前时刻，扣除已过的午休/晚休时间，下班后锁定为全天工时。
+ * 与摸鱼计时器无关，纯基于时间流逝。
+ */
+export function calcTodayWorkedSeconds(settings: UserSettings): number {
+  const now = new Date()
+  const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()
+  const startSec = parseTimeToMinutes(settings.workStartTime) * 60
+  const endSec = parseTimeToMinutes(settings.workEndTime) * 60
+
+  if (currentSec <= startSec) return 0
+
+  const effectiveSec = Math.min(currentSec, endSec)
+  let workedSecs = effectiveSec - startSec
+
+  if (settings.lunchBreakEnabled) {
+    const lunchStartSec = parseTimeToMinutes(settings.lunchBreakStart) * 60
+    const lunchEndSec = parseTimeToMinutes(settings.lunchBreakEnd) * 60
+    if (effectiveSec > lunchEndSec) {
+      workedSecs -= lunchEndSec - lunchStartSec
+    } else if (effectiveSec > lunchStartSec) {
+      workedSecs -= effectiveSec - lunchStartSec
+    }
+  }
+
+  // 向后兼容：eveningBreak 旧数据仍参与计算
+  if (settings.eveningBreakEnabled) {
+    const eveStartSec = parseTimeToMinutes(settings.eveningBreakStart) * 60
+    const eveEndSec = parseTimeToMinutes(settings.eveningBreakEnd) * 60
+    if (effectiveSec > eveEndSec) {
+      workedSecs -= eveEndSec - eveStartSec
+    } else if (effectiveSec > eveStartSec) {
+      workedSecs -= effectiveSec - eveStartSec
+    }
+  }
+
+  return Math.max(0, workedSecs)
+}
+
+/**
+ * V2.1: 今日入账工资（基于实际上班秒数，非摸鱼计时器）
+ * 含义：截至目前，打工人已"赚到"的今日工资总额
+ */
+export function calcTodayWorkedEarnings(settings: UserSettings): number {
+  return getSecondSalary(settings) * calcTodayWorkedSeconds(settings)
+}
+
 /** 今日摸鱼收益 */
 export function calcTodayEarnings(settings: UserSettings, slackingSeconds: number): number {
   return getSecondSalary(settings) * slackingSeconds
 }
 
-/** 本月已赚薪资（基于当前时刻） */
+/**
+ * V2.1: 本月已赚薪资（秒精度版，每100ms可见跳动）
+ * 原 calcMonthEarnings 使用分钟精度，每60秒才更新一次，体验差。
+ * 新版用 calcTodayWorkedSeconds 精确到秒，使数字实时流动。
+ */
 export function calcMonthEarnings(settings: UserSettings): number {
   const now = new Date()
   const year = now.getFullYear()
@@ -94,47 +146,20 @@ export function calcMonthEarnings(settings: UserSettings): number {
   const workDays = getWorkingDaysInMonth(year, month, settings.workdayMode)
   const dailySalary = settings.monthlySalary / workDays
   const elapsed = getWorkingDaysElapsed(settings)
-  const todayProgress = getTodayWorkProgress(settings)
-  return (elapsed + todayProgress) * dailySalary
+  // 秒精度：今日已上班秒数 / 全天工时秒数 × 日薪
+  const dailyWorkSecs = getDailyWorkMinutes(settings) * 60
+  const workedSecsToday = Math.min(calcTodayWorkedSeconds(settings), dailyWorkSecs)
+  const todaySalary = dailySalary * (workedSecsToday / dailyWorkSecs)
+  return elapsed * dailySalary + todaySalary
 }
 
 /**
- * 今日工时进度 0~1
- * H-1: 扣除休息时段，使进度与 getDailyWorkMinutes 分母一致
+ * 今日工时进度 0~1（保留用于进度环，H-1 修复）
  */
 export function getTodayWorkProgress(settings: UserSettings): number {
-  const now = new Date()
-  const currentMin = now.getHours() * 60 + now.getMinutes()
-  const startMin = parseTimeToMinutes(settings.workStartTime)
-  const endMin = parseTimeToMinutes(settings.workEndTime)
-
-  if (currentMin <= startMin) return 0
-  if (currentMin >= endMin) return 1
-
-  let workedMinutes = currentMin - startMin
-
-  if (settings.lunchBreakEnabled) {
-    const lunchStart = parseTimeToMinutes(settings.lunchBreakStart)
-    const lunchEnd = parseTimeToMinutes(settings.lunchBreakEnd)
-    if (currentMin > lunchEnd) {
-      workedMinutes -= lunchEnd - lunchStart
-    } else if (currentMin > lunchStart) {
-      workedMinutes -= currentMin - lunchStart
-    }
-  }
-
-  if (settings.eveningBreakEnabled) {
-    const eveStart = parseTimeToMinutes(settings.eveningBreakStart)
-    const eveEnd = parseTimeToMinutes(settings.eveningBreakEnd)
-    if (currentMin > eveEnd) {
-      workedMinutes -= eveEnd - eveStart
-    } else if (currentMin > eveStart) {
-      workedMinutes -= currentMin - eveStart
-    }
-  }
-
-  const totalWorkMinutes = getDailyWorkMinutes(settings)
-  return Math.max(0, Math.min(1, workedMinutes / totalWorkMinutes))
+  const dailyWorkSecs = getDailyWorkMinutes(settings) * 60
+  const workedSecs = calcTodayWorkedSeconds(settings)
+  return Math.max(0, Math.min(1, workedSecs / dailyWorkSecs))
 }
 
 /**
@@ -165,18 +190,18 @@ export function getDaysToWeekend(): number {
   return dow === 0 ? 0 : 7 - dow
 }
 
-/** 距离退休（天） */
+/** 距离退休（天），保留向后兼容 */
 export function getDaysToRetirement(retirementDate: string): number {
   const diff = new Date(retirementDate).getTime() - Date.now()
   return diff <= 0 ? 0 : Math.ceil(diff / 86400000)
 }
 
-/** 格式化金额 */
+/**
+ * V2.1: 格式化金额 — 统一 ¥X.XX，不做万元转换
+ * 去掉"万"单位：避免视觉格式不一致，保持小数点后两位
+ */
 export function formatMoney(amount: number): string {
   if (!isFinite(amount) || isNaN(amount)) return '¥0.00'
-  if (amount >= 10000) {
-    return `¥${(amount / 10000).toFixed(2)}万`
-  }
   return `¥${amount.toFixed(2)}`
 }
 
@@ -189,28 +214,31 @@ export function formatDuration(totalSeconds: number): string {
   return [h, m, sec].map(n => String(n).padStart(2, '0')).join(':')
 }
 
-/**
- * V2: 根据累计摸鱼总收益获取当前等级
- */
+/** V2: 根据累计摸鱼总收益获取当前等级 */
 export function getMoyuLevel(totalMoney: number): MoyuLevel {
   let level = MOYU_LEVELS[0]
   for (const l of MOYU_LEVELS) {
-    if (totalMoney >= l.threshold) {
-      level = l
-    }
+    if (totalMoney >= l.threshold) level = l
   }
   return level
 }
 
-/**
- * V2: 获取下一等级信息（用于进度显示）
- * 返回 null 表示已到顶级
- */
+/** V2: 获取下一等级，已满级返回 null */
 export function getNextMoyuLevel(totalMoney: number): MoyuLevel | null {
   for (const l of MOYU_LEVELS) {
-    if (totalMoney < l.threshold) {
-      return l
-    }
+    if (totalMoney < l.threshold) return l
   }
   return null
+}
+
+/**
+ * V2.2: 判断当前时刻是否处于工作时间内
+ * 仅检查时间区间，不检查节假日（节假日由调用方决定是否额外限制）
+ */
+export function isWorkingNow(settings: UserSettings): boolean {
+  const now = new Date()
+  const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()
+  const startSec = parseTimeToMinutes(settings.workStartTime) * 60
+  const endSec = parseTimeToMinutes(settings.workEndTime) * 60
+  return currentSec >= startSec && currentSec <= endSec
 }

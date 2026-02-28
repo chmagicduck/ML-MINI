@@ -7,14 +7,42 @@
   flex-direction: column;
 }
 
-/* ===== 月份标题 ===== */
+/* ===== 月份标题 + V2.2 翻页导航 ===== */
 .month-header {
   background: linear-gradient(135deg, #2E7D32, #43A047);
   padding: 40rpx 32rpx 32rpx;
+}
+.month-nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.month-title-wrap {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8rpx;
+}
+.nav-arrow {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.nav-arrow:active { background: rgba(255,255,255,0.35); }
+.nav-arrow-disabled { opacity: 0.3; }
+.nav-arrow-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+  line-height: 1;
 }
 .month-title {
   font-size: 44rpx;

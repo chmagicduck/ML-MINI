@@ -61,6 +61,8 @@
   width: 300rpx;
   height: 300rpx;
   border-radius: 50%;
+  overflow: hidden;
+  transform: translateZ(0);
 }
 .ring-track {
   position: absolute; top: 0; left: 0;
@@ -294,8 +296,8 @@
   animation: ring-breathe 2s ease-in-out infinite;
 }
 @keyframes ring-breathe {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.3); }
-  50%       { box-shadow: 0 0 40rpx 20rpx rgba(76,175,80,0.18); }
+  0%, 100% { box-shadow: 0 0 2rpx 1rpx rgba(76,175,80,0.05); }
+  50%       { box-shadow: 0 0 40rpx 20rpx rgba(76,175,80,0.2); }
 }
 
 /* ===== V2.2 金币雨 Canvas（固定全屏，不拦截事件）===== */

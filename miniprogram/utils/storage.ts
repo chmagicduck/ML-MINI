@@ -161,3 +161,21 @@ export function getLastExitState(): ExitState | null {
 export function clearLastExitState(): void {
   try { wx.removeStorageSync(KEYS.LAST_EXIT_STATE) } catch (_) {}
 }
+
+// ─────────── V1.0.1: 拉粑粑计时器运行状态 ────────────────────
+
+import { PoopRunningState } from './types'
+
+const POOP_RUNNING_STATE_KEY = 'poopRunningState'
+
+export function savePoopRunningState(state: PoopRunningState): void {
+  try { wx.setStorageSync(POOP_RUNNING_STATE_KEY, state) } catch (_) {}
+}
+
+export function getPoopRunningState(): PoopRunningState | null {
+  try { return wx.getStorageSync(POOP_RUNNING_STATE_KEY) || null } catch (_) { return null }
+}
+
+export function clearPoopRunningState(): void {
+  try { wx.removeStorageSync(POOP_RUNNING_STATE_KEY) } catch (_) {}
+}

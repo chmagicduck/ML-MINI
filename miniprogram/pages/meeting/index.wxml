@@ -27,7 +27,7 @@
 
   <!-- V2.2 自定义人均月薪 -->
   <view class="section-card">
-    <view class="custom-salary-header" bindtap="onToggleCustomSalary">
+    <view class="custom-salary-header">
       <text class="section-title" style="margin-bottom:0">💵 自定义人均月薪</text>
       <switch checked="{{useCustomSalary}}" color="#43A047" bindchange="onToggleCustomSalary" />
     </view>

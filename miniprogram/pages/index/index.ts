@@ -306,7 +306,11 @@ Page({
   _showLevelUpModal(level: MoyuLevel) {
     if (_levelUpShowing) return
     _levelUpShowing = true
-    if (_settings?.vibrateEnabled) wx.vibrateLong()
+    if (_settings?.vibrateEnabled) {
+      try {
+        wx.vibrateShort({ type: 'medium' })
+      } catch (_) {}
+    }
     wx.showModal({
       title: '🎉 吗喽进化了！',
       content: `${level.emoji} ${level.name} 解锁！\n\n你的累计摸鱼收益突破了新门槛，\n继续摸，继续进化！`,

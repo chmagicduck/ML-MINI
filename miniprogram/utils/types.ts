@@ -39,6 +39,13 @@ export interface MoyuStats {
   moyuDaysMap: Record<string, number>  // "YYYY-MM-DD": 当日摸鱼秒数（用于热力图）
 }
 
+/** V1.0.1: 拉粑粑计时器运行状态 */
+export interface PoopRunningState {
+  isRunning: boolean    // 是否正在计时
+  sessionSeconds: number // 当次计时秒数
+  sessionStartTime: number | null // 当次计时开始时刻（用于补齐）
+}
+
 /** V2: 吗喽等级定义 */
 export interface MoyuLevel {
   name: string      // 等级名
@@ -46,14 +53,20 @@ export interface MoyuLevel {
   threshold: number // 最低累计金额
   color: string     // 主色
   isGold: boolean   // 是否显示金色边框（摸鱼大圣）
+  text: string      // V1.0.1: 等级反讽文案
 }
 
 export const MOYU_LEVELS: MoyuLevel[] = [
-  { name: '职场牛马', emoji: '🐂', threshold: 0,     color: '#9E9E9E', isGold: false },
-  { name: '摸鱼学徒', emoji: '🐟', threshold: 500,   color: '#66BB6A', isGold: false },
-  { name: '带薪锦鲤', emoji: '🎏', threshold: 2000,  color: '#42A5F5', isGold: false },
-  { name: '划水宗师', emoji: '🏊', threshold: 10000, color: '#AB47BC', isGold: false },
-  { name: '摸鱼大圣', emoji: '🐒', threshold: 50000, color: '#FFD700', isGold: true  },
+  { name: '职场新人',   emoji: '🐣', threshold: 0,     color: '#BDBDBD', isGold: false, text: '刚踏上打工路，前途一片迷茫' },
+  { name: '摸鱼入门',   emoji: '🐠', threshold: 50,    color: '#9E9E9E', isGold: false, text: '已学会假装认真的第一步' },
+  { name: '摸鱼学徒',   emoji: '🐟', threshold: 150,   color: '#66BB6A', isGold: false, text: '初窥摸鱼门道，但距大师还远' },
+  { name: '小有成就',   emoji: '🐊', threshold: 350,   color: '#43A047', isGold: false, text: '已掌握摸鱼精髓，开始进阶' },
+  { name: '带薪锦鲤',   emoji: '🎏', threshold: 700,   color: '#26A69A', isGold: false, text: '我这辈子唯一的坚持，就是每天带薪拉屎' },
+  { name: '摸鱼能手',   emoji: '🦈', threshold: 1500,  color: '#42A5F5', isGold: false, text: '进入高端摸鱼行列，薪水不再是梦' },
+  { name: '职场老油条', emoji: '🐬', threshold: 3500,  color: '#7E57C2', isGold: false, text: '看遍职场百态，摸鱼是最大的真理' },
+  { name: '划水宗师',   emoji: '🐋', threshold: 8000,  color: '#AB47BC', isGold: false, text: '上班是我的副业，摸鱼才是正业' },
+  { name: '摸鱼大圣',   emoji: '🐒', threshold: 20000, color: '#EF5350', isGold: false, text: '老板的工资单，是我的致富密码' },
+  { name: '传说打工人', emoji: '👑', threshold: 50000, color: '#FFD700', isGold: true,  text: '老板的钱，最终都要回到打工人的口袋' },
 ]
 
 export const DEFAULT_SETTINGS: UserSettings = {

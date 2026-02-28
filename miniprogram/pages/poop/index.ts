@@ -1,5 +1,12 @@
 // pages/poop/index.ts — 带薪拉粑粑计时器
-import { getSettings, getPoopStats, savePoopStats } from '../../utils/storage'
+import {
+  getSettings,
+  getPoopStats,
+  savePoopStats,
+  savePoopRunningState,
+  getPoopRunningState,
+  clearPoopRunningState,
+} from '../../utils/storage'
 import { getSecondSalary, formatMoney, formatDuration } from '../../utils/calculator'
 import { PoopStats } from '../../utils/types'
 
@@ -36,13 +43,42 @@ Page({
     this._loadStats()
   },
 
+  onShow() {
+    // V1.0.1: 恢复计时器运行状态（切后台或切子页返回时）
+    const runningState = getPoopRunningState()
+    if (runningState && runningState.isRunning && runningState.sessionStartTime) {
+      // 计算离线期间补齐的秒数
+      const offlineSecs = Math.floor((Date.now() - runningState.sessionStartTime) / 1000)
+      const newSessionSeconds = runningState.sessionSeconds + offlineSecs
+
+      this.setData({
+        isRunning: true,
+        sessionSeconds: newSessionSeconds,
+        sessionTimeStr: formatDuration(newSessionSeconds),
+        sessionEarnings: formatMoney(this.data.secondSalary * newSessionSeconds),
+      })
+
+      // 重启计时器
+      this._startTimer()
+    }
+  },
+
   onUnload() {
     this._stopTimer(false)
+    clearPoopRunningState()
   },
 
   // H-8: onHide 时暂停计时，防止切后台继续空转
   onHide() {
     this._stopTimer(false)
+    // V1.0.1: 保存运行状态，用于 onShow 恢复
+    if (this.data.isRunning) {
+      savePoopRunningState({
+        isRunning: true,
+        sessionSeconds: this.data.sessionSeconds,
+        sessionStartTime: Date.now(),
+      })
+    }
     this.setData({ isRunning: false })
   },
 
@@ -130,6 +166,7 @@ Page({
     if (this.data.isRunning) {
       // 停止并保存
       this._stopTimer(true)
+      clearPoopRunningState()  // V1.0.1: 停止时清除运行状态
       this.setData({
         isRunning: false,
         sessionSeconds: 0,

@@ -11,10 +11,16 @@ Page({
 
     // V1.0.1: 皮肤系统
     currentSkin: 'default',
-    availableSkins: Object.entries(SKINS).map(([id, skin]) => ({
+    availableSkins: [],
+  },
+
+  onLoad() {
+    // 初始化皮肤列表
+    const availableSkins = Object.entries(SKINS).map(([id, skin]) => ({
       id,
       ...skin,
-    })),
+    }))
+    this.setData({ availableSkins })
   },
 
   onShow() {
@@ -120,3 +126,4 @@ Page({
       }
     })
   },
+})

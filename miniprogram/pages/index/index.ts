@@ -135,11 +135,13 @@ Page({
   },
 
   onShow() {
+    // V1.0.1 Fix: 重置升级弹窗标志，确保返回首页时能正常弹出新升级
+    _levelUpShowing = false
+    // V1.0.1 Fix: 重置金币雨和等级阈值，防止 reLaunch 后数据残留
+    _lastCoinThreshold = 0
+
     _settings = getSettings()
     const hasSettings = _settings.monthlySalary > 0
-
-    // V1.0.1: 重置升级弹窗标志，确保返回时能弹出
-    _levelUpShowing = false
 
     // ── V2.2: 摸鱼状态补齐（切子页/进后台返回时补齐工作时间内的收益）
     if (this.data.isSlacking && _lastHideWorkedSecs > 0 && _settings) {
@@ -281,13 +283,15 @@ Page({
     // 计算百分比
     const workedPercent = Math.min(100, Math.round((workedSecs / totalWorkSeconds) * 100))
     const slackingPercent = Math.min(100, Math.round((slackingSecs / totalWorkSeconds) * 100))
+    // V1.0.1 Fix: 防止两个百分比之和超过 100%
+    const combinedPercent = Math.min(100, workedPercent + slackingPercent)
 
     // 更新进度条样式：两层圆形（已工作绿色 + 已摸鱼蓝色）
     const style = `background: conic-gradient(
       #66BB6A ${workedPercent}%,
       #42A5F5 ${workedPercent}%,
-      #42A5F5 ${workedPercent + slackingPercent}%,
-      #C8E6C9 ${workedPercent + slackingPercent}%
+      #42A5F5 ${combinedPercent}%,
+      #C8E6C9 ${combinedPercent}%
     )`
 
     this.setData({

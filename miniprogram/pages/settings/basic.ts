@@ -110,38 +110,4 @@ Page({
     setTimeout(() => wx.navigateBack(), 1200)
   },
 
-  // V1.0.1: 数据重置
-  resetAllData() {
-    wx.showModal({
-      title: '⚠️ 确认重置？',
-      content: '此操作将清空所有摸鱼记录、战报数据和带薪拉粑粑数据，不可恢复。',
-      confirmText: '确认重置',
-      confirmColor: '#EF5350',
-      success: (res) => {
-        if (res.confirm) {
-          try {
-            // 清除摸鱼累计统计
-            wx.removeStorageSync('moyuStats')
-            // 清除带薪拉粑粑统计
-            wx.removeStorageSync('poopStats')
-            // 清除带薪拉粑粑运行状态
-            wx.removeStorageSync('poopRunningState')
-            // 清除升级弹窗持久化状态
-            wx.removeStorageSync('pendingLevelUp')
-            // 清除离线收益弹窗状态
-            wx.removeStorageSync('lastExitState')
-            // 清除初始身份标记
-            wx.removeStorageSync('initialIdentityShown')
-
-            wx.showToast({ title: '已重置所有数据 🗑️', icon: 'success', duration: 2000 })
-            setTimeout(() => {
-              wx.reLaunch({ url: '/pages/index/index' })
-            }, 2000)
-          } catch (err) {
-            wx.showToast({ title: '重置失败，请重试', icon: 'none' })
-          }
-        }
-      }
-    })
-  },
 })

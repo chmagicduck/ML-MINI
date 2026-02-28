@@ -127,12 +127,5 @@
     <ad unit-id="{{adUnitId}}" ad-intervals="30"></ad>
   </view>
 
-  <!-- V1.0.1 数据重置 -->
-  <view class="danger-zone">
-    <text class="danger-title">⚠️ 危险区域</text>
-    <button class="btn-danger" bindtap="resetAllData">🗑️ 重置所有数据</button>
-    <text class="danger-tips">此操作不可恢复，所有摸鱼记录和战报数据将清空</text>
-  </view>
-
   <view class="safe-bottom"></view>
 </scroll-view>

@@ -1,5 +1,8 @@
 // pages/stats/index.ts — 战报统计页 V2.2
 import { getMoyuStats, getTodaySlackingSeconds, getSettings, getPendingLevelUp, clearPendingLevelUp } from '../../utils/storage'
+
+// V1.0.1 Fix: 实时时钟，每秒刷新战报数据
+let _statsClock: ReturnType<typeof setInterval> | null = null
 import {
   getMoyuLevel,
   getNextMoyuLevel,
@@ -72,6 +75,9 @@ Page({
     this.setData({ quote })
     this._loadStats()
 
+    // V1.0.1 Fix: 启动实时时钟，每秒刷新战报数据
+    this._startStatsClock()
+
     // V2.2: 战报页也检查持久化的升级通知
     const pendingLevel = getPendingLevelUp()
     if (pendingLevel) {
@@ -82,8 +88,79 @@ Page({
     }
   },
 
+  onHide() {
+    // V1.0.1 Fix: 离开页面时停止实时时钟
+    this._stopStatsClock()
+  },
+
+  onUnload() {
+    // V1.0.1 Fix: 页面卸载时停止实时时钟
+    this._stopStatsClock()
+  },
+
   onReady() {
     this._drawHeatmap()
+  },
+
+  // ─────────── V1.0.1 Fix: 实时时钟（每秒刷新实时数据） ──────────────
+  _startStatsClock() {
+    if (_statsClock !== null) return
+    _statsClock = setInterval(() => {
+      this._updateLiveStats()  // 仅更新实时变化的数据
+    }, 1000)
+  },
+
+  _stopStatsClock() {
+    if (_statsClock !== null) {
+      clearInterval(_statsClock)
+      _statsClock = null
+    }
+  },
+
+  // V1.0.1 Fix: 仅更新实时变化的数据，避免每秒全量重绘热力图和等级路线图
+  _updateLiveStats() {
+    const stats = getMoyuStats()
+    const settings = getSettings()
+    const now = new Date()
+    const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
+    const committedTodaySecs = stats.moyuDaysMap[todayKey] || 0
+    const actualTodaySecs = getTodaySlackingSeconds()
+    const uncommittedSecs = Math.max(0, actualTodaySecs - committedTodaySecs)
+    const uncommittedMoney = uncommittedSecs > 0 ? calcTodayEarnings(settings, uncommittedSecs) : 0
+    const displayTotalMoney = stats.totalMoney + uncommittedMoney
+
+    const level = getMoyuLevel(displayTotalMoney)
+    const nextLevel = getNextMoyuLevel(displayTotalMoney)
+    let levelProgress = 100
+    let nextLevelName = ''
+    let nextLevelThreshold = ''
+    let isMaxLevel = false
+
+    if (nextLevel) {
+      const span = nextLevel.threshold - level.threshold
+      const earned = displayTotalMoney - level.threshold
+      levelProgress = Math.min(100, Math.round((earned / span) * 100))
+      nextLevelName = nextLevel.name
+      nextLevelThreshold = formatMoney(nextLevel.threshold)
+    } else {
+      isMaxLevel = true
+      levelProgress = 100
+    }
+
+    // 仅更新实时变化的部分
+    this.setData({
+      totalMoney: formatMoney(displayTotalMoney),
+      totalSeconds: stats.totalSeconds + uncommittedSecs,
+      totalTimeStr: formatDuration(stats.totalSeconds + uncommittedSecs),
+      levelName: level.name,
+      levelEmoji: level.emoji,
+      levelColor: level.color,
+      isGoldLevel: level.isGold,
+      levelProgress,
+      nextLevelName,
+      nextLevelThreshold,
+      isMaxLevel,
+    })
   },
 
   _loadStats() {
@@ -127,8 +204,14 @@ Page({
     // 总天数
     const totalDays = Object.keys(stats.moyuDaysMap).length
 
+    // V1.0.1 Fix: 热力图需要包含当日未提交的摸鱼秒数
+    const enhancedMoyuDaysMap = {
+      ...stats.moyuDaysMap,
+      [todayKey]: actualTodaySecs,  // 当日数据包含未提交部分
+    }
+
     // 热力图
-    const { rows, maxSeconds } = buildHeatmapData(stats.moyuDaysMap)
+    const { rows, maxSeconds } = buildHeatmapData(enhancedMoyuDaysMap)
 
     this.setData({
       totalMoney: formatMoney(displayTotalMoney),
@@ -159,10 +242,8 @@ Page({
       const isCurrent = level.threshold === currentLevel.threshold
       const nextLevel = MOYU_LEVELS[idx + 1]
       let progressStr = ''
-      if (isCurrent && nextLevel && !isUnlocked && nextLevel) {
-        const remaining = nextLevel.threshold - totalMoney
-        progressStr = `还差 ${formatMoney(remaining)}`
-      } else if (isCurrent && nextLevel) {
+      // V1.0.1 Fix: 移除逻辑上永远不会执行的分支
+      if (isCurrent && nextLevel) {
         const remaining = nextLevel.threshold - totalMoney
         progressStr = remaining > 0 ? `还差 ${formatMoney(remaining)}` : ''
       }

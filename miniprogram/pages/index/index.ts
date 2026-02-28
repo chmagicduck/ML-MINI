@@ -147,9 +147,8 @@ Page({
   },
 
   onShow() {
-    // V1.0.1 Fix: 重置升级弹窗标志，确保返回首页时能正常弹出新升级
+    // V2.3 Fix: 重置升级弹窗标志和金币雨阈值
     _levelUpShowing = false
-    // V1.0.1 Fix: 重置金币雨和等级阈值，防止 reLaunch 后数据残留
     _lastCoinThreshold = 0
 
     _settings = getSettings()
@@ -178,10 +177,8 @@ Page({
     const moyuStats = getMoyuStats()
     _baseTotalMoney = moyuStats.totalMoney
     const level = getMoyuLevel(_baseTotalMoney)
-    // V1.0.1 Fix: 仅在首次初始化时设置阈值，不要每次都重置
-    if (_lastLevelThreshold < 0) {
-      _lastLevelThreshold = level.threshold
-    }
+    // V2.3 Fix: 每次 onShow 都重新初始化等级阈值（防止遗留状态影响升级检测）
+    _lastLevelThreshold = level.threshold
 
     // 本月工作日数
     const now = new Date()
@@ -367,10 +364,9 @@ Page({
   // ─────────── 等级升级弹窗 ─────────────────────────────────
   _checkLevelUp(currentTotalMoney: number) {
     const newLevel = getMoyuLevel(currentTotalMoney)
-    if (_lastLevelThreshold < 0) {
-      _lastLevelThreshold = newLevel.threshold
-      return
-    }
+
+    // V2.3 Fix: 简化升级检测逻辑
+    // 如果新等级的阈值 > 上次记录的等级阈值，说明升级了
     if (newLevel.threshold > _lastLevelThreshold) {
       _lastLevelThreshold = newLevel.threshold
       this.setData({

@@ -1,4 +1,4 @@
-// pages/stats/index.ts — 战报统计页 V2.2
+// pages/stats/index.ts — 战报统计页 V2.3
 import { getMoyuStats, getTodaySlackingSeconds, getSettings, getPendingLevelUp, clearPendingLevelUp } from '../../utils/storage'
 import {
   getMoyuLevel,
@@ -8,9 +8,6 @@ import {
   formatDuration,
 } from '../../utils/calculator'
 import { MOYU_LEVELS, MoyuLevel } from '../../utils/types'
-
-// V1.0.1 Fix: 实时时钟，每秒刷新战报数据
-let _statsClock: ReturnType<typeof setInterval> | null = null
 
 const MOYU_QUOTES = [
   '打工是不可能打工的，这辈子都不可能打工的',
@@ -35,15 +32,12 @@ interface LevelRoadmapItem {
   progressStr: string   // "还差 ¥XX.XX" 或 ""
 }
 
-interface HeatmapCell {
-  dateStr: string
-  seconds: number
-  level: number  // 0=空, 1~4 色阶
-}
+// V2.3 Fix: 实时更新计时器（仅在战报页显示时运行）
+let _refreshTimer: ReturnType<typeof setInterval> | null = null
 
 Page({
   data: {
-    // 累计统计（V2.1 Fix：包含实时未提交会话）
+    // 累计统计
     totalMoney: '¥0.00',
     totalSeconds: 0,
     totalTimeStr: '00:00:00',
@@ -62,10 +56,6 @@ Page({
     // V2.1 等级路线图
     levelRoadmap: [] as LevelRoadmapItem[],
 
-    // 热力图
-    heatmapRows: [] as HeatmapCell[][],
-    heatmapMaxSeconds: 1,
-
     // 语录
     quote: MOYU_QUOTES[0],
   },
@@ -75,8 +65,8 @@ Page({
     this.setData({ quote })
     this._loadStats()
 
-    // V1.0.1 Fix: 启动实时时钟，每秒刷新战报数据
-    this._startStatsClock()
+    // V2.3 Fix: 启动每秒刷新定时器，更新实时数据
+    this._startRefreshTimer()
 
     // V2.2: 战报页也检查持久化的升级通知
     const pendingLevel = getPendingLevelUp()
@@ -89,36 +79,32 @@ Page({
   },
 
   onHide() {
-    // V1.0.1 Fix: 离开页面时停止实时时钟
-    this._stopStatsClock()
+    // V2.3 Fix: 离开页面时停止刷新
+    this._stopRefreshTimer()
   },
 
   onUnload() {
-    // V1.0.1 Fix: 页面卸载时停止实时时钟
-    this._stopStatsClock()
+    // V2.3 Fix: 页面卸载时停止刷新
+    this._stopRefreshTimer()
   },
 
-  onReady() {
-    this._drawHeatmap()
-  },
-
-  // ─────────── V1.0.1 Fix: 实时时钟（每秒刷新实时数据） ──────────────
-  _startStatsClock() {
-    if (_statsClock !== null) return
-    _statsClock = setInterval(() => {
-      this._updateLiveStats()  // 仅更新实时变化的数据
+  // ─────────── V2.3 Fix: 简化的实时刷新 ──────────────
+  _startRefreshTimer() {
+    if (_refreshTimer !== null) return
+    _refreshTimer = setInterval(() => {
+      this._updateLiveData()
     }, 1000)
   },
 
-  _stopStatsClock() {
-    if (_statsClock !== null) {
-      clearInterval(_statsClock)
-      _statsClock = null
+  _stopRefreshTimer() {
+    if (_refreshTimer !== null) {
+      clearInterval(_refreshTimer)
+      _refreshTimer = null
     }
   },
 
-  // V1.0.1 Fix: 仅更新实时变化的数据，避免每秒全量重绘热力图和等级路线图
-  _updateLiveStats() {
+  // V2.3 Fix: 仅更新实时变化的数据（不重绘 Canvas）
+  _updateLiveData() {
     const stats = getMoyuStats()
     const settings = getSettings()
     const now = new Date()
@@ -147,14 +133,6 @@ Page({
       levelProgress = 100
     }
 
-    // V1.0.1 Fix: 包含热力图数据更新（当日未提交数据需要显示）
-    const enhancedMoyuDaysMap = {
-      ...stats.moyuDaysMap,
-      [todayKey]: actualTodaySecs,
-    }
-    const { rows, maxSeconds } = buildHeatmapData(enhancedMoyuDaysMap)
-
-    // V1.0.1 Fix: 包含等级路线图（虽然不频繁变化，但升级时需要）
     const levelRoadmap = this._buildLevelRoadmap(displayTotalMoney)
 
     // 仅更新实时变化的部分
@@ -171,20 +149,11 @@ Page({
       nextLevelThreshold,
       isMaxLevel,
       levelRoadmap,
-      heatmapRows: rows,
-      heatmapMaxSeconds: maxSeconds || 1,
     })
-
-    // V1.0.1 Fix: 重绘热力图
-    setTimeout(() => this._drawHeatmap(), 50)
   },
 
   _loadStats() {
     const stats = getMoyuStats()
-
-    // V2.1 Fix：累计收益中叠加当前会话未提交的增量
-    // moyuDaysMap[today] 记录已提交的今日秒数
-    // getTodaySlackingSeconds() 获取当前实际累计秒数（含正在进行中的）
     const settings = getSettings()
     const now = new Date()
     const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
@@ -220,15 +189,6 @@ Page({
     // 总天数
     const totalDays = Object.keys(stats.moyuDaysMap).length
 
-    // V1.0.1 Fix: 热力图需要包含当日未提交的摸鱼秒数
-    const enhancedMoyuDaysMap = {
-      ...stats.moyuDaysMap,
-      [todayKey]: actualTodaySecs,  // 当日数据包含未提交部分
-    }
-
-    // 热力图
-    const { rows, maxSeconds } = buildHeatmapData(enhancedMoyuDaysMap)
-
     this.setData({
       totalMoney: formatMoney(displayTotalMoney),
       totalSeconds: stats.totalSeconds + uncommittedSecs,
@@ -243,11 +203,7 @@ Page({
       nextLevelThreshold,
       isMaxLevel,
       levelRoadmap,
-      heatmapRows: rows,
-      heatmapMaxSeconds: maxSeconds || 1,
     })
-
-    setTimeout(() => this._drawHeatmap(), 100)
   },
 
   // V2.1 等级路线图构建
@@ -258,7 +214,6 @@ Page({
       const isCurrent = level.threshold === currentLevel.threshold
       const nextLevel = MOYU_LEVELS[idx + 1]
       let progressStr = ''
-      // V1.0.1 Fix: 移除逻辑上永远不会执行的分支
       if (isCurrent && nextLevel) {
         const remaining = nextLevel.threshold - totalMoney
         progressStr = remaining > 0 ? `还差 ${formatMoney(remaining)}` : ''
@@ -275,35 +230,6 @@ Page({
         progressStr,
       }
     })
-  },
-
-  _drawHeatmap() {
-    const { heatmapRows, heatmapMaxSeconds } = this.data
-    if (!heatmapRows || heatmapRows.length === 0) return
-
-    wx.createSelectorQuery()
-      .select('#heatmap-canvas')
-      .fields({ node: true, size: true })
-      .exec((res: any) => {
-        if (!res || !res[0] || !res[0].node) return
-        const canvas = res[0].node
-        const { width, height } = res[0]
-        const ctx = canvas.getContext('2d')
-        // V1.0.1: 使用新 API getDeviceInfo
-        let dpr = 2
-        try {
-          const deviceInfo = (wx as any).getDeviceInfo?.()
-          if (deviceInfo && deviceInfo.pixelRatio) {
-            dpr = deviceInfo.pixelRatio
-          }
-        } catch (_) {
-          dpr = wx.getSystemInfoSync().pixelRatio || 2
-        }
-        canvas.width = width * dpr
-        canvas.height = height * dpr
-        ctx.scale(dpr, dpr)
-        drawHeatmapOnCanvas(ctx, heatmapRows, heatmapMaxSeconds, width, height)
-      })
   },
 
   onShareAppMessage() {
@@ -387,103 +313,6 @@ Page({
   },
 })
 
-// ─────────── 热力图数据构建 ──────────────────────────────────
-
-function buildHeatmapData(moyuDaysMap: Record<string, number>): {
-  rows: HeatmapCell[][]
-  maxSeconds: number
-} {
-  // V1.0.1: 重构为近 30 天单行展示
-  const DAYS = 30
-  const cells: HeatmapCell[] = []
-  const today = new Date()
-
-  let maxSeconds = 0
-
-  // 生成近 30 天的数据（从 29 天前开始，到今天）
-  for (let i = DAYS - 1; i >= 0; i--) {
-    const date = new Date(today)
-    date.setDate(date.getDate() - i)
-    const y = date.getFullYear()
-    const mo = String(date.getMonth() + 1).padStart(2, '0')
-    const da = String(date.getDate()).padStart(2, '0')
-    const dateStr = `${y}-${mo}-${da}`
-    const seconds = moyuDaysMap[dateStr] || 0
-    if (seconds > maxSeconds) maxSeconds = seconds
-    cells.push({ dateStr, seconds, level: 0 })
-  }
-
-  // 计算色阶（5 档）
-  for (const cell of cells) {
-    if (cell.seconds === 0) {
-      cell.level = 0
-    } else if (maxSeconds > 0) {
-      const ratio = cell.seconds / maxSeconds
-      cell.level = ratio < 0.25 ? 1 : ratio < 0.5 ? 2 : ratio < 0.75 ? 3 : 4
-    }
-  }
-
-  // V1.0.1: 单行展示（30 个格子横向排列）
-  const rows: HeatmapCell[][] = [cells]
-
-  return { rows, maxSeconds }
-}
-
-// ─────────── Canvas 热力图绘制 ───────────────────────────────
-
-function drawHeatmapOnCanvas(
-  ctx: any,
-  rows: HeatmapCell[][],
-  maxSeconds: number,
-  width: number,
-  height: number,
-) {
-  // V1.0.1: 改为 6×5 网格（30 天），更紧凑
-  const DAYS = 30
-  const COLS = 5
-  const ROWS = 6
-  const cellSize = Math.floor((width - 16) / COLS)
-  const gap = 2
-  const colors = ['#EEEEEE', '#C8E6C9', '#81C784', '#43A047', '#1B5E20']
-  const padding = 8
-
-  ctx.clearRect(0, 0, width, height)
-
-  // 将 30 天展平成数组
-  const cells = rows[0] || []
-  let cellIndex = 0
-
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
-      if (cellIndex >= cells.length) break
-
-      const cell = cells[cellIndex]
-      const x = padding + col * (cellSize + gap)
-      const y = padding + row * (cellSize + gap)
-
-      ctx.fillStyle = colors[cell.level]
-      roundRect(ctx, x, y, cellSize, cellSize, 2)
-      ctx.fill()
-
-      cellIndex++
-    }
-  }
-}
-
-function roundRect(ctx: any, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.lineTo(x + w - r, y)
-  ctx.arcTo(x + w, y, x + w, y + r, r)
-  ctx.lineTo(x + w, y + h - r)
-  ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
-  ctx.lineTo(x + r, y + h)
-  ctx.arcTo(x, y + h, x, y + h - r, r)
-  ctx.lineTo(x, y + r)
-  ctx.arcTo(x, y, x + r, y, r)
-  ctx.closePath()
-}
-
 // ─────────── 分享海报绘制 ────────────────────────────────────
 
 // V2.2: 等级反讽文案
@@ -557,6 +386,20 @@ function drawPoster(ctx: any, data: PosterData) {
   ctx.fillStyle = '#9E9E9E'
   ctx.font = '24px sans-serif'
   ctx.fillText('扫码加入摸鱼大军 · 吗喽薪事', W / 2, 1030)
+}
+
+function roundRect(ctx: any, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.arcTo(x + w, y, x + w, y + r, r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
+  ctx.lineTo(x + r, y + h)
+  ctx.arcTo(x, y + h, x, y + h - r, r)
+  ctx.lineTo(x, y + r)
+  ctx.arcTo(x, y, x + r, y, r)
+  ctx.closePath()
 }
 
 function wrapText(ctx: any, text: string, maxWidth: number): string[] {

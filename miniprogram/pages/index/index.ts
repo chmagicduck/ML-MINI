@@ -231,11 +231,17 @@ Page({
     if (this.data.isSlacking && _settings) {
       _lastHideWorkedSecs = calcTodayWorkedSeconds(_settings)
     }
-    this._stopClock()
-    this._pause()
+    // V2.3 Fix: 不停止 _timer，让它在后台继续运行，保持 storage 中的摸鱼秒数最新
+    // 这样战报页可以实时读到最新的摸鱼数据
+    // this._pause()  // ← 移除这个调用
+    this._stopClock()  // 仅停止显示相关的时钟
   },
 
   onUnload() {
+    // V2.3 Fix: 页面卸载时保存摸鱼数据
+    if (this.data.isSlacking) {
+      saveTodaySlackingSeconds(this.data.slackingSeconds)
+    }
     this._stopClock()
     this._pause()
     if (_coinAnimTimer !== null) { clearInterval(_coinAnimTimer); _coinAnimTimer = null }
@@ -409,6 +415,7 @@ Page({
     if (_clockTimer !== null) return
     _clockTimer = setInterval(() => {
       if (!_settings) return
+
       this.setData({
         todayWorkedEarnings: formatMoney(calcTodayWorkedEarnings(_settings)),
         monthEarnings: formatMoney(calcMonthEarnings(_settings)),
@@ -434,6 +441,10 @@ Page({
     _timer = setInterval(() => {
       if (!_settings) return
       const seconds = baseSeconds + (Date.now() - startAt) / 1000
+
+      // V2.3 Fix: 每100ms实时保存摸鱼秒数到 storage
+      // 这样战报页即使首页被隐藏，也能读到最新数据
+      saveTodaySlackingSeconds(seconds)
 
       // 今日摸鱼收入（仅摸鱼中刷新）
       const todayEarnings = formatMoney(calcTodayEarnings(_settings, seconds))

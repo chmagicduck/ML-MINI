@@ -154,6 +154,9 @@ Page({
     }
     const { rows, maxSeconds } = buildHeatmapData(enhancedMoyuDaysMap)
 
+    // V1.0.1 Fix: 包含等级路线图（虽然不频繁变化，但升级时需要）
+    const levelRoadmap = this._buildLevelRoadmap(displayTotalMoney)
+
     // 仅更新实时变化的部分
     this.setData({
       totalMoney: formatMoney(displayTotalMoney),
@@ -167,6 +170,7 @@ Page({
       nextLevelName,
       nextLevelThreshold,
       isMaxLevel,
+      levelRoadmap,
       heatmapRows: rows,
       heatmapMaxSeconds: maxSeconds || 1,
     })
@@ -285,7 +289,16 @@ Page({
         const canvas = res[0].node
         const { width, height } = res[0]
         const ctx = canvas.getContext('2d')
-        const dpr = wx.getSystemInfoSync().pixelRatio || 2
+        // V1.0.1: 使用新 API getDeviceInfo
+        let dpr = 2
+        try {
+          const deviceInfo = (wx as any).getDeviceInfo?.()
+          if (deviceInfo && deviceInfo.pixelRatio) {
+            dpr = deviceInfo.pixelRatio
+          }
+        } catch (_) {
+          dpr = wx.getSystemInfoSync().pixelRatio || 2
+        }
         canvas.width = width * dpr
         canvas.height = height * dpr
         ctx.scale(dpr, dpr)
@@ -316,7 +329,16 @@ Page({
         }
         const canvas = res[0].node
         const ctx = canvas.getContext('2d')
-        const dpr = wx.getSystemInfoSync().pixelRatio || 2
+        // V1.0.1: 使用新 API getDeviceInfo
+        let dpr = 2
+        try {
+          const deviceInfo = (wx as any).getDeviceInfo?.()
+          if (deviceInfo && deviceInfo.pixelRatio) {
+            dpr = deviceInfo.pixelRatio
+          }
+        } catch (_) {
+          dpr = wx.getSystemInfoSync().pixelRatio || 2
+        }
         canvas.width = 750 * dpr
         canvas.height = 1080 * dpr
         ctx.scale(dpr, dpr)

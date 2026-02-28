@@ -125,9 +125,21 @@ Page({
   },
 
   onLoad() {
-    const sysInfo = wx.getSystemInfoSync()
+    // V1.0.1: 使用新 API getWindowInfo，兼容旧版本
+    let statusBarHeight = 20
+    try {
+      const windowInfo = (wx as any).getWindowInfo?.()
+      if (windowInfo) {
+        statusBarHeight = windowInfo.statusBarHeight
+      }
+    } catch (_) {
+      // 降级到旧 API
+      const sysInfo = wx.getSystemInfoSync()
+      statusBarHeight = sysInfo.statusBarHeight
+    }
+
     const slogan = SLOGANS[Math.floor(Math.random() * SLOGANS.length)]
-    this.setData({ statusBarHeight: sysInfo.statusBarHeight, slogan })
+    this.setData({ statusBarHeight, slogan })
   },
 
   onReady() {
@@ -166,7 +178,10 @@ Page({
     const moyuStats = getMoyuStats()
     _baseTotalMoney = moyuStats.totalMoney
     const level = getMoyuLevel(_baseTotalMoney)
-    _lastLevelThreshold = level.threshold
+    // V1.0.1 Fix: 仅在首次初始化时设置阈值，不要每次都重置
+    if (_lastLevelThreshold < 0) {
+      _lastLevelThreshold = level.threshold
+    }
 
     // 本月工作日数
     const now = new Date()
@@ -478,7 +493,16 @@ Page({
       .exec((res: any) => {
         if (!res || !res[0] || !res[0].node) return
         _coinCanvas = res[0].node
-        const dpr = wx.getSystemInfoSync().pixelRatio || 2
+        // V1.0.1: 使用新 API getDeviceInfo
+        let dpr = 2
+        try {
+          const deviceInfo = (wx as any).getDeviceInfo?.()
+          if (deviceInfo && deviceInfo.pixelRatio) {
+            dpr = deviceInfo.pixelRatio
+          }
+        } catch (_) {
+          dpr = wx.getSystemInfoSync().pixelRatio || 2
+        }
         _coinCanvas.width = res[0].width * dpr
         _coinCanvas.height = res[0].height * dpr
         _coinCtx = _coinCanvas.getContext('2d')
@@ -489,7 +513,16 @@ Page({
   _triggerCoinRain() {
     if (!_coinCtx || _coinAnimTimer !== null) return
     const canvas = _coinCanvas
-    const dpr = wx.getSystemInfoSync().pixelRatio || 2
+    // V1.0.1: 使用新 API getDeviceInfo
+    let dpr = 2
+    try {
+      const deviceInfo = (wx as any).getDeviceInfo?.()
+      if (deviceInfo && deviceInfo.pixelRatio) {
+        dpr = deviceInfo.pixelRatio
+      }
+    } catch (_) {
+      dpr = wx.getSystemInfoSync().pixelRatio || 2
+    }
     const W = canvas.width / dpr
     const H = canvas.height / dpr
 

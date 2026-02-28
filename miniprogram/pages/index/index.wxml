@@ -33,6 +33,9 @@
       </view>
     </view>
     <text class="progress-label">{{timeUntilOffWork}}</text>
+    <view class="progress-info" style="margin-top: 16rpx; font-size: 22rpx; color: #9E9E9E; text-align: center;">
+      <text class="progress-detail">📊 今日工时: {{todayWorkedTimeStr}} | 摸鱼: {{todaySlackingTimeStr}}</text>
+    </view>
   </view>
 
   <!-- 未配置薪资提示 -->

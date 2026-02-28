@@ -194,3 +194,20 @@
   margin-top: 12rpx;
   text-align: center;
 }
+
+/* ===== V1.0.1 危险操作区 ===== */
+.danger-title {
+  color: #EF5350 !important;
+}
+
+.danger-cell {
+  background: #FFEBEE !important;
+}
+
+.danger-cell:active {
+  background: #FFCDD2 !important;
+}
+
+.danger-text {
+  color: #EF5350 !important;
+}

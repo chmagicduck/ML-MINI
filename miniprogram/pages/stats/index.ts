@@ -323,23 +323,35 @@ function drawHeatmapOnCanvas(
   width: number,
   height: number,
 ) {
-  // V1.0.1: 单行 30 天展示，计算格子大小
+  // V1.0.1: 改为 6×5 网格（30 天），更紧凑
   const DAYS = 30
-  const cellSize = Math.floor((width - 8) / DAYS)
+  const COLS = 5
+  const ROWS = 6
+  const cellSize = Math.floor((width - 16) / COLS)
   const gap = 2
   const colors = ['#EEEEEE', '#C8E6C9', '#81C784', '#43A047', '#1B5E20']
+  const padding = 8
 
   ctx.clearRect(0, 0, width, height)
 
-  // 单行展示
-  const row = rows[0] || []
-  for (let d = 0; d < DAYS && d < row.length; d++) {
-    const cell = row[d]
-    const x = d * (cellSize + gap)
-    const y = 0
-    ctx.fillStyle = colors[cell.level]
-    roundRect(ctx, x, y, cellSize, cellSize, 3)
-    ctx.fill()
+  // 将 30 天展平成数组
+  const cells = rows[0] || []
+  let cellIndex = 0
+
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      if (cellIndex >= cells.length) break
+
+      const cell = cells[cellIndex]
+      const x = padding + col * (cellSize + gap)
+      const y = padding + row * (cellSize + gap)
+
+      ctx.fillStyle = colors[cell.level]
+      roundRect(ctx, x, y, cellSize, cellSize, 2)
+      ctx.fill()
+
+      cellIndex++
+    }
   }
 }
 

@@ -97,9 +97,26 @@
           <text class="cell-icon">📖</text>
           <view>
             <text class="cell-title">关于吗喽薪事</text>
-            <text class="cell-sub">打工人情绪价值中心 v1.0.0</text>
+            <text class="cell-sub">打工人情绪价值中心 v1.0.1</text>
           </view>
         </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- V1.0.1 数据重置区 -->
+  <view class="section">
+    <text class="section-title danger-title">⚠️ 危险操作</text>
+    <view class="cell-group">
+      <view class="cell danger-cell" bindtap="resetAllData">
+        <view class="cell-left">
+          <text class="cell-icon">🗑️</text>
+          <view>
+            <text class="cell-title danger-text">重置所有数据</text>
+            <text class="cell-sub">清空摸鱼、战报、拉粑粑所有记录</text>
+          </view>
+        </view>
+        <text class="cell-arrow">›</text>
       </view>
     </view>
   </view>

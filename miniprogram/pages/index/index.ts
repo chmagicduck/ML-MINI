@@ -81,6 +81,7 @@ Page({
     statusBarHeight: 0,
     progressStyle: 'background: conic-gradient(#66BB6A 0%, #C8E6C9 0%)',
     progressPercent: 0,
+    slackingPercent: 0,  // V1.0.1: 摸鱼时间占比
 
     // 摸鱼计时
     isSlacking: false,
@@ -114,8 +115,10 @@ Page({
     // V2.2 金币雨
     showCoinRain: false,
 
-    // V1.0.1 倒计时
+    // V1.0.1 倒计时和工时显示
     timeUntilOffWork: '还有 8 小时 30 分钟下班',
+    todayWorkedTimeStr: '00:00:00',  // 今日已工时
+    todaySlackingTimeStr: '00:00:00',  // 今日已摸工时
 
     hasSettings: false,
     slogan: SLOGANS[0],
@@ -134,6 +137,9 @@ Page({
   onShow() {
     _settings = getSettings()
     const hasSettings = _settings.monthlySalary > 0
+
+    // V1.0.1: 重置升级弹窗标志，确保返回时能弹出
+    _levelUpShowing = false
 
     // ── V2.2: 摸鱼状态补齐（切子页/进后台返回时补齐工作时间内的收益）
     if (this.data.isSlacking && _lastHideWorkedSecs > 0 && _settings) {
@@ -253,14 +259,43 @@ Page({
     }, 800)
   },
 
-  // ─────────── 进度环 ───────────────────────────────────────
+  // ─────────── V1.0.1 进度条和工时显示 ─────────────────────────────
   _updateProgress() {
     if (!_settings) return
-    const p = Math.min(getTodayWorkProgress(_settings) * 100, 100)
-    const pct = Math.round(p)
+
+    // 已工作秒数
+    const workedSecs = calcTodayWorkedSeconds(_settings)
+
+    // 计算总工时秒数（上班时间 - 休息时间）
+    const [startH, startM] = _settings.workStartTime.split(':').map(Number)
+    const [endH, endM] = _settings.workEndTime.split(':').map(Number)
+    const lunchDuration = _settings.lunchBreakEnabled
+      ? (parseInt(_settings.lunchBreakEnd.split(':')[0]) - parseInt(_settings.lunchBreakStart.split(':')[0])) * 3600 +
+        (parseInt(_settings.lunchBreakEnd.split(':')[1]) - parseInt(_settings.lunchBreakStart.split(':')[1])) * 60
+      : 0
+    const totalWorkSeconds = (endH - startH) * 3600 + (endM - startM) * 60 - lunchDuration
+
+    // 摸鱼秒数
+    const slackingSecs = this.data.slackingSeconds
+
+    // 计算百分比
+    const workedPercent = Math.min(100, Math.round((workedSecs / totalWorkSeconds) * 100))
+    const slackingPercent = Math.min(100, Math.round((slackingSecs / totalWorkSeconds) * 100))
+
+    // 更新进度条样式：两层圆形（已工作绿色 + 已摸鱼蓝色）
+    const style = `background: conic-gradient(
+      #66BB6A ${workedPercent}%,
+      #42A5F5 ${workedPercent}%,
+      #42A5F5 ${workedPercent + slackingPercent}%,
+      #C8E6C9 ${workedPercent + slackingPercent}%
+    )`
+
     this.setData({
-      progressPercent: pct,
-      progressStyle: `background: conic-gradient(#66BB6A ${pct}%, #C8E6C9 ${pct}%)`,
+      progressPercent: workedPercent,
+      slackingPercent,
+      progressStyle: style,
+      todayWorkedTimeStr: formatDuration(workedSecs),
+      todaySlackingTimeStr: formatDuration(slackingSecs),
     })
   },
 
@@ -400,11 +435,10 @@ Page({
         totalMoney: formatMoney(currentTotalMoney),
       })
 
-      // V1.0.1: 金币雨——每突破 ¥5 整数门槛触发一次（提升触发频率）
+      // V1.0.1: 金币雨——每突破 ¥1 整数门槛触发一次（改为¥1频率，强化爽感）
       const earnedInt = Math.floor(calcTodayEarnings(_settings, seconds))
-      const coinThreshold = Math.floor(earnedInt / 5) * 5
-      if (coinThreshold > _lastCoinThreshold && earnedInt >= 5) {
-        _lastCoinThreshold = coinThreshold
+      if (earnedInt > _lastCoinThreshold && earnedInt >= 1) {
+        _lastCoinThreshold = earnedInt
         this._triggerCoinRain()
         // V1.0.1: 金币音效与金币雨同步
         if (_settings?.soundEnabled) playCoinsSound()

@@ -10,6 +10,8 @@ import {
   clearPendingLevelUp,
   getLastExitState,
   clearLastExitState,
+  hasShownInitialIdentity,
+  setInitialIdentityShown,
 } from '../../utils/storage'
 import {
   getSecondSalary,
@@ -474,6 +476,18 @@ Page({
     const isSlacking = !this.data.isSlacking
     this.setData({ isSlacking })
     if (isSlacking) {
+      // V1.0.1: 首次开启摸鱼时展示初始身份
+      if (!hasShownInitialIdentity()) {
+        const initialLevel = getMoyuLevel(0)
+        setInitialIdentityShown()
+        wx.showModal({
+          title: '🎉 获得初始身份',
+          content: `${initialLevel.emoji} ${initialLevel.name}\n\n${initialLevel.text}`,
+          confirmText: '开始摸鱼',
+          showCancel: false,
+        })
+      }
+
       this._startTimer()
       if (_settings?.soundEnabled) playCoinsSound()
       if (_settings?.vibrateEnabled) wx.vibrateShort({ type: 'light' })

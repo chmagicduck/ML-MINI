@@ -8,6 +8,7 @@ const KEYS = {
   SLACKING_PREFIX: 'slackingToday_',
   PENDING_LEVEL_UP: 'pendingLevelUp',
   LAST_EXIT_STATE: 'lastExitState',
+  INITIAL_IDENTITY_SHOWN: 'initialIdentityShown',  // V1.0.1: 是否已显示初始身份提示
 }
 
 function todayKey(): string {
@@ -178,4 +179,14 @@ export function getPoopRunningState(): PoopRunningState | null {
 
 export function clearPoopRunningState(): void {
   try { wx.removeStorageSync(POOP_RUNNING_STATE_KEY) } catch (_) {}
+}
+
+// ─────────── V1.0.1: 初始身份提示 ────────────────────────────────
+
+export function hasShownInitialIdentity(): boolean {
+  try { return wx.getStorageSync(KEYS.INITIAL_IDENTITY_SHOWN) === true } catch (_) { return false }
+}
+
+export function setInitialIdentityShown(): void {
+  try { wx.setStorageSync(KEYS.INITIAL_IDENTITY_SHOWN, true) } catch (_) {}
 }

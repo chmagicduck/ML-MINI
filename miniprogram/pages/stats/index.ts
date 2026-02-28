@@ -147,6 +147,13 @@ Page({
       levelProgress = 100
     }
 
+    // V1.0.1 Fix: 包含热力图数据更新（当日未提交数据需要显示）
+    const enhancedMoyuDaysMap = {
+      ...stats.moyuDaysMap,
+      [todayKey]: actualTodaySecs,
+    }
+    const { rows, maxSeconds } = buildHeatmapData(enhancedMoyuDaysMap)
+
     // 仅更新实时变化的部分
     this.setData({
       totalMoney: formatMoney(displayTotalMoney),
@@ -160,7 +167,12 @@ Page({
       nextLevelName,
       nextLevelThreshold,
       isMaxLevel,
+      heatmapRows: rows,
+      heatmapMaxSeconds: maxSeconds || 1,
     })
+
+    // V1.0.1 Fix: 重绘热力图
+    setTimeout(() => this._drawHeatmap(), 50)
   },
 
   _loadStats() {

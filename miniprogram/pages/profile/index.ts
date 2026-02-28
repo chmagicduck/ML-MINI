@@ -95,25 +95,32 @@ Page({
       success: (res) => {
         if (res.confirm) {
           try {
-            // 清除摸鱼累计统计
-            wx.removeStorageSync('moyuStats')
-            // 清除带薪拉粑粑统计
-            wx.removeStorageSync('poopStats')
-            // 清除带薪拉粑粑运行状态
-            wx.removeStorageSync('poopRunningState')
-            // 清除升级弹窗持久化状态
-            wx.removeStorageSync('pendingLevelUp')
-            // 清除离线收益弹窗状态
-            wx.removeStorageSync('lastExitState')
-            // 清除初始身份标记
-            wx.removeStorageSync('initialIdentityShown')
-            // 清除所有历日摸鱼秒数（今日及以往）
-            const allKeys = wx.getStorageInfoSync().keys
-            allKeys.forEach((key: string) => {
-              if (key.startsWith('slackingToday_')) {
-                wx.removeStorageSync(key)
-              }
+            // V1.0.1 Fix: 完整清除所有存储
+            const keysToRemove = [
+              'userSettings',           // ✅ Fix: 清除薪资设置（关键！）
+              'moyuStats',              // 清除摸鱼累计统计
+              'poopStats',              // 清除带薪拉粑粑统计
+              'poopRunningState',       // 清除带薪拉粑粑运行状态
+              'pendingLevelUp',         // 清除升级弹窗持久化状态
+              'lastExitState',          // 清除离线收益弹窗状态
+              'initialIdentityShown',   // 清除初始身份标记
+              'currentSkin',            // 清除皮肤设置
+            ]
+
+            // 清除关键项
+            keysToRemove.forEach(key => {
+              wx.removeStorageSync(key)
             })
+
+            // 清除所有 slackingToday_* 历日摸鱼秒数
+            try {
+              const allKeys = wx.getStorageInfoSync().keys
+              allKeys.forEach((key: string) => {
+                if (key.startsWith('slackingToday_')) {
+                  wx.removeStorageSync(key)
+                }
+              })
+            } catch (_) {}
 
             wx.showToast({ title: '已重置所有数据 🗑️', icon: 'success', duration: 2000 })
             setTimeout(() => {

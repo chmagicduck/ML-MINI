@@ -375,6 +375,7 @@ Page({
     // 如果新等级的阈值 > 上次记录的等级阈值，说明升级了
     if (newLevel.threshold > _lastLevelThreshold) {
       _lastLevelThreshold = newLevel.threshold
+      console.log(`[升级触发] 🎉 升级到 ${newLevel.name}！准备弹窗...`)
       this.setData({
         levelName: newLevel.name,
         levelEmoji: newLevel.emoji,
@@ -399,7 +400,7 @@ Page({
     wx.showModal({
       title: '🎉 吗喽进化了！',
       content: `${level.emoji} ${level.name} 解锁！\n\n你的累计摸鱼收益突破了新门槛，\n继续摸，继续进化！`,
-      confirmText: '去战报看看',
+      confirmText: '去战报',  // V2.3 Fix: 缩短为4汉字以内，修复 wx.showModal 限制
       cancelText: '继续摸鱼',
       success: (res) => {
         _levelUpShowing = false
@@ -612,7 +613,7 @@ Page({
     const isSlacking = !this.data.isSlacking
     this.setData({ isSlacking })
     if (isSlacking) {
-      // V1.0.1: 首次开启摸鱼时展示初始身份
+      // V2.3 Fix: 首次开启摸鱼时展示初始身份，用 success 回调确保弹窗完全关闭后再启动 timer
       if (!hasShownInitialIdentity()) {
         const initialLevel = getMoyuLevel(0)
         setInitialIdentityShown()
@@ -621,15 +622,26 @@ Page({
           content: `${initialLevel.emoji} ${initialLevel.name}\n\n${initialLevel.text}`,
           confirmText: '开始摸鱼',
           showCancel: false,
+          success: () => {
+            // 弹窗关闭后再启动计时器
+            this._startTimer()
+            if (_settings?.soundEnabled) playCoinsSound()
+            if (_settings?.vibrateEnabled) {
+              try {
+                wx.vibrateShort({ type: 'light' })
+              } catch (_) {}
+            }
+          }
         })
-      }
-
-      this._startTimer()
-      if (_settings?.soundEnabled) playCoinsSound()
-      if (_settings?.vibrateEnabled) {
-        try {
-          wx.vibrateShort({ type: 'light' })
-        } catch (_) {}
+      } else {
+        // 已显示过初始身份，直接启动计时器
+        this._startTimer()
+        if (_settings?.soundEnabled) playCoinsSound()
+        if (_settings?.vibrateEnabled) {
+          try {
+            wx.vibrateShort({ type: 'light' })
+          } catch (_) {}
+        }
       }
     } else {
       this._pause()

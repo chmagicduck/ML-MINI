@@ -50,7 +50,7 @@ export interface MoyuLevel {
 
 export const MOYU_LEVELS: MoyuLevel[] = [
   { name: '职场牛马', emoji: '🐂', threshold: 0,     color: '#9E9E9E', isGold: false },
-  { name: '摸鱼学徒', emoji: '🐟', threshold: 500,   color: '#66BB6A', isGold: false },
+  { name: '摸鱼学徒', emoji: '🐟', threshold: 500,   color: '#3B74E8', isGold: false },
   { name: '带薪锦鲤', emoji: '🎏', threshold: 2000,  color: '#42A5F5', isGold: false },
   { name: '划水宗师', emoji: '🏊', threshold: 10000, color: '#AB47BC', isGold: false },
   { name: '摸鱼大圣', emoji: '🐒', threshold: 50000, color: '#FFD700', isGold: true  },

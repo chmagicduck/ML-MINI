@@ -1,7 +1,7 @@
 /* pages/food/index.wxss */
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: #F0F4F8;
   padding: 0 32rpx 80rpx;
 }
 
@@ -13,7 +13,7 @@
 .hero-title {
   font-size: 48rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #002FA7;
   display: block;
   margin-bottom: 8rpx;
 }
@@ -25,7 +25,7 @@
 
 /* ===== 老虎机 ===== */
 .slot-machine {
-  background: linear-gradient(160deg, #E8F5E9, #fff);
+  background: linear-gradient(160deg, #EAF1FF, #fff);
   border-radius: 28rpx;
   padding: 48rpx 32rpx 40rpx;
   display: flex;
@@ -72,7 +72,7 @@
 .slot-name {
   font-size: 52rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #002FA7;
   display: block;
   margin-bottom: 12rpx;
   text-align: center;
@@ -94,7 +94,7 @@
 /* ===== 抽奖按钮 ===== */
 .btn-roll {
   width: 100%;
-  background: linear-gradient(135deg, #66BB6A, #43A047);
+  background: linear-gradient(135deg, #3B74E8, #245EDB);
   border-radius: 48rpx;
   padding: 28rpx 0;
   text-align: center;
@@ -128,7 +128,7 @@
 }
 .btn-confirm {
   flex: 1.5;
-  background: linear-gradient(135deg, #66BB6A, #43A047);
+  background: linear-gradient(135deg, #3B74E8, #245EDB);
   border-radius: 48rpx;
   padding: 28rpx 0;
   text-align: center;
@@ -143,7 +143,7 @@
 .btn-reroll {
   flex: 1;
   background: #fff;
-  border: 2rpx solid #C8E6C9;
+  border: 2rpx solid #D6E5FF;
   border-radius: 48rpx;
   padding: 28rpx 0;
   text-align: center;

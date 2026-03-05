@@ -2,7 +2,7 @@
 
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: #F0F4F8;
   display: flex;
   flex-direction: column;
 }
@@ -87,7 +87,7 @@
 .adj-btn {
   width: 72rpx;
   height: 72rpx;
-  background: #E8F5E9;
+  background: #EAF1FF;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -98,13 +98,13 @@
 .adj-icon {
   font-size: 44rpx;
   font-weight: 700;
-  color: #2E7D32;
+  color: #002FA7;
   line-height: 1;
 }
 .participants-num {
   font-size: 52rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #002FA7;
   min-width: 160rpx;
   text-align: center;
 }
@@ -133,7 +133,7 @@
 }
 .btn-main:active { opacity: 0.85; }
 .btn-start {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
+  background: linear-gradient(135deg, #3B74E8, #245EDB);
   box-shadow: 0 8rpx 24rpx rgba(76,175,80,0.4);
 }
 .btn-stop {

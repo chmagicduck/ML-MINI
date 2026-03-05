@@ -1,7 +1,7 @@
 /* pages/settings/basic.wxss */
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: #F0F4F8;
   padding-bottom: 80rpx;
 }
 
@@ -127,7 +127,7 @@
 }
 .save-btn {
   width: 100%;
-  background: linear-gradient(135deg, #66BB6A, #43A047);
+  background: linear-gradient(135deg, #3B74E8, #245EDB);
   color: #fff;
   border-radius: 48rpx;
   font-size: 32rpx;

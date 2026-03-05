@@ -24,7 +24,7 @@ Page({
     // 图例
     legend: [
       { color: '#FFFFFF', text: '工作日', border: '#E0E0E0' },
-      { color: '#E8F5E9', text: '节假日', border: '#A5D6A7' },
+      { color: '#EAF1FF', text: '节假日', border: '#AFC8FF' },
       { color: '#FFF9C4', text: '调休补班', border: '#F9A825' },
       { color: '#FFEBEE', text: '周末', border: '#EF9A9A' },
       { color: '#E3F2FD', text: '发薪日', border: '#90CAF9' },

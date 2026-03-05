@@ -56,10 +56,10 @@
     <view class="legend-row">
       <text class="legend-text">少</text>
       <view class="legend-cell" style="background: #EEEEEE"></view>
-      <view class="legend-cell" style="background: #C8E6C9"></view>
-      <view class="legend-cell" style="background: #81C784"></view>
-      <view class="legend-cell" style="background: #43A047"></view>
-      <view class="legend-cell" style="background: #1B5E20"></view>
+      <view class="legend-cell" style="background: #D6E5FF"></view>
+      <view class="legend-cell" style="background: #78A8FF"></view>
+      <view class="legend-cell" style="background: #245EDB"></view>
+      <view class="legend-cell" style="background: #002FA7"></view>
       <text class="legend-text">多</text>
     </view>
     <text class="heatmap-tip" wx:if="{{totalDays === 0}}">还没有摸鱼记录，快去首页开始吧！🐟</text>

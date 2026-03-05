@@ -42,6 +42,10 @@ Page({
   },
 
   onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 1 })
+      this.getTabBar().refreshState()
+    }
     const quote = MOYU_QUOTES[Math.floor(Math.random() * MOYU_QUOTES.length)]
     this.setData({ quote })
     this._loadStats()
@@ -268,7 +272,7 @@ function drawHeatmapOnCanvas(
   const WEEKS = rows[0]?.length || 16
   const cellSize = Math.floor((width - 8) / WEEKS)
   const gap = 2
-  const colors = ['#EEEEEE', '#C8E6C9', '#81C784', '#43A047', '#1B5E20']
+  const colors = ['#EEEEEE', '#D6E5FF', '#78A8FF', '#245EDB', '#002FA7']
 
   ctx.clearRect(0, 0, width, height)
 
@@ -313,11 +317,11 @@ function drawPoster(ctx: any, data: PosterData) {
   const W = 750, H = 1000
 
   // 背景
-  ctx.fillStyle = '#F0F4F0'
+  ctx.fillStyle = '#F0F4F8'
   ctx.fillRect(0, 0, W, H)
 
   // 顶部绿色区域
-  ctx.fillStyle = '#2E7D32'
+  ctx.fillStyle = '#002FA7'
   ctx.fillRect(0, 0, W, 320)
 
   // APP名称
@@ -328,7 +332,7 @@ function drawPoster(ctx: any, data: PosterData) {
 
   // slogan
   ctx.font = '28px sans-serif'
-  ctx.fillStyle = '#A5D6A7'
+  ctx.fillStyle = '#AFC8FF'
   ctx.fillText('只要我不努力，老板就永远过不上想要的生活', W / 2, 160)
 
   // 等级徽章
@@ -345,7 +349,7 @@ function drawPoster(ctx: any, data: PosterData) {
   roundRect(ctx, 40, 360, W - 80, 200, 20)
   ctx.fill()
 
-  ctx.fillStyle = '#1B5E20'
+  ctx.fillStyle = '#002FA7'
   ctx.font = 'bold 28px sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('累计摸鱼收益', W / 2, 410)

@@ -29,8 +29,8 @@
       max="50"
       value="{{participants}}"
       show-value
-      activeColor="#43A047"
-      block-color="#43A047"
+      activeColor="#245EDB"
+      block-color="#245EDB"
       bindchange="onParticipantsChange"
       class="participants-slider"
     />

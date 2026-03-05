@@ -2,14 +2,14 @@
 
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: var(--deep-bg);
   display: flex;
   flex-direction: column;
 }
 
 /* ===== 头部用户卡片 ===== */
 .header-card {
-  background: linear-gradient(135deg, #2E7D32, #43A047);
+  background: linear-gradient(135deg, #002FA7, #2455BC);
   padding: 48rpx 32rpx 40rpx;
   display: flex;
   flex-direction: row;
@@ -32,7 +32,7 @@
 }
 .header-salary {
   font-size: 28rpx;
-  color: #A5D6A7;
+  color: #AFC8FF;
   display: block;
 }
 

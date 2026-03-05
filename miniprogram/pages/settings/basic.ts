@@ -21,6 +21,7 @@ for (let h = 0; h < 24; h++) {
 
 Page({
   data: {
+    fromGuide: false,
     settings: {} as UserSettings,
     workdayModes: WORKDAY_MODES,
     payDays: PAY_DAYS,
@@ -36,7 +37,9 @@ Page({
     eveningEndIndex: 36,      // 默认18:00
   },
 
-  onLoad() {
+  onLoad(options: Record<string, string>) {
+    const fromGuide = options?.fromGuide === '1'
+    this.setData({ fromGuide })
     const settings = getSettings()
     this.setData({
       settings,
@@ -150,6 +153,11 @@ Page({
     }
     saveSettings(settings)
     wx.showToast({ title: '保存成功 🎉', icon: 'success' })
+    if (this.data.fromGuide) {
+      wx.setStorageSync('fishGuideSeen', true)
+      setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 800)
+      return
+    }
     setTimeout(() => wx.navigateBack(), 1200)
   },
 })

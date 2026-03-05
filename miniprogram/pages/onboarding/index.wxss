@@ -1,0 +1,8 @@
+.page { min-height: 100vh; background: var(--deep-bg); padding: 36rpx; }
+.hero,.step { padding: 30rpx; margin-bottom: 20rpx; border-radius: 24rpx; box-shadow: var(--deep-shadow); }
+.title { font-size: 50rpx; color: var(--deep-primary); font-weight: 800; display:block; }
+.subtitle { display:block; color: var(--deep-text-secondary); margin-top: 10rpx; }
+.desc { display:block; margin-top: 18rpx; font-size:24rpx; color: var(--deep-text-secondary); line-height: 1.6; }
+.step-title { display:block; font-size: 30rpx; color: var(--deep-text-primary); font-weight: 700; }
+.step-desc { display:block; margin-top: 8rpx; color: var(--deep-text-secondary); font-size: 24rpx; }
+.start-btn { margin-top: 24rpx; background: linear-gradient(120deg, var(--deep-primary), #0f7ce0); color:#fff; border-radius: 999rpx; font-size: 30rpx; }

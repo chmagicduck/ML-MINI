@@ -1,0 +1,14 @@
+<view class="page deep-page">
+  <view class="hero deep-card">
+    <text class="title">鱼额宝 Fish Balance</text>
+    <text class="subtitle">实时监控你的摸鱼利息。</text>
+    <text class="desc">先完成薪资与工时配置，再开启你的深潜收益引擎。</text>
+  </view>
+
+  <view class="step deep-card" wx:for="{{steps}}" wx:key="title">
+    <text class="step-title">{{item.title}}</text>
+    <text class="step-desc">{{item.desc}}</text>
+  </view>
+
+  <button class="start-btn" bindtap="onGoSetup">去设置薪资并启用鱼额宝</button>
+</view>

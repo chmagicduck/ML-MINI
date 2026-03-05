@@ -1,0 +1,18 @@
+<view class="page">
+  <view class="hero deep-card">
+    <text class="title">鱼额宝 Fish Balance</text>
+    <text class="subtitle">实时监控你的摸鱼利息。</text>
+    <view class="chip-row">
+      <text class="chip">深海金融 UI</text>
+      <text class="chip">毫秒级收益滚动</text>
+      <text class="chip">战报资产看板</text>
+    </view>
+  </view>
+
+  <view class="step deep-card" wx:for="{{steps}}" wx:key="title">
+    <text class="step-title">{{item.title}}</text>
+    <text class="step-desc">{{item.desc}}</text>
+  </view>
+
+  <button class="start-btn" bindtap="onStart">开始沉浸式摸鱼</button>
+</view>

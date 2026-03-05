@@ -2,14 +2,14 @@
 
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: var(--deep-bg);
   display: flex;
   flex-direction: column;
 }
 
 /* ===== 头部 ===== */
 .header {
-  background: linear-gradient(135deg, #2E7D32, #43A047);
+  background: linear-gradient(135deg, var(--deep-primary), #2455BC);
   padding: 48rpx 32rpx 56rpx;
   display: flex;
   flex-direction: column;
@@ -23,7 +23,7 @@
 }
 .header-sub {
   font-size: 26rpx;
-  color: #A5D6A7;
+  color: #AFC6F8;
   display: block;
   margin-top: 8rpx;
 }
@@ -111,7 +111,7 @@
 .stat-value {
   font-size: 34rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: var(--deep-primary);
   display: block;
 }
 .stat-label {
@@ -176,7 +176,7 @@
 /* ===== 语录卡片 ===== */
 .quote-card {
   margin: 0 32rpx 24rpx;
-  background: linear-gradient(135deg, #E8F5E9, #F1F8E9);
+  background: linear-gradient(135deg, #EAF1FF, #EAF3FF);
   border-radius: 20rpx;
   padding: 28rpx;
   display: flex;
@@ -190,7 +190,7 @@
 }
 .quote-text {
   font-size: 26rpx;
-  color: #2E7D32;
+  color: var(--deep-primary);
   line-height: 1.6;
   font-style: italic;
   flex: 1;
@@ -201,7 +201,7 @@
   padding: 0 32rpx 24rpx;
 }
 .share-btn {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
+  background: linear-gradient(135deg, #3567D2, #2455BC);
   border-radius: 48rpx;
   padding: 28rpx 0;
   text-align: center;

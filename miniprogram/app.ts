@@ -1,5 +1,9 @@
-// app.ts
 App<IAppOption>({
   globalData: {},
-  onLaunch() {},
+  onLaunch() {
+    const seenGuide = !!wx.getStorageSync('fishGuideSeen')
+    if (!seenGuide) {
+      wx.reLaunch({ url: '/pages/onboarding/index' })
+    }
+  },
 })

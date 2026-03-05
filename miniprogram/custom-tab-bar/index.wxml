@@ -1,0 +1,6 @@
+<view class="tabbar">
+  <view class="tab-item {{selected === index ? 'active' : ''}} {{item.text === '战报' && isSlacking ? 'breath' : ''}}" wx:for="{{list}}" wx:key="pagePath" bindtap="switchTab" data-path="{{item.pagePath}}" data-index="{{index}}">
+    <image class="icon" src="{{selected === index ? item.selectedIconPath : item.iconPath}}"></image>
+    <text class="text">{{item.text}}</text>
+  </view>
+</view>

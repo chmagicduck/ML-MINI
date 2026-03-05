@@ -1,0 +1,6 @@
+.tabbar { position: fixed; left:0; right:0; bottom:0; display:flex; background:#fff; padding: 10rpx 0 22rpx; box-shadow:0 -4rpx 20rpx rgba(0,0,0,.05); z-index:999; }
+.tab-item { flex:1; display:flex; flex-direction:column; align-items:center; color:#7B8AA0; font-size:20rpx; }
+.icon { width:48rpx; height:48rpx; }
+.active { color: var(--deep-primary); }
+.breath { animation: jump 1.2s ease-in-out infinite; }
+@keyframes jump { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px);} }

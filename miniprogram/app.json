@@ -1,7 +1,9 @@
 {
   "pages": [
+    "pages/onboarding/index",
     "pages/index/index",
     "pages/stats/index",
+    "pages/settings/index",
     "pages/profile/index",
     "pages/settings/basic",
     "pages/poop/index",
@@ -10,36 +12,43 @@
     "pages/calendar/index"
   ],
   "tabBar": {
-    "color": "#757575",
-    "selectedColor": "#2E7D32",
+    "custom": true,
+    "color": "#7B8AA0",
+    "selectedColor": "#002FA7",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "assets/images/tabbar/home.png",
-        "selectedIconPath": "assets/images/tabbar/home-active.png"
+        "text": "鱼额",
+        "iconPath": "assets/images/tabbar/tab-money.png",
+        "selectedIconPath": "assets/images/tabbar/tab-money-active.png"
       },
       {
         "pagePath": "pages/stats/index",
         "text": "战报",
-        "iconPath": "assets/images/tabbar/stats.png",
-        "selectedIconPath": "assets/images/tabbar/stats-active.png"
+        "iconPath": "assets/images/tabbar/tab-chart.png",
+        "selectedIconPath": "assets/images/tabbar/tab-chart-active.png"
+      },
+      {
+        "pagePath": "pages/settings/index",
+        "text": "Lab",
+        "iconPath": "assets/images/tabbar/tab-lab.png",
+        "selectedIconPath": "assets/images/tabbar/tab-lab-active.png"
       },
       {
         "pagePath": "pages/profile/index",
         "text": "我的",
-        "iconPath": "assets/images/tabbar/profile.png",
-        "selectedIconPath": "assets/images/tabbar/profile-active.png"
+        "iconPath": "assets/images/tabbar/tab-profile.png",
+        "selectedIconPath": "assets/images/tabbar/tab-profile-active.png"
       }
     ]
   },
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "吗喽薪事",
-    "navigationBarBackgroundColor": "#E8F5E9",
-    "backgroundColor": "#F0F4F0",
+    "navigationBarTitleText": "鱼额宝",
+    "navigationBarBackgroundColor": "#F0F4F8",
+    "backgroundColor": "#F0F4F8",
     "backgroundTextStyle": "light"
   },
   "style": "v2",

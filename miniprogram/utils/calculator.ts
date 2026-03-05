@@ -94,7 +94,8 @@ export function calcMonthEarnings(settings: UserSettings): number {
   const workDays = getWorkingDaysInMonth(year, month, settings.workdayMode)
   const dailySalary = settings.monthlySalary / workDays
   const elapsed = getWorkingDaysElapsed(settings)
-  const todayProgress = getTodayWorkProgress(settings)
+  const isTodayWorking = isWorkingDay(now.getFullYear(), now.getMonth(), now.getDate(), settings.workdayMode)
+  const todayProgress = isTodayWorking ? getTodayWorkProgress(settings) : 0
   return (elapsed + todayProgress) * dailySalary
 }
 
@@ -151,6 +152,8 @@ export function getDaysToPayday(payDay: number): number {
     const maxDay = new Date(y, m + 1, 0).getDate()
     return new Date(y, m, Math.min(d, maxDay))
   }
+
+  if (today === payDay) return 0
 
   const target = today < payDay
     ? clampToMonth(year, month, payDay)

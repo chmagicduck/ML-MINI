@@ -1,24 +1,12 @@
-// pages/settings/index.ts — 设置主页（列表）
-import { getSettings, saveSettings } from '../../utils/storage'
-
 Page({
-  data: {
-    soundEnabled: true,
-  },
-
   onShow() {
-    const settings = getSettings()
-    this.setData({ soundEnabled: settings.soundEnabled })
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 2 })
+      this.getTabBar().refreshState()
+    }
   },
-
-  onGoToBasic() {
-    wx.navigateTo({ url: '/pages/settings/basic' })
-  },
-
-  onToggleSound(e: WechatMiniprogram.SwitchChange) {
-    const soundEnabled = e.detail.value
-    const settings = getSettings()
-    saveSettings({ ...settings, soundEnabled })
-    this.setData({ soundEnabled })
-  },
+  onGoToMeeting() { wx.navigateTo({ url: '/pages/meeting/index' }) },
+  onGoToPoop() { wx.navigateTo({ url: '/pages/poop/index' }) },
+  onGoToFood() { wx.navigateTo({ url: '/pages/food/index' }) },
+  onGoToCalendar() { wx.navigateTo({ url: '/pages/calendar/index' }) },
 })

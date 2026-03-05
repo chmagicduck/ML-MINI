@@ -42,6 +42,10 @@ Page({
   },
 
   onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 1 })
+      this.getTabBar().refreshState()
+    }
     const quote = MOYU_QUOTES[Math.floor(Math.random() * MOYU_QUOTES.length)]
     this.setData({ quote })
     this._loadStats()

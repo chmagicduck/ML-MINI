@@ -84,35 +84,16 @@
       </view>
     </view>
 
-    <!-- ⑤ 距离周末 + 会议烧钱机 -->
+    <!-- ⑤ 距离周末 -->
     <view class="cards-row">
       <view class="card card-half">
         <text class="card-label">🎉 距离周末</text>
         <text class="card-value">{{daysToWeekend}}</text>
         <text class="card-sub">天后解放</text>
       </view>
-      <view class="card card-half card-feature" bindtap="onGoToMeeting">
-        <text class="feature-icon">💼</text>
-        <text class="feature-name">会议烧钱机</text>
-        <text class="feature-sub">计算会议成本 →</text>
-      </view>
     </view>
 
-    <!-- ⑥ 带薪拉粑粑 + 今天吃什么 -->
-    <view class="cards-row">
-      <view class="card card-half card-feature" bindtap="onGoToPoop">
-        <text class="feature-icon">💩</text>
-        <text class="feature-name">带薪拉粑粑</text>
-        <text class="feature-sub">查看年度收益 →</text>
-      </view>
-      <view class="card card-half card-feature card-food" bindtap="onGoToFood">
-        <text class="feature-icon">🍱</text>
-        <text class="feature-name">今天吃什么</text>
-        <text class="feature-sub">帮我来决定 →</text>
-      </view>
-    </view>
-
-    <!-- ⑦ V2.1 计算说明（可折叠） -->
+    <!-- ⑥ V2.1 计算说明（可折叠） -->
     <view class="calc-explain-wrap">
       <view class="calc-explain-header" bindtap="onToggleCalcExplain">
         <text class="calc-explain-title">📐 这些数字怎么算的？</text>

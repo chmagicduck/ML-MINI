@@ -1,5 +1,5 @@
 // pages/meeting/index.ts — 会议烧钱机 V2.2（支持自定义人均月薪 + 分享）
-import { getSettings } from '../../utils/storage'
+import { getSettings, saveMeetingRunningState, getMeetingRunningState, clearMeetingRunningState } from '../../utils/storage'
 import { getSecondSalary, formatMoney, getWorkingDaysInMonth, getDailyWorkMinutes } from '../../utils/calculator'
 
 let _timer: ReturnType<typeof setInterval> | null = null
@@ -30,8 +30,36 @@ Page({
     this._updateCostDisplay()
   },
 
-  onUnload() { this._stop() },
-  onHide()   { this._stop() },
+  onShow() {
+    // 切后台返回时恢复计时（与带薪拉粑粑的 bug 修复方式相同）
+    const state = getMeetingRunningState()
+    if (state && state.isRunning) {
+      clearMeetingRunningState()
+      const offlineSecs = (Date.now() - state.savedAt) / 1000
+      const newElapsed = state.elapsedSeconds + offlineSecs
+      this.setData({
+        elapsedSeconds: newElapsed,
+        totalCost: formatMoney(newElapsed * _secondCost),
+      })
+      this._start()
+    }
+  },
+
+  onUnload() {
+    this._stop()
+    clearMeetingRunningState()
+  },
+
+  onHide() {
+    if (this.data.isRunning) {
+      saveMeetingRunningState({
+        isRunning: true,
+        elapsedSeconds: this.data.elapsedSeconds,
+        savedAt: Date.now(),
+      })
+    }
+    this._stop()
+  },
 
   _updateCostDisplay() {
     const { participants, perSecondRaw, useCustomSalary, customSalaryNum } = this.data
@@ -87,6 +115,7 @@ Page({
 
   onReset() {
     this._stop()
+    clearMeetingRunningState()
     this.setData({ elapsedSeconds: 0, totalCost: '¥0.00' })
   },
 

@@ -654,8 +654,5 @@ Page({
   },
 
   // ─────────── 导航 ────────────────────────────────────────
-  onGoToPoop()    { wx.navigateTo({ url: '/pages/poop/index' }) },
-  onGoToFood()    { wx.navigateTo({ url: '/pages/food/index' }) },
-  onGoToMeeting() { wx.navigateTo({ url: '/pages/meeting/index' }) },
   onGoToCalendar(){ wx.navigateTo({ url: '/pages/calendar/index' }) },
 })

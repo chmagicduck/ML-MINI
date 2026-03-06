@@ -183,6 +183,28 @@ export function clearPoopRunningState(): void {
   try { wx.removeStorageSync(POOP_RUNNING_STATE_KEY) } catch (_) {}
 }
 
+// ─────────── 烧钱会议室计时器运行状态 ────────────────────────
+
+interface MeetingRunningState {
+  isRunning: boolean
+  elapsedSeconds: number
+  savedAt: number
+}
+
+const MEETING_RUNNING_STATE_KEY = 'meetingRunningState'
+
+export function saveMeetingRunningState(state: MeetingRunningState): void {
+  try { wx.setStorageSync(MEETING_RUNNING_STATE_KEY, state) } catch (_) {}
+}
+
+export function getMeetingRunningState(): MeetingRunningState | null {
+  try { return wx.getStorageSync(MEETING_RUNNING_STATE_KEY) || null } catch (_) { return null }
+}
+
+export function clearMeetingRunningState(): void {
+  try { wx.removeStorageSync(MEETING_RUNNING_STATE_KEY) } catch (_) {}
+}
+
 // ─────────── V1.0.1: 初始身份提示 ────────────────────────────────
 
 export function hasShownInitialIdentity(): boolean {

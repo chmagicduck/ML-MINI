@@ -1,0 +1,41 @@
+<!--pages/lab/index.wxml — 实验室-->
+<view class="page">
+
+  <view class="page-header">
+    <text class="page-title">实验室 🧪</text>
+    <text class="page-sub">打工人的秘密武器库</text>
+  </view>
+
+  <view class="tools-list">
+
+    <view class="tool-card" bindtap="onGoToMeeting">
+      <text class="tool-icon">💸</text>
+      <view class="tool-info">
+        <text class="tool-name">烧钱会议室</text>
+        <text class="tool-desc">实时计算会议成本，感受燃烧的钱</text>
+      </view>
+      <text class="tool-arrow">›</text>
+    </view>
+
+    <view class="tool-card" bindtap="onGoToPoop">
+      <text class="tool-icon">💩</text>
+      <view class="tool-info">
+        <text class="tool-name">带薪拉粑粑</text>
+        <text class="tool-desc">如厕即赚钱，记录年度如厕收益</text>
+      </view>
+      <text class="tool-arrow">›</text>
+    </view>
+
+    <view class="tool-card" bindtap="onGoToFood">
+      <text class="tool-icon">🍱</text>
+      <view class="tool-info">
+        <text class="tool-name">今天吃什么</text>
+        <text class="tool-desc">选择困难症救星，帮你做决定</text>
+      </view>
+      <text class="tool-arrow">›</text>
+    </view>
+
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

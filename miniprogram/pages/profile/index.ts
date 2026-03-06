@@ -1,5 +1,5 @@
 // pages/profile/index.ts — 我的页 V1.0.1
-import { getSettings, saveSettings, getCurrentSkin, setCurrentSkin } from '../../utils/storage'
+import { getSettings, saveSettings, getCurrentSkin, setCurrentSkin, getMoyuStats } from '../../utils/storage'
 import { SKINS } from '../../utils/types'
 
 Page({
@@ -74,9 +74,12 @@ Page({
     }
 
     if (skin.unlockType === 'level') {
-      const settings = getSettings()
-      wx.showToast({ title: `需要累计摸鱼 ¥${skin.unlockLevel} 解锁`, icon: 'none', duration: 2000 })
-      return
+      const need = skin.unlockLevel || 0
+      const totalMoney = getMoyuStats().totalMoney
+      if (totalMoney < need) {
+        wx.showToast({ title: `需要累计摸鱼 ¥${need} 解锁`, icon: 'none', duration: 2000 })
+        return
+      }
     }
 
     // 应用皮肤
@@ -101,6 +104,7 @@ Page({
               'moyuStats',              // 清除摸鱼累计统计
               'poopStats',              // 清除带薪拉粑粑统计
               'poopRunningState',       // 清除带薪拉粑粑运行状态
+              'meetingRunningState',    // 清除会议烧钱机运行状态
               'pendingLevelUp',         // 清除升级弹窗持久化状态
               'lastExitState',          // 清除离线收益弹窗状态
               'initialIdentityShown',   // 清除初始身份标记

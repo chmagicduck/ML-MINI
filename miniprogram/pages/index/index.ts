@@ -4,6 +4,7 @@ import {
   getTodaySlackingSeconds,
   saveTodaySlackingSeconds,
   commitMoyuSession,
+  commitMoyuSessionForDay,
   getMoyuStats,
   setPendingLevelUp,
   getPendingLevelUp,
@@ -19,7 +20,7 @@ import {
   calcTodayWorkedEarnings,
   calcTodayWorkedSeconds,
   calcMonthEarnings,
-  getTodayWorkProgress,
+  getDailyWorkMinutes,
   getDaysToPayday,
   getDaysToWeekend,
   getWorkingDaysInMonth,
@@ -56,8 +57,8 @@ let _lastLevelThreshold = -1
 let _levelUpShowing = false
 // 始终运行的时钟 timer，负责入账工资/本月已赚/进度环
 let _clockTimer: ReturnType<typeof setInterval> | null = null
-// 后台/子页面隐藏时的已上班秒数，用于返回后补齐摸鱼收益
-let _lastHideWorkedSecs = 0
+const STORAGE_SYNC_INTERVAL_MS = 1000
+const AUTO_COMMIT_INTERVAL_SECONDS = 1
 // 金币雨 Canvas 上下文（onReady 初始化）
 let _coinCanvas: any = null
 let _coinCtx: any = null
@@ -76,6 +77,12 @@ function playCoinsSound() {
   } catch (_) {}
 }
 
+function dayKeyByTimestamp(ts: number = Date.now()): string {
+  const now = new Date(ts)
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  return `${now.getFullYear()}-${m}-${d}`
+}
 Page({
   data: {
     statusBarHeight: 0,
@@ -153,19 +160,21 @@ Page({
 
     _settings = getSettings()
     const hasSettings = _settings.monthlySalary > 0
+    const slackingSeconds = getTodaySlackingSeconds()
 
-    // ── V2.2: 摸鱼状态补齐（切子页/进后台返回时补齐工作时间内的收益）
-    if (this.data.isSlacking && _lastHideWorkedSecs > 0 && _settings) {
-      const nowWorkedSecs = calcTodayWorkedSeconds(_settings)
-      const catchUpSecs = Math.max(0, nowWorkedSecs - _lastHideWorkedSecs)
-      if (catchUpSecs > 0) {
-        const savedSecs = getTodaySlackingSeconds()
-        saveTodaySlackingSeconds(savedSecs + catchUpSecs)
+    // 启动自愈：补齐“今日未提交秒数”（防止异常退出导致累计数据永久丢失）
+    let moyuStats = getMoyuStats()
+    const todayKey = dayKeyByTimestamp()
+    const committedTodaySecs = moyuStats.moyuDaysMap[todayKey] || 0
+    const uncommittedTodaySecs = Math.max(0, slackingSeconds - committedTodaySecs)
+    if (_settings && uncommittedTodaySecs > 0.001) {
+      const uncommittedMoney = uncommittedTodaySecs * getSecondSalary(_settings)
+      const committed = commitMoyuSessionForDay(todayKey, uncommittedTodaySecs, uncommittedMoney)
+      if (committed) {
+        moyuStats = getMoyuStats()
       }
-      _lastHideWorkedSecs = 0
     }
 
-    const slackingSeconds = getTodaySlackingSeconds()
     _lastCommitSeconds = slackingSeconds
 
     // 节假日
@@ -174,7 +183,6 @@ Page({
     const isHolidayOrWeekend = dayStatus === 'holiday' || dayStatus === 'weekend'
 
     // 等级 & 累计
-    const moyuStats = getMoyuStats()
     _baseTotalMoney = moyuStats.totalMoney
     const level = getMoyuLevel(_baseTotalMoney)
     // V2.3 Fix: 每次 onShow 都重新初始化等级阈值（防止遗留状态影响升级检测）
@@ -227,14 +235,8 @@ Page({
   },
 
   onHide() {
-    // V2.2: 记录隐藏时的已上班秒数，用于返回后补齐
-    if (this.data.isSlacking && _settings) {
-      _lastHideWorkedSecs = calcTodayWorkedSeconds(_settings)
-    }
-    // V2.3 Fix: 不停止 _timer，让它在后台继续运行，保持 storage 中的摸鱼秒数最新
-    // 这样战报页可以实时读到最新的摸鱼数据
-    // this._pause()  // ← 移除这个调用
-    this._stopClock()  // 仅停止显示相关的时钟
+    // 保持 _timer 继续运行，确保战报页可读取实时摸鱼数据
+    this._stopClock()
   },
 
   onUnload() {
@@ -286,14 +288,8 @@ Page({
     // 已工作秒数
     const workedSecs = calcTodayWorkedSeconds(_settings)
 
-    // 计算总工时秒数（上班时间 - 休息时间）
-    const [startH, startM] = _settings.workStartTime.split(':').map(Number)
-    const [endH, endM] = _settings.workEndTime.split(':').map(Number)
-    const lunchDuration = _settings.lunchBreakEnabled
-      ? (parseInt(_settings.lunchBreakEnd.split(':')[0]) - parseInt(_settings.lunchBreakStart.split(':')[0])) * 3600 +
-        (parseInt(_settings.lunchBreakEnd.split(':')[1]) - parseInt(_settings.lunchBreakStart.split(':')[1])) * 60
-      : 0
-    const totalWorkSeconds = (endH - startH) * 3600 + (endM - startM) * 60 - lunchDuration
+    // 与计算引擎保持一致：统一用 getDailyWorkMinutes，避免口径偏差
+    const totalWorkSeconds = Math.max(1, getDailyWorkMinutes(_settings) * 60)
 
     // 摸鱼秒数
     const slackingSecs = this.data.slackingSeconds
@@ -436,23 +432,81 @@ Page({
   // ─────────── 摸鱼计时器（100ms，仅摸鱼中运行）──────────────
   _startTimer() {
     if (_timer !== null) return
-    const baseSeconds = this.data.slackingSeconds
-    const startAt = Date.now()
+
+    let baseSeconds = this.data.slackingSeconds
+    let startAt = Date.now()
+    let activeDayKey = dayKeyByTimestamp(startAt)
+    let lastStorageSyncAt = 0
+
+    const commitDelta = (seconds: number, dayKey: string) => {
+      if (!_settings) return
+      const deltaSeconds = seconds - _lastCommitSeconds
+      if (deltaSeconds <= 0.001) return
+      const deltaMoney = deltaSeconds * getSecondSalary(_settings)
+      const committed = commitMoyuSessionForDay(dayKey, deltaSeconds, deltaMoney)
+      if (committed) {
+        _baseTotalMoney += deltaMoney
+        _lastCommitSeconds = seconds
+      }
+    }
 
     _timer = setInterval(() => {
       if (!_settings) return
-      const seconds = baseSeconds + (Date.now() - startAt) / 1000
+      const nowMs = Date.now()
+      const currentDayKey = dayKeyByTimestamp(nowMs)
 
-      // V2.3 Fix: 每100ms实时保存摸鱼秒数到 storage
-      // 这样战报页即使首页被隐藏，也能读到最新数据
-      saveTodaySlackingSeconds(seconds)
+      // 跨天处理：归档前一天，再从新一天 0 秒开始
+      if (currentDayKey !== activeDayKey) {
+        const closingSeconds = baseSeconds + (nowMs - startAt) / 1000
+        commitDelta(closingSeconds, activeDayKey)
+
+        baseSeconds = 0
+        startAt = nowMs
+        activeDayKey = currentDayKey
+        _lastCommitSeconds = 0
+        _lastCoinThreshold = 0
+
+        saveTodaySlackingSeconds(0)
+        this.setData({
+          slackingSeconds: 0,
+          slackingTimeStr: '00:00:00',
+          todaySlackingTimeStr: '00:00:00',
+        })
+        this._updateStaticCards()
+      }
+
+      const seconds = baseSeconds + (nowMs - startAt) / 1000
+
+      // 降低同步写频率：每秒刷一次 storage
+      if (nowMs - lastStorageSyncAt >= STORAGE_SYNC_INTERVAL_MS) {
+        saveTodaySlackingSeconds(seconds)
+        lastStorageSyncAt = nowMs
+      }
+
+      // 增量提交：至少每秒提交一次，避免异常退出后大段数据丢失
+      if (seconds - _lastCommitSeconds >= AUTO_COMMIT_INTERVAL_SECONDS) {
+        commitDelta(seconds, activeDayKey)
+      }
+
+      // 工作时段结束自动停表（防止持续刷到非工作时间）
+      if (!isWorkingNow(_settings)) {
+        saveTodaySlackingSeconds(seconds)
+        this.setData({
+          slackingSeconds: seconds,
+          slackingTimeStr: formatDuration(seconds),
+          isSlacking: false,
+        })
+        this._pause()
+        wx.showToast({ title: '已超出工作时段，自动暂停摸鱼', icon: 'none', duration: 1800 })
+        return
+      }
 
       // 今日摸鱼收入（仅摸鱼中刷新）
       const todayEarnings = formatMoney(calcTodayEarnings(_settings, seconds))
 
-      // 实时累计（_baseTotalMoney + 本次增量）
-      const liveDelta = seconds - _lastCommitSeconds
-      const liveMoney = Math.max(0, liveDelta) * getSecondSalary(_settings)
+      // 实时累计（已提交 + 未提交增量）
+      const liveDelta = Math.max(0, seconds - _lastCommitSeconds)
+      const liveMoney = liveDelta * getSecondSalary(_settings)
       const currentTotalMoney = _baseTotalMoney + liveMoney
 
       this.setData({
@@ -462,12 +516,11 @@ Page({
         totalMoney: formatMoney(currentTotalMoney),
       })
 
-      // V1.0.1: 金币雨——每突破 ¥1 整数门槛触发一次（改为¥1频率，强化爽感）
+      // V1.0.1: 金币雨——每突破 ¥1 整数门槛触发一次
       const earnedInt = Math.floor(calcTodayEarnings(_settings, seconds))
       if (earnedInt > _lastCoinThreshold && earnedInt >= 1) {
         _lastCoinThreshold = earnedInt
         this._triggerCoinRain()
-        // V1.0.1: 金币音效与金币雨同步
         if (_settings?.soundEnabled) playCoinsSound()
       }
 
@@ -486,9 +539,11 @@ Page({
       if (_settings && currentSeconds > _lastCommitSeconds) {
         const deltaSeconds = currentSeconds - _lastCommitSeconds
         const deltaMoney = deltaSeconds * getSecondSalary(_settings)
-        commitMoyuSession(deltaSeconds, deltaMoney)
-        _baseTotalMoney += deltaMoney
-        _lastCommitSeconds = currentSeconds
+        const committed = commitMoyuSession(deltaSeconds, deltaMoney)
+        if (committed) {
+          _baseTotalMoney += deltaMoney
+          _lastCommitSeconds = currentSeconds
+        }
       }
     }
   },

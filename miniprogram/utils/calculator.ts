@@ -1,5 +1,6 @@
 // 薪资与时间计算引擎 V2.1
 import { UserSettings, WorkdayMode, MoyuLevel, MOYU_LEVELS } from './types'
+import { getDayStatus } from './holiday'
 
 /** 解析 "HH:MM" 为当天分钟数（H-2: 加防御性校验） */
 export function parseTimeToMinutes(timeStr: string): number {
@@ -35,8 +36,12 @@ function getISOWeekNumber(date: Date): number {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
 }
 
-/** 判断给定日期是否为工作日 */
-function isWorkingDay(year: number, month: number, day: number, mode: WorkdayMode): boolean {
+function toDateKey(year: number, month: number, day: number): string {
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
+/** 仅按工作制判断（不含法定节假日/调休） */
+function isWorkingDayByMode(year: number, month: number, day: number, mode: WorkdayMode): boolean {
   const date = new Date(year, month, day)
   const dow = date.getDay()
   if (mode === 'double') return dow !== 0 && dow !== 6
@@ -47,6 +52,14 @@ function isWorkingDay(year: number, month: number, day: number, mode: WorkdayMod
     return isoWeek % 2 === 1 ? (dow !== 0 && dow !== 6) : dow !== 0
   }
   return dow !== 0 && dow !== 6
+}
+
+/** 判断给定日期是否为工作日（含法定节假日/调休） */
+function isWorkingDay(year: number, month: number, day: number, mode: WorkdayMode): boolean {
+  const dayStatus = getDayStatus(toDateKey(year, month, day))
+  if (dayStatus === 'holiday') return false
+  if (dayStatus === 'makeup') return true
+  return isWorkingDayByMode(year, month, day, mode)
 }
 
 /** 指定月份的工作日数量 */
@@ -88,6 +101,10 @@ export function getSecondSalary(settings: UserSettings): number {
  */
 export function calcTodayWorkedSeconds(settings: UserSettings): number {
   const now = new Date()
+  if (!isWorkingDay(now.getFullYear(), now.getMonth(), now.getDate(), settings.workdayMode)) {
+    return 0
+  }
+
   const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()
   const startSec = parseTimeToMinutes(settings.workStartTime) * 60
   const endSec = parseTimeToMinutes(settings.workEndTime) * 60
@@ -168,17 +185,20 @@ export function getTodayWorkProgress(settings: UserSettings): number {
  */
 export function getDaysToPayday(payDay: number): number {
   const now = new Date()
-  const today = now.getDate()
   const year = now.getFullYear()
   const month = now.getMonth()
+  const today = now.getDate()
 
   function clampToMonth(y: number, m: number, d: number): Date {
     const maxDay = new Date(y, m + 1, 0).getDate()
     return new Date(y, m, Math.min(d, maxDay))
   }
 
-  const target = today < payDay
-    ? clampToMonth(year, month, payDay)
+  const thisMonthPayday = clampToMonth(year, month, payDay)
+  if (today === thisMonthPayday.getDate()) return 0
+
+  const target = today < thisMonthPayday.getDate()
+    ? thisMonthPayday
     : clampToMonth(year, month + 1, payDay)
 
   return Math.ceil((target.getTime() - now.getTime()) / 86400000)
@@ -237,6 +257,10 @@ export function getNextMoyuLevel(totalMoney: number): MoyuLevel | null {
  */
 export function isWorkingNow(settings: UserSettings): boolean {
   const now = new Date()
+  if (!isWorkingDay(now.getFullYear(), now.getMonth(), now.getDate(), settings.workdayMode)) {
+    return false
+  }
+
   const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()
   const startSec = parseTimeToMinutes(settings.workStartTime) * 60
   const endSec = parseTimeToMinutes(settings.workEndTime) * 60

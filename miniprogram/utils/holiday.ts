@@ -23,8 +23,8 @@ const HOLIDAYS_2026: string[] = [
   // 端午节 (农历五月初五≈6/19，连休3天：6/19-6/21)
   '2026-06-19', '2026-06-20', '2026-06-21',
 
-  // 中秋节 (农历八月十五≈9/25，连休3天：9/25-9/27)
-  '2026-09-25', '2026-09-26', '2026-09-27',
+  // 中秋节 (农历八月十五≈9/25)
+  '2026-09-25', '2026-09-27',
 
   // 国庆节 (10/1，连休7天：10/1-10/7)
   '2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04',
@@ -76,8 +76,9 @@ export function getTodayStatus(): DayStatus {
 
 /** 获取指定日期状态 */
 export function getDayStatus(dateStr: string): DayStatus {
-  if (isHoliday(dateStr)) return 'holiday'
+  // 先判补班再判假日：即使数据源出现冲突，也以“需上班”优先
   if (isMakeupWorkday(dateStr)) return 'makeup'
+  if (isHoliday(dateStr)) return 'holiday'
   const dow = new Date(dateStr).getDay()
   if (dow === 0 || dow === 6) return 'weekend'
   return 'workday'

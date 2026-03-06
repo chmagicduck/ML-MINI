@@ -31,10 +31,19 @@ Page({
   },
 
   onShow() {
-    // 切后台返回时恢复计时（与带薪拉粑粑的 bug 修复方式相同）
+    // 切后台返回时恢复计时（恢复时同步人数/自定义薪资上下文，避免成本跳变）
     const state = getMeetingRunningState()
     if (state && state.isRunning) {
       clearMeetingRunningState()
+
+      const participants = state.participants ?? this.data.participants
+      const useCustomSalary = state.useCustomSalary ?? this.data.useCustomSalary
+      const customSalaryNum = state.customSalaryNum ?? this.data.customSalaryNum
+      const customSalaryStr = useCustomSalary && customSalaryNum > 0 ? String(customSalaryNum) : ''
+
+      this.setData({ participants, useCustomSalary, customSalaryNum, customSalaryStr })
+      this._updateCostDisplay()
+
       const offlineSecs = (Date.now() - state.savedAt) / 1000
       const newElapsed = state.elapsedSeconds + offlineSecs
       this.setData({
@@ -56,6 +65,9 @@ Page({
         isRunning: true,
         elapsedSeconds: this.data.elapsedSeconds,
         savedAt: Date.now(),
+        participants: this.data.participants,
+        useCustomSalary: this.data.useCustomSalary,
+        customSalaryNum: this.data.customSalaryNum,
       })
     }
     this._stop()

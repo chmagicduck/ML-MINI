@@ -1,5 +1,12 @@
 // 本地存储工具函数
-import { UserSettings, PoopStats, MoyuStats, DEFAULT_SETTINGS, DEFAULT_MOYU_STATS } from './types'
+import {
+  UserSettings,
+  PoopStats,
+  MoyuStats,
+  DEFAULT_SETTINGS,
+  DEFAULT_MOYU_STATS,
+  PoopRunningState,
+} from './types'
 
 const KEYS = {
   SETTINGS: 'userSettings',
@@ -57,9 +64,14 @@ export function getTodaySlackingSeconds(): number {
   }
 }
 
-export function saveTodaySlackingSeconds(seconds: number): void {
+export function saveTodaySlackingSeconds(seconds: number): boolean {
   const key = KEYS.SLACKING_PREFIX + todayKey()
-  wx.setStorageSync(key, seconds)
+  try {
+    wx.setStorageSync(key, seconds)
+    return true
+  } catch (_) {
+    return false
+  }
 }
 
 /** V2: 读取累计摸鱼统计 */
@@ -80,30 +92,50 @@ export function saveMoyuStats(stats: MoyuStats): void {
   } catch (_) {}
 }
 
+function isValidDayKey(dayKey: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(dayKey)
+}
+
+function commitMoyuSessionByDay(dayKey: string, newSeconds: number, newMoney: number): boolean {
+  if (newSeconds <= 0 || !isFinite(newSeconds) || !isValidDayKey(dayKey)) return false
+  try {
+    const stats = getMoyuStats()
+    const safeMoney = isFinite(newMoney) ? Math.max(0, newMoney) : 0
+    const safeDaysMap = stats.moyuDaysMap && typeof stats.moyuDaysMap === 'object'
+      ? stats.moyuDaysMap
+      : {}
+    const daySeconds = (safeDaysMap[dayKey] || 0) + newSeconds
+
+    const updated: MoyuStats = {
+      totalMoney: stats.totalMoney + safeMoney,
+      totalSeconds: stats.totalSeconds + newSeconds,
+      moyuDaysMap: {
+        ...safeDaysMap,
+        [dayKey]: daySeconds,
+      },
+    }
+    // 热力图数据只保留最近 365 天，避免无限增长
+    updated.moyuDaysMap = trimOldDays(updated.moyuDaysMap, 365)
+    saveMoyuStats(updated)
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
 /**
  * V2: 提交一次摸鱼会话，更新累计统计
  * 在每次暂停/停止时调用，增量写入防止重复计算
  * @param newSeconds 本次新增的摸鱼秒数（增量）
  * @param newMoney 本次新增的摸鱼收益（增量）
  */
-export function commitMoyuSession(newSeconds: number, newMoney: number): void {
-  if (newSeconds <= 0) return
-  try {
-    const stats = getMoyuStats()
-    const today = todayKeyForMap()
-    const daySeconds = (stats.moyuDaysMap[today] || 0) + newSeconds
-    const updated: MoyuStats = {
-      totalMoney: stats.totalMoney + newMoney,
-      totalSeconds: stats.totalSeconds + newSeconds,
-      moyuDaysMap: {
-        ...stats.moyuDaysMap,
-        [today]: daySeconds,
-      },
-    }
-    // 热力图数据只保留最近 365 天，避免无限增长
-    updated.moyuDaysMap = trimOldDays(updated.moyuDaysMap, 365)
-    saveMoyuStats(updated)
-  } catch (_) {}
+export function commitMoyuSession(newSeconds: number, newMoney: number): boolean {
+  return commitMoyuSessionByDay(todayKeyForMap(), newSeconds, newMoney)
+}
+
+/** V2.4: 指定日期提交摸鱼会话（用于跨天归档/补偿） */
+export function commitMoyuSessionForDay(dayKey: string, newSeconds: number, newMoney: number): boolean {
+  return commitMoyuSessionByDay(dayKey, newSeconds, newMoney)
 }
 
 function todayKeyForMap(): string {
@@ -167,8 +199,6 @@ export function clearLastExitState(): void {
 
 // ─────────── V1.0.1: 拉粑粑计时器运行状态 ────────────────────
 
-import { PoopRunningState } from './types'
-
 const POOP_RUNNING_STATE_KEY = 'poopRunningState'
 
 export function savePoopRunningState(state: PoopRunningState): void {
@@ -189,6 +219,9 @@ interface MeetingRunningState {
   isRunning: boolean
   elapsedSeconds: number
   savedAt: number
+  participants?: number
+  useCustomSalary?: boolean
+  customSalaryNum?: number
 }
 
 const MEETING_RUNNING_STATE_KEY = 'meetingRunningState'

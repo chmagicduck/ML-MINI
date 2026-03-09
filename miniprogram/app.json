@@ -20,25 +20,25 @@
         "pagePath": "pages/index/index",
         "text": "摸鱼中心",
         "iconPath": "assets/images/tabbar/tab-money.png",
-        "selectedIconPath": "assets/images/tabbar/tab-money-active.png"
+        "selectedIconPath": "assets/images/tabbar/blue/tab-money-active.png"
       },
       {
         "pagePath": "pages/stats/index",
         "text": "情报局",
-        "iconPath": "assets/images/tabbar/tab-chart.png",
-        "selectedIconPath": "assets/images/tabbar/tab-chart-active.png"
+        "iconPath": "assets/images/tabbar/grey/tab-chart.png",
+        "selectedIconPath": "assets/images/tabbar/blue/tab-chart-active.png"
       },
       {
         "pagePath": "pages/lab/index",
         "text": "实验室",
-        "iconPath": "assets/images/tabbar/tab-lab.png",
-        "selectedIconPath": "assets/images/tabbar/tab-lab-active.png"
+        "iconPath": "assets/images/tabbar/grey/tab-lab.png",
+        "selectedIconPath": "assets/images/tabbar/blue/tab-lab-active.png"
       },
       {
         "pagePath": "pages/profile/index",
         "text": "个人基地",
-        "iconPath": "assets/images/tabbar/tab-profile.png",
-        "selectedIconPath": "assets/images/tabbar/tab-profile-active.png"
+        "iconPath": "assets/images/tabbar/grey/tab-profile.png",
+        "selectedIconPath": "assets/images/tabbar/blue/tab-profile-active.png"
       }
     ]
   },

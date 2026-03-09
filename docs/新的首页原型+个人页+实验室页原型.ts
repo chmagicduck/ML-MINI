@@ -20,11 +20,17 @@ import {
   Timer,
   Map,
   Lock,
-  CheckCircle2
+  CheckCircle2,
+  Flame,
+  Poop,
+  Utensils,
+  Sparkles,
+  Zap,
+  Microscope
 } from 'lucide-react';
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('lab'); // 默认进入实验室看效果
   const [fishSeconds, setFishSeconds] = useState(161); 
   const [totalWorkSeconds, setTotalWorkSeconds] = useState(20273); 
   const [totalEarnings, setTotalEarnings] = useState(83.2632);
@@ -83,6 +89,99 @@ const App = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'lab':
+        return (
+          <div className="flex-1 overflow-y-auto px-5 py-4 animate-in fade-in slide-in-from-bottom-2 duration-300 pb-12 bg-[#F8FAFC]">
+            {/* 实验室顶部页眉 */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="bg-emerald-500 p-1.5 rounded-lg">
+                  <Microscope size={18} className="text-white" />
+                </div>
+                <h1 className="text-2xl font-black text-slate-800 tracking-tight">实验室</h1>
+              </div>
+              <p className="text-[11px] font-bold text-slate-400">打工人的秘密武器库 · SECRET WEAPONS</p>
+            </div>
+
+            {/* 1. 核心大卡片: 烧钱会议室 */}
+            <div className="group relative mb-6 cursor-pointer active:scale-[0.98] transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-red-500 rounded-[32px] blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+              <div className="relative bg-white rounded-[32px] p-6 border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50"></div>
+                
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl shadow-inner shadow-orange-200/50">
+                    💸
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-2 py-1 rounded-full mb-1">REALTIME</span>
+                    <div className="flex items-center gap-1 text-orange-500">
+                      <Flame size={14} className="animate-pulse" />
+                      <span className="text-[12px] font-bold">燃烧中</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-2">
+                  <h2 className="text-xl font-black text-slate-800">烧钱会议室</h2>
+                  <p className="text-[11px] font-bold text-slate-400 mt-1">实时计算会议成本，感受燃烧的钱</p>
+                </div>
+
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-50">
+                  <div className="flex -space-x-2">
+                    {[1,2,3].map(i => (
+                      <div key={i} className="w-6 h-6 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px]">👤</div>
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500">已有 2,419 位组长在使用</span>
+                </div>
+
+                <div className="absolute bottom-4 right-6 w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-lg group-hover:translate-x-1 transition-transform">
+                  <ChevronRight size={20} className="text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* 2. 中型功能区: 栅格不对称布局 */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* 带薪拉粑粑 */}
+              <div className="group bg-white rounded-[28px] p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-95 flex flex-col items-center text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-amber-600/30"></div>
+                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:rotate-12 transition-transform">
+                  💩
+                </div>
+                <h3 className="text-[14px] font-black text-slate-800">带薪拉粑粑</h3>
+                <p className="text-[10px] font-bold text-slate-400 mt-1 leading-tight">如厕即赚钱<br/>记录年度收益</p>
+                <div className="mt-4 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                  <ChevronRight size={14} className="text-slate-300 group-hover:text-amber-600" />
+                </div>
+              </div>
+
+              {/* 今天吃什么 */}
+              <div className="group bg-[#EEF2FF] rounded-[28px] p-5 border border-indigo-100 shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-95 flex flex-col items-center text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500/30"></div>
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-2xl mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                  🍱
+                </div>
+                <h3 className="text-[14px] font-black text-slate-800">今天吃什么</h3>
+                <p className="text-[10px] font-bold text-slate-500 mt-1 leading-tight">选择困难症<br/>终极救星</p>
+                <div className="mt-4 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-200">
+                  <Zap size={14} className="text-white fill-current" />
+                </div>
+              </div>
+            </div>
+
+            {/* 3. 底部预告模块 */}
+            <div className="mt-8 px-2 flex items-center justify-between opacity-50">
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-slate-400" />
+                <span className="text-[11px] font-black text-slate-400 tracking-wider uppercase">更多研发中...</span>
+              </div>
+              <div className="h-[1px] flex-1 bg-slate-200 mx-4"></div>
+              <div className="w-2 h-2 rounded-full bg-slate-200"></div>
+            </div>
+          </div>
+        );
       case 'profile':
         return (
           <div className="flex-1 overflow-y-auto px-4 py-2 animate-in fade-in slide-in-from-bottom-2 duration-300 pb-8 bg-[#F8FAFC]">
@@ -154,7 +253,6 @@ const App = () => {
                 <div className="flex justify-between relative z-10">
                   {roadmap.map((lvl, idx) => {
                     const isReached = idx <= currentLevelIndex;
-                    const isCurrent = idx === currentLevelIndex;
                     return (
                       <div key={idx} className="flex flex-col items-center">
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[14px] transition-all duration-300 ${isReached ? 'bg-blue-50 border-2 border-blue-500' : 'bg-slate-50 border-2 border-slate-100 opacity-40 grayscale'}`}>
@@ -198,12 +296,6 @@ const App = () => {
                 <SettingItem icon={<Settings2 size={15} className="text-blue-500"/>} label="薪资工时" />
                 <div className="h-[1px] bg-slate-50 mx-10"></div>
                 <SettingItem icon={<Calendar size={15} className="text-indigo-500"/>} label="节假日" />
-              </div>
-
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <SettingItem icon={<Palette size={15} className="text-pink-500"/>} label="外观皮肤" value="深海" />
-                <div className="h-[1px] bg-slate-50 mx-10"></div>
-                <SettingItem icon={<Timer size={15} className="text-emerald-500"/>} label="时钟样式" value="拟物" />
               </div>
 
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-2">
@@ -343,10 +435,28 @@ const App = () => {
                   </div>
                   <div className="text-[20px] font-black text-[#16A34A]">¥204,518</div>
                 </div>
+
+                <div className="bg-white rounded-[24px] p-4 border border-gray-100 flex flex-col justify-between shadow-sm">
+                  <div className="text-[#64748B] text-[11px] font-black flex items-center gap-1.5">
+                    <Calendar size={13} className="text-blue-500" /> 发薪倒数
+                  </div>
+                  <div className="text-[22px] font-black text-[#1E293B]">9 <span className="text-[10px] text-gray-400 font-bold ml-0.5">天</span></div>
+                  <div className="text-[9px] text-blue-500 font-bold flex items-center gap-0.5">查看明细 <ChevronRight size={10} /></div>
+                </div>
+
+                <div className="bg-white rounded-[24px] p-4 border border-gray-100 flex flex-col justify-between shadow-sm">
+                  <div className="text-[#64748B] text-[11px] font-black flex items-center gap-1.5">
+                    <Moon size={13} className="text-indigo-500" /> 距离周末
+                  </div>
+                  <div className="text-[22px] font-black text-[#1E293B]">2 <span className="text-[10px] text-gray-400 font-bold ml-0.5">天</span></div>
+                  <div className="text-[9px] text-indigo-400 font-bold italic">坚持住！</div>
+                </div>
               </div>
             </div>
           </>
         );
+      case 'report':
+        return <div className="flex-1 flex items-center justify-center text-slate-400 font-bold">情报模块研发中...</div>;
     }
   };
 
@@ -397,7 +507,7 @@ const App = () => {
             <div className="flex items-center gap-1.5">
               <div className="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-white text-[10px] font-black shadow-lg shadow-blue-200">鱼</div>
               <span className="text-[16px] font-bold text-[#111827]">
-                {activeTab === 'home' ? '鱼额宝' : '特工中心'}
+                {activeTab === 'home' ? '鱼额宝' : activeTab === 'lab' ? '深海实验室' : '特工中心'}
               </span>
             </div>
             <div className="w-[80px] h-7 bg-[#F2F2F2]/50 rounded-full border border-gray-100 flex items-center justify-evenly opacity-30">

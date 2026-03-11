@@ -12,19 +12,19 @@
   ],
   "tabBar": {
     "color": "#757575",
-    "selectedColor": "#2E7D32",
+    "selectedColor": "#2563EB",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
         "text": "摸鱼中心",
-        "iconPath": "assets/images/tabbar/tab-money.png",
+        "iconPath": "assets/images/tabbar/grey/tab-money.png",
         "selectedIconPath": "assets/images/tabbar/blue/tab-money-active.png"
       },
       {
         "pagePath": "pages/stats/index",
-        "text": "情报局",
+        "text": "情报中心",
         "iconPath": "assets/images/tabbar/grey/tab-chart.png",
         "selectedIconPath": "assets/images/tabbar/blue/tab-chart-active.png"
       },
@@ -44,9 +44,9 @@
   },
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "吗喽薪事",
-    "navigationBarBackgroundColor": "#E8F5E9",
-    "backgroundColor": "#F0F4F0",
+    "navigationBarTitleText": "鱼额宝",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F8FAFC",
     "backgroundTextStyle": "light"
   },
   "style": "v2",

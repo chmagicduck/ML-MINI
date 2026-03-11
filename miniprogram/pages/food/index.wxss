@@ -1,7 +1,7 @@
 /* pages/food/index.wxss */
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: #F8FAFC;
   padding: 0 32rpx 80rpx;
 }
 
@@ -13,7 +13,7 @@
 .hero-title {
   font-size: 48rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #1E40AF;
   display: block;
   margin-bottom: 8rpx;
 }
@@ -25,7 +25,7 @@
 
 /* ===== 老虎机 ===== */
 .slot-machine {
-  background: linear-gradient(160deg, #E8F5E9, #fff);
+  background: linear-gradient(160deg, #EFF6FF, #fff);
   border-radius: 28rpx;
   padding: 48rpx 32rpx 40rpx;
   display: flex;
@@ -72,7 +72,7 @@
 .slot-name {
   font-size: 52rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #1E40AF;
   display: block;
   margin-bottom: 12rpx;
   text-align: center;
@@ -94,11 +94,11 @@
 /* ===== 抽奖按钮 ===== */
 .btn-roll {
   width: 100%;
-  background: linear-gradient(135deg, #66BB6A, #43A047);
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
   border-radius: 48rpx;
   padding: 28rpx 0;
   text-align: center;
-  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.35);
+  box-shadow: 0 8rpx 24rpx rgba(37, 99, 235, 0.35);
   transition: all 0.15s;
 }
 .btn-roll:active {
@@ -106,12 +106,12 @@
   transform: scale(0.98);
 }
 .btn-rolling {
-  background: linear-gradient(135deg, #AED581, #8BC34A);
+  background: linear-gradient(135deg, #93C5FD, #60A5FA);
   animation: btn-pulse 0.5s ease-in-out infinite;
 }
 @keyframes btn-pulse {
-  0%, 100% { box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.35); }
-  50% { box-shadow: 0 12rpx 32rpx rgba(76, 175, 80, 0.55); }
+  0%, 100% { box-shadow: 0 8rpx 24rpx rgba(37, 99, 235, 0.35); }
+  50% { box-shadow: 0 12rpx 32rpx rgba(37, 99, 235, 0.55); }
 }
 .btn-roll-text {
   font-size: 32rpx;
@@ -128,11 +128,11 @@
 }
 .btn-confirm {
   flex: 1.5;
-  background: linear-gradient(135deg, #66BB6A, #43A047);
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
   border-radius: 48rpx;
   padding: 28rpx 0;
   text-align: center;
-  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.3);
+  box-shadow: 0 8rpx 24rpx rgba(37, 99, 235, 0.3);
 }
 .btn-confirm:active { opacity: 0.85; }
 .btn-confirm-text {
@@ -143,7 +143,7 @@
 .btn-reroll {
   flex: 1;
   background: #fff;
-  border: 2rpx solid #C8E6C9;
+  border: 2rpx solid #BFDBFE;
   border-radius: 48rpx;
   padding: 28rpx 0;
   text-align: center;
@@ -152,7 +152,7 @@
 .btn-reroll-text {
   font-size: 28rpx;
   font-weight: 600;
-  color: #388E3C;
+  color: #2563EB;
 }
 
 /* ===== V2.2 食物分享按钮 ===== */
@@ -163,13 +163,13 @@
   border-radius: 48rpx;
   padding: 20rpx 0;
   text-align: center;
-  border: 1.5rpx solid #A5D6A7;
+  border: 1.5rpx solid #93C5FD;
 }
 .btn-share-food::after { border: none; }
-.btn-share-food:active { background: #F1F8E9; }
+.btn-share-food:active { background: #EFF6FF; }
 .btn-share-food-text {
   font-size: 28rpx;
-  color: #2E7D32;
+  color: #2563EB;
   font-weight: 600;
 }
 

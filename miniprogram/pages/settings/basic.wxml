@@ -68,7 +68,7 @@
 
       <view class="form-item">
         <text class="form-label">午休</text>
-        <switch checked="{{settings.lunchBreakEnabled}}" color="#4CAF50" bindchange="onLunchBreakToggle" />
+        <switch checked="{{settings.lunchBreakEnabled}}" color="#3B82F6" bindchange="onLunchBreakToggle" />
       </view>
 
       <block wx:if="{{settings.lunchBreakEnabled}}">
@@ -107,7 +107,7 @@
           wx:key="key"
           class="radio-item {{item.key === settings.workdayMode ? 'radio-item-active' : ''}}"
         >
-          <radio value="{{item.key}}" checked="{{item.key === settings.workdayMode}}" color="#4CAF50" />
+          <radio value="{{item.key}}" checked="{{item.key === settings.workdayMode}}" color="#3B82F6" />
           <view class="radio-info">
             <text class="radio-label">{{item.label}}</text>
             <text class="radio-desc">{{item.desc}}</text>

@@ -1,7 +1,7 @@
 /* pages/settings/basic.wxss */
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: #F8FAFC;
   padding-bottom: 80rpx;
 }
 
@@ -105,7 +105,7 @@
   border-bottom: none;
 }
 .radio-item-active {
-  background: #F1F8E9;
+  background: #EFF6FF;
 }
 .radio-info {
   display: flex;
@@ -127,14 +127,14 @@
 }
 .save-btn {
   width: 100%;
-  background: linear-gradient(135deg, #66BB6A, #43A047);
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
   color: #fff;
   border-radius: 48rpx;
   font-size: 32rpx;
   font-weight: 600;
   padding: 24rpx 0;
   border: none;
-  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.3);
+  box-shadow: 0 8rpx 24rpx rgba(37, 99, 235, 0.3);
 }
 .save-btn:active {
   opacity: 0.85;

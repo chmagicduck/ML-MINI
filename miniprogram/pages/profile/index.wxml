@@ -1,130 +1,167 @@
-<!--pages/profile/index.wxml — 我的页 V2-->
+<!--pages/profile/index.wxml — 个人基地 V1.0-->
 <view class="page">
-  <!-- 头部用户卡片 -->
-  <view class="header-card">
-    <text class="header-emoji">🐒</text>
-    <view class="header-info">
-      <text class="header-title">吗喽薪事</text>
-      <text class="header-salary">{{salaryDisplay}}</text>
+
+  <!-- 1. 顶部个人资料区 -->
+  <view class="profile-header">
+    <view class="avatar-wrap">
+      <view class="avatar-circle">
+        <text class="avatar-placeholder">👤</text>
+      </view>
+      <view class="avatar-online"></view>
     </view>
+    <view class="profile-info">
+      <text class="profile-name">微信用户</text>
+      <text class="profile-sub">摸鱼天数: {{moyuDays}}天 · 已同步</text>
+    </view>
+    <text class="profile-arrow">›</text>
   </view>
 
-  <!-- 薪资配置 -->
-  <view class="section">
-    <text class="section-title">薪资与工时</text>
-    <view class="cell-group">
-      <view class="cell" bindtap="onGoToBasic">
-        <view class="cell-left">
-          <text class="cell-icon">💼</text>
-          <view>
-            <text class="cell-title">薪资与工时设置</text>
-            <text class="cell-sub">月薪、上下班时间、工作日模式</text>
-          </view>
-        </view>
-        <text class="cell-arrow">›</text>
+  <!-- 2. 收益核心卡片 -->
+  <view class="earnings-card">
+    <view class="earnings-deco"></view>
+    <view class="earnings-top">
+      <view class="earnings-left">
+        <text class="earnings-label">当前摸鱼总收益</text>
+        <text class="earnings-value">{{totalMoney}}</text>
       </view>
-
-      <view class="cell-divider"></view>
-
-      <view class="cell" bindtap="onGoToCalendar">
-        <view class="cell-left">
-          <text class="cell-icon">📅</text>
-          <view>
-            <text class="cell-title">节假日日历</text>
-            <text class="cell-sub">发薪日、节假日、补班日一览</text>
-          </view>
-        </view>
-        <text class="cell-arrow">›</text>
+      <view class="earnings-badge">
+        <text class="badge-emoji">{{levelEmoji}}</text>
+        <text class="badge-name">{{levelName}}</text>
       </view>
     </view>
-  </view>
-
-  <!-- 特效与体验 -->
-  <view class="section">
-    <text class="section-title">特效与体验</text>
-    <view class="cell-group">
-      <view class="cell">
-        <view class="cell-left">
-          <text class="cell-icon">🔔</text>
-          <view>
-            <text class="cell-title">金币音效</text>
-            <text class="cell-sub">开启摸鱼时播放</text>
-          </view>
-        </view>
-        <switch checked="{{soundEnabled}}" color="#4CAF50" bindchange="onToggleSound" />
+    <view class="earnings-progress-wrap">
+      <view class="earnings-progress-top">
+        <text class="earnings-progress-label">等级提升进度</text>
+        <text class="earnings-progress-hint" wx:if="{{!isMaxLevel}}">
+          再赚 <text class="earnings-progress-amount">¥{{diffToNext}}</text> 升级
+        </text>
+        <text class="earnings-progress-hint" wx:else>已满级 🎉</text>
       </view>
-
-      <view class="cell-divider"></view>
-
-      <view class="cell">
-        <view class="cell-left">
-          <text class="cell-icon">📳</text>
-          <view>
-            <text class="cell-title">震动反馈</text>
-            <text class="cell-sub">点击切换摸鱼时震动</text>
-          </view>
-        </view>
-        <switch checked="{{vibrateEnabled}}" color="#4CAF50" bindchange="onToggleVibrate" />
-      </view>
-    </view>
-  </view>
-
-  <!-- V1.0.1 皮肤系统 -->
-  <view class="section">
-    <text class="section-title">🎨 外观</text>
-    <view class="skins-container">
-      <view
-        wx:for="{{availableSkins}}"
-        wx:key="id"
-        class="skin-item {{currentSkin === item.id ? 'skin-item-active' : ''}}"
-        bindtap="onSkinTap"
-        data-id="{{item.id}}"
-      >
-        <image class="skin-image" src="{{item.image}}" mode="aspectFit"></image>
-        <text class="skin-name">{{item.name}}</text>
-        <view class="skin-badge" wx:if="{{currentSkin === item.id}}">✓</view>
-      </view>
-    </view>
-    <text class="skins-tip">点击更换吗喽形象（广告解锁更多皮肤）</text>
-  </view>
-
-  <!-- 关于我们 -->
-  <view class="section">
-    <text class="section-title">关于</text>
-    <view class="cell-group">
-      <view class="cell">
-        <view class="cell-left">
-          <text class="cell-icon">📖</text>
-          <view>
-            <text class="cell-title">关于吗喽薪事</text>
-            <text class="cell-sub">打工人情绪价值中心 v1.0.1</text>
-          </view>
+      <view class="earnings-bar-bg">
+        <view class="earnings-bar-fill" style="width: {{levelProgress}}%">
+          <view class="earnings-bar-glow"></view>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- V1.0.1 数据重置区 -->
-  <view class="section">
-    <text class="section-title danger-title">⚠️ 危险操作</text>
-    <view class="cell-group">
-      <view class="cell danger-cell" bindtap="resetAllData">
-        <view class="cell-left">
-          <text class="cell-icon">🗑️</text>
-          <view>
-            <text class="cell-title danger-text">重置所有数据</text>
-            <text class="cell-sub">清空摸鱼、战报、拉粑粑所有记录</text>
+  <!-- 3. 摸鱼之路 -->
+  <view class="roadmap-card">
+    <view class="roadmap-header">
+      <view class="roadmap-title-wrap">
+        <text class="roadmap-icon">📍</text>
+        <text class="roadmap-title"> 摸鱼之路</text>
+      </view>
+      <text class="roadmap-max">最高等级: 传说打工人</text>
+    </view>
+    <view class="roadmap-body">
+      <!-- 背景线 -->
+      <view class="roadmap-bg-line"></view>
+      <!-- 激活线 -->
+      <view class="roadmap-active-line" style="width: {{roadmapActiveWidth}}"></view>
+      <!-- 节点 -->
+      <scroll-view scroll-x class="roadmap-scroll" enhanced show-scrollbar="{{false}}">
+        <view class="roadmap-nodes">
+          <view class="roadmap-node" wx:for="{{roadmapNodes}}" wx:key="name">
+            <view class="node-circle {{item.isReached ? 'node-reached' : 'node-locked'}}">
+              <text class="node-icon" wx:if="{{item.isReached}}">{{item.emoji}}</text>
+              <text class="node-lock" wx:else>🔒</text>
+            </view>
+            <text class="node-name {{item.isReached ? 'name-reached' : 'name-locked'}}">{{item.shortName}}</text>
           </view>
         </view>
-        <text class="cell-arrow">›</text>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 4. 统计面板 -->
+  <view class="stats-grid">
+    <view class="stat-card">
+      <view class="stat-icon-wrap stat-icon-blue">
+        <text class="stat-icon-text">📈</text>
       </view>
+      <view class="stat-content">
+        <text class="stat-label">击败同事</text>
+        <text class="stat-value">{{beatPercent}}</text>
+      </view>
+    </view>
+    <view class="stat-card">
+      <view class="stat-icon-wrap stat-icon-orange">
+        <text class="stat-icon-text">☕</text>
+      </view>
+      <view class="stat-content">
+        <text class="stat-label">摸鱼效率</text>
+        <text class="stat-value">{{efficiencyLabel}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 5. 设置列表组1: 薪资工时 + 节假日 -->
+  <view class="settings-group">
+    <view class="setting-item" bindtap="onGoToBasic">
+      <view class="setting-icon-wrap">
+        <text class="setting-icon">⚙️</text>
+      </view>
+      <text class="setting-label">薪资工时</text>
+      <text class="setting-arrow">›</text>
+    </view>
+    <view class="setting-divider"></view>
+    <view class="setting-item" bindtap="onGoToCalendar">
+      <view class="setting-icon-wrap">
+        <text class="setting-icon">📅</text>
+      </view>
+      <text class="setting-label">节假日</text>
+      <text class="setting-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 6. 设置列表组2: 外观皮肤 + 时钟样式 -->
+  <view class="settings-group">
+    <view class="setting-item">
+      <view class="setting-icon-wrap">
+        <text class="setting-icon">🎨</text>
+      </view>
+      <text class="setting-label">外观皮肤</text>
+      <view class="setting-right">
+        <text class="setting-value">深海</text>
+        <text class="setting-arrow">›</text>
+      </view>
+    </view>
+    <view class="setting-divider"></view>
+    <view class="setting-item">
+      <view class="setting-icon-wrap">
+        <text class="setting-icon">🕐</text>
+      </view>
+      <text class="setting-label">时钟样式</text>
+      <view class="setting-right">
+        <text class="setting-value">拟物</text>
+        <text class="setting-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 7. 设置列表组3: 关于 + 清除数据 -->
+  <view class="settings-group settings-group-last">
+    <view class="setting-item">
+      <view class="setting-icon-wrap">
+        <text class="setting-icon">ℹ️</text>
+      </view>
+      <text class="setting-label">关于软件</text>
+      <text class="setting-arrow">›</text>
+    </view>
+    <view class="setting-divider"></view>
+    <view class="setting-item setting-danger" bindtap="resetAllData">
+      <view class="setting-icon-wrap setting-icon-danger">
+        <text class="setting-icon">🔄</text>
+      </view>
+      <text class="setting-label setting-label-danger">清除数据</text>
+      <text class="setting-arrow">›</text>
     </view>
   </view>
 
   <!-- 页脚 -->
   <view class="footer">
-    <text class="footer-slogan">只要我不努力，老板就永远过不上想要的生活</text>
-    <text class="footer-version">吗喽薪事 v1.0.0 · 愿每一条鱼都被摸到</text>
+    <text class="footer-text">鱼额宝 · 个人基地 v2.5.0</text>
   </view>
 
   <view class="safe-bottom"></view>

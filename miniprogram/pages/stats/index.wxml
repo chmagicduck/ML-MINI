@@ -1,89 +1,13 @@
-<!--pages/stats/index.wxml — 战报统计页 V2.1-->
+<!--pages/stats/index.wxml — 情报局（待开发）-->
 <view class="page">
-  <view class="header">
-    <text class="header-title">🏆 摸鱼战报</text>
-    <text class="header-sub">你的摸鱼成就一览</text>
-  </view>
-
-  <!-- 等级展示卡 -->
-  <view class="level-card {{isGoldLevel ? 'level-card-gold' : ''}}" style="border-color: {{levelColor}}">
-    <view class="level-top">
-      <text class="level-big-emoji">{{levelEmoji}}</text>
-      <view class="level-info">
-        <text class="level-title" style="color: {{levelColor}}">{{levelName}}</text>
-        <text class="level-desc" wx:if="{{!isMaxLevel}}">
-          距 {{nextLevelName}} 还差 {{nextLevelThreshold}}
-        </text>
-        <text class="level-desc gold-text" wx:else>你已是传说中的摸鱼大圣！👑</text>
-      </view>
-    </view>
-    <view class="progress-bar-bg" wx:if="{{!isMaxLevel}}">
-      <view class="progress-bar-fill" style="width: {{levelProgress}}%; background: {{levelColor}}"></view>
-    </view>
-    <text class="progress-pct" wx:if="{{!isMaxLevel}}">{{levelProgress}}%</text>
-  </view>
-
-  <!-- 累计统计三格 -->
-  <view class="stats-row">
-    <view class="stat-item">
-      <text class="stat-value">{{totalMoney}}</text>
-      <text class="stat-label">累计摸鱼收益</text>
-    </view>
-    <view class="stat-divider"></view>
-    <view class="stat-item">
-      <text class="stat-value">{{totalTimeStr}}</text>
-      <text class="stat-label">累计摸鱼时长</text>
-    </view>
-    <view class="stat-divider"></view>
-    <view class="stat-item">
-      <text class="stat-value">{{totalDays}}</text>
-      <text class="stat-label">摸鱼天数</text>
+  <view class="placeholder-wrap">
+    <text class="placeholder-icon">🔬</text>
+    <text class="placeholder-title">情报局</text>
+    <text class="placeholder-desc">该模块正在研发中，敬请期待</text>
+    <view class="placeholder-dots">
+      <view class="dot dot-1"></view>
+      <view class="dot dot-2"></view>
+      <view class="dot dot-3"></view>
     </view>
   </view>
-
-  <!-- V2.1 等级路线图 -->
-  <view class="section-card">
-    <text class="section-title">🗺️ 等级路线图</text>
-    <scroll-view scroll-x class="roadmap-scroll">
-      <view class="roadmap-track">
-        <view
-          class="roadmap-item {{item.isUnlocked ? 'item-unlocked' : 'item-locked'}} {{item.isCurrent ? 'item-current' : ''}} {{item.isGold && item.isUnlocked ? 'item-gold' : ''}}"
-          wx:for="{{levelRoadmap}}"
-          wx:key="name"
-          style="{{item.isCurrent ? 'border-color: ' + item.color : ''}}"
-        >
-          <text class="roadmap-emoji">{{item.emoji}}</text>
-          <text class="roadmap-name" style="{{item.isCurrent ? 'color: ' + item.color : ''}}">
-            {{item.name}}
-          </text>
-          <text class="roadmap-threshold">{{item.thresholdStr}}</text>
-          <view class="roadmap-status-row">
-            <text class="roadmap-tag roadmap-tag-unlocked" wx:if="{{item.isUnlocked && !item.isCurrent}}">✓ 已解锁</text>
-            <text class="roadmap-tag roadmap-tag-current" wx:elif="{{item.isCurrent}}" style="background: {{item.color}}">当前</text>
-            <text class="roadmap-tag roadmap-tag-locked" wx:else>🔒</text>
-          </view>
-          <text class="roadmap-progress" wx:if="{{item.progressStr}}">{{item.progressStr}}</text>
-        </view>
-      </view>
-    </scroll-view>
-  </view>
-
-
-  <!-- 语录 -->
-  <view class="quote-card">
-    <text class="quote-icon">💬</text>
-    <text class="quote-text">{{quote}}</text>
-  </view>
-
-  <!-- 分享按钮 -->
-  <view class="share-btn-wrap">
-    <view class="share-btn" bindtap="onGenerateShareCard">
-      <text class="share-btn-text">📸 生成摸鱼战报</text>
-    </view>
-  </view>
-
-  <!-- 隐藏海报 Canvas -->
-  <canvas id="poster-canvas" type="2d" class="poster-canvas"></canvas>
-
-  <view class="safe-bottom"></view>
 </view>

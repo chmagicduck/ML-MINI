@@ -16,8 +16,6 @@ export interface UserSettings {
   workdayMode: WorkdayMode     // 工作日模式
   joinDate: string             // 入职日期 "YYYY-MM-DD"
   retirementDate: string       // 退休日期 "YYYY-MM-DD"
-  soundEnabled: boolean        // 金币音效
-  vibrateEnabled: boolean      // V2: 震动反馈
 }
 
 export interface PoopStats {
@@ -83,8 +81,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
   workdayMode: 'double',
   joinDate: '2020-01-01',
   retirementDate: '2055-01-01',
-  soundEnabled: true,
-  vibrateEnabled: true,
 }
 
 export const DEFAULT_MOYU_STATS: MoyuStats = {

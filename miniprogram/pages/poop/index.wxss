@@ -1,13 +1,13 @@
 /* pages/poop/index.wxss */
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: #F8FAFC;
   padding: 0 32rpx 80rpx;
 }
 
 /* ===== 主卡片 ===== */
 .hero-card {
-  background: linear-gradient(160deg, #E8F5E9, #fff);
+  background: linear-gradient(160deg, #EFF6FF, #fff);
   border-radius: 24rpx;
   margin-top: 24rpx;
   padding: 48rpx 32rpx 40rpx;
@@ -43,7 +43,7 @@
   padding: 6rpx 24rpx;
 }
 .badge-idle {
-  background: #E8F5E9;
+  background: #EFF6FF;
 }
 .badge-active {
   background: #FFEBEE;
@@ -62,7 +62,7 @@
 .timer-big {
   font-size: 72rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #1E40AF;
   letter-spacing: 4rpx;
   margin: 24rpx 0 12rpx;
   font-variant-numeric: tabular-nums;
@@ -70,7 +70,7 @@
 
 .session-earn {
   font-size: 32rpx;
-  color: #388E3C;
+  color: #2563EB;
   font-weight: 600;
   margin-bottom: 12rpx;
 }
@@ -92,8 +92,8 @@
   text-align: center;
 }
 .btn-start {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
-  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.35);
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
+  box-shadow: 0 8rpx 24rpx rgba(37, 99, 235, 0.35);
 }
 .btn-stop {
   background: linear-gradient(135deg, #EF9A9A, #E57373);
@@ -138,7 +138,7 @@
 .stat-value {
   font-size: 40rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #1E40AF;
   display: block;
   margin-bottom: 6rpx;
 }

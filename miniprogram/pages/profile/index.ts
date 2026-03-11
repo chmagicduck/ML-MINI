@@ -1,40 +1,140 @@
-// pages/profile/index.ts — 我的页 V1.0.1
-import { getSettings, saveSettings, getCurrentSkin, setCurrentSkin, getMoyuStats } from '../../utils/storage'
-import { SKINS } from '../../utils/types'
+// pages/profile/index.ts — 个人基地 V1.0
+import { getSettings, getMoyuStats, getTodaySlackingSeconds } from '../../utils/storage'
+import {
+  getMoyuLevel,
+  getNextMoyuLevel,
+  formatMoney,
+  calcTodayEarnings,
+} from '../../utils/calculator'
+import { MOYU_LEVELS } from '../../utils/types'
+
+interface RoadmapNode {
+  name: string
+  shortName: string
+  emoji: string
+  isReached: boolean
+}
 
 Page({
   data: {
-    soundEnabled: true,
-    vibrateEnabled: true,
-    monthlySalary: 0,
-    salaryDisplay: '未设置',
+    // 收益 & 等级
+    totalMoney: '¥0.00',
+    levelName: '职场新人',
+    levelEmoji: '🐣',
+    levelProgress: 0,
+    diffToNext: '0.00',
+    isMaxLevel: false,
 
-    // V1.0.1: 皮肤系统
-    currentSkin: 'default',
-    availableSkins: [],
-  },
+    // 摸鱼天数
+    moyuDays: 0,
 
-  onLoad() {
-    // 初始化皮肤列表
-    const availableSkins = Object.entries(SKINS).map(([id, skin]) => ({
-      id,
-      ...skin,
-    }))
-    this.setData({ availableSkins })
+    // 路线图
+    roadmapNodes: [] as RoadmapNode[],
+    roadmapActiveWidth: '0%',
+
+    // 统计
+    beatPercent: '99.2%',
+    efficiencyLabel: '优秀',
   },
 
   onShow() {
+    this._loadData()
+  },
+
+  _loadData() {
+    const stats = getMoyuStats()
     const settings = getSettings()
-    const currentSkin = getCurrentSkin()
+
+    // 计算实时总收益（含未提交的摸鱼秒数）
+    const now = new Date()
+    const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    const committedTodaySecs = stats.moyuDaysMap[todayKey] || 0
+    const actualTodaySecs = getTodaySlackingSeconds()
+    const uncommittedSecs = Math.max(0, actualTodaySecs - committedTodaySecs)
+    const uncommittedMoney = uncommittedSecs > 0 ? calcTodayEarnings(settings, uncommittedSecs) : 0
+    const displayTotalMoney = stats.totalMoney + uncommittedMoney
+
+    // 等级
+    const level = getMoyuLevel(displayTotalMoney)
+    const nextLevel = getNextMoyuLevel(displayTotalMoney)
+
+    let levelProgress = 100
+    let diffToNext = '0.00'
+    let isMaxLevel = false
+
+    if (nextLevel) {
+      const span = nextLevel.threshold - level.threshold
+      const earned = displayTotalMoney - level.threshold
+      levelProgress = Math.min(100, Math.round((earned / span) * 100))
+      diffToNext = (nextLevel.threshold - displayTotalMoney).toFixed(2)
+    } else {
+      isMaxLevel = true
+    }
+
+    // 摸鱼天数
+    const moyuDays = Object.keys(stats.moyuDaysMap).length
+
+    // 路线图节点
+    const currentLevelIndex = MOYU_LEVELS.findIndex(l => l.threshold === level.threshold)
+    const shortNames: Record<string, string> = {
+      '职场新人': '新人',
+      '摸鱼入门': '入门',
+      '摸鱼学徒': '学徒',
+      '小有成就': '成就',
+      '带薪锦鲤': '锦鲤',
+      '摸鱼能手': '能手',
+      '职场老油条': '油条',
+      '划水宗师': '宗师',
+      '摸鱼大圣': '大圣',
+      '传说打工人': '传说',
+    }
+    const roadmapNodes: RoadmapNode[] = MOYU_LEVELS.map((lvl, idx) => ({
+      name: lvl.name,
+      shortName: shortNames[lvl.name] || lvl.name,
+      emoji: lvl.emoji,
+      isReached: idx <= currentLevelIndex,
+    }))
+
+    // 路线图激活线宽度
+    const roadmapActiveWidth = currentLevelIndex >= 0
+      ? `calc(${(currentLevelIndex / (MOYU_LEVELS.length - 1)) * 100}% - 16rpx)`
+      : '0%'
+
+    // 摸鱼效率标签
+    const totalSeconds = stats.totalSeconds + uncommittedSecs
+    let efficiencyLabel = '一般'
+    if (totalSeconds > 3600 * 50) {
+      efficiencyLabel = '卓越'
+    } else if (totalSeconds > 3600 * 20) {
+      efficiencyLabel = '优秀'
+    } else if (totalSeconds > 3600 * 5) {
+      efficiencyLabel = '良好'
+    }
+
+    // 击败同事百分比（基于摸鱼天数的简化算法）
+    let beatPercent = '50.0%'
+    if (moyuDays > 100) {
+      beatPercent = '99.9%'
+    } else if (moyuDays > 50) {
+      beatPercent = '95.0%'
+    } else if (moyuDays > 20) {
+      beatPercent = '85.0%'
+    } else if (moyuDays > 5) {
+      beatPercent = '60.0%'
+    }
 
     this.setData({
-      soundEnabled: settings.soundEnabled,
-      vibrateEnabled: settings.vibrateEnabled,
-      monthlySalary: settings.monthlySalary,
-      currentSkin,
-      salaryDisplay: settings.monthlySalary > 0
-        ? `¥${settings.monthlySalary.toLocaleString()}/月`
-        : '未设置',
+      totalMoney: formatMoney(displayTotalMoney),
+      levelName: level.name,
+      levelEmoji: level.emoji,
+      levelProgress,
+      diffToNext,
+      isMaxLevel,
+      moyuDays,
+      roadmapNodes,
+      roadmapActiveWidth,
+      beatPercent,
+      efficiencyLabel,
     })
   },
 
@@ -46,77 +146,31 @@ Page({
     wx.navigateTo({ url: '/pages/calendar/index' })
   },
 
-  onToggleSound(e: WechatMiniprogram.SwitchChange) {
-    const soundEnabled = e.detail.value
-    const settings = getSettings()
-    saveSettings({ ...settings, soundEnabled })
-    this.setData({ soundEnabled })
-  },
-
-  onToggleVibrate(e: WechatMiniprogram.SwitchChange) {
-    const vibrateEnabled = e.detail.value
-    const settings = getSettings()
-    saveSettings({ ...settings, vibrateEnabled })
-    this.setData({ vibrateEnabled })
-  },
-
-  // V1.0.1: 选择皮肤
-  onSkinTap(e: WechatMiniprogram.TouchEvent) {
-    const { id } = e.currentTarget.dataset
-    const skin = SKINS[id as keyof typeof SKINS]
-
-    if (!skin) return
-
-    // 检查解锁条件
-    if (skin.unlockType === 'ad') {
-      wx.showToast({ title: '需要观看广告解锁', icon: 'none', duration: 2000 })
-      return
-    }
-
-    if (skin.unlockType === 'level') {
-      const need = skin.unlockLevel || 0
-      const totalMoney = getMoyuStats().totalMoney
-      if (totalMoney < need) {
-        wx.showToast({ title: `需要累计摸鱼 ¥${need} 解锁`, icon: 'none', duration: 2000 })
-        return
-      }
-    }
-
-    // 应用皮肤
-    setCurrentSkin(id)
-    this.setData({ currentSkin: id })
-    wx.showToast({ title: `已更换皮肤: ${skin.name}`, icon: 'success', duration: 1500 })
-  },
-
-  // V1.0.1: 数据重置
   resetAllData() {
     wx.showModal({
       title: '⚠️ 确认重置所有数据？',
       content: '此操作将清空所有摸鱼记录、战报数据和带薪拉粑粑统计，不可恢复。',
       confirmText: '确认重置',
-      confirmColor: '#EF5350',
+      confirmColor: '#EF4444',
       success: (res) => {
         if (res.confirm) {
           try {
-            // V1.0.1 Fix: 完整清除所有存储
             const keysToRemove = [
-              'userSettings',           // ✅ Fix: 清除薪资设置（关键！）
-              'moyuStats',              // 清除摸鱼累计统计
-              'poopStats',              // 清除带薪拉粑粑统计
-              'poopRunningState',       // 清除带薪拉粑粑运行状态
-              'meetingRunningState',    // 清除会议烧钱机运行状态
-              'pendingLevelUp',         // 清除升级弹窗持久化状态
-              'lastExitState',          // 清除离线收益弹窗状态
-              'initialIdentityShown',   // 清除初始身份标记
-              'currentSkin',            // 清除皮肤设置
+              'userSettings',
+              'moyuStats',
+              'poopStats',
+              'poopRunningState',
+              'meetingRunningState',
+              'pendingLevelUp',
+              'lastExitState',
+              'initialIdentityShown',
+              'currentSkin',
             ]
 
-            // 清除关键项
             keysToRemove.forEach(key => {
               wx.removeStorageSync(key)
             })
 
-            // 清除所有 slackingToday_* 历日摸鱼秒数
             try {
               const allKeys = wx.getStorageInfoSync().keys
               allKeys.forEach((key: string) => {
@@ -126,7 +180,7 @@ Page({
               })
             } catch (_) {}
 
-            wx.showToast({ title: '已重置所有数据 🗑️', icon: 'success', duration: 2000 })
+            wx.showToast({ title: '已重置所有数据', icon: 'success', duration: 2000 })
             setTimeout(() => {
               wx.reLaunch({ url: '/pages/index/index' })
             }, 2000)

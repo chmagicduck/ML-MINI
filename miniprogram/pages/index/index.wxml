@@ -1,12 +1,17 @@
-<!--index.wxml — 首页仪表盘 V2.2-->
+<!--index.wxml — 首页鱼额宝 V1.0-->
 <view class="page">
-
-  <!-- V2.2 金币雨 Canvas（固定全屏，pointer-events:none） -->
-  <canvas id="coin-rain-canvas" type="2d" class="coin-rain-canvas"></canvas>
 
   <!-- 自定义导航栏 -->
   <view class="nav-bar" style="padding-top: {{statusBarHeight}}px">
-    <text class="nav-title">吗喽薪事🐒</text>
+    <view class="nav-left">
+      <view class="nav-logo">鱼</view>
+      <text class="nav-title">鱼额宝</text>
+    </view>
+    <view class="nav-capsule">
+      <view class="capsule-dot"></view>
+      <view class="capsule-sep"></view>
+      <view class="capsule-ring"></view>
+    </view>
   </view>
 
   <!-- 节假日/周末特殊提示条 -->
@@ -14,27 +19,53 @@
     <text class="holiday-text">🌴 {{holidayText}}</text>
   </view>
 
-  <!-- 标语 -->
-  <view class="slogan-bar">
-    <text class="slogan-text">{{slogan}}</text>
-  </view>
-
-  <!-- 圆形进度仪表盘 -->
-  <view class="dashboard-wrap">
-    <view class="ring-outer {{isSlacking ? 'ring-glow' : ''}}" bindtap="onToggleSlacking">
-      <view class="ring-track"></view>
-      <view class="ring-progress" style="{{progressStyle}}"></view>
-      <view class="ring-inner">
-        <view class="status-badge {{isSlacking ? 'badge-active' : 'badge-idle'}}">
-          <text class="badge-text">{{isSlacking ? '🐒 摸鱼中' : '🍃 待机中'}}</text>
+  <!-- 圆形鱼缸计时器 -->
+  <view class="timer-section">
+    <view class="fish-bowl-outer" bindtap="onToggleSlacking">
+      <view class="fish-bowl-ring" style="{{progressStyle}}"></view>
+      <view class="fish-bowl-gap"></view>
+      <view class="fish-bowl-inner">
+        <view class="fish-bowl-bg">
+          <!-- 光晕 -->
+          <view class="bowl-glow"></view>
+          <!-- 水面 -->
+          <view class="water-fill {{isSlacking ? 'water-active' : ''}}">
+            <view class="water-wave"></view>
+          </view>
+          <!-- 海草 -->
+          <view class="seaweed seaweed-1"></view>
+          <view class="seaweed seaweed-2"></view>
+          <!-- 气泡 -->
+          <view class="bubbles" wx:if="{{isSlacking}}">
+            <view class="bubble bubble-1"></view>
+            <view class="bubble bubble-2"></view>
+            <view class="bubble bubble-3"></view>
+          </view>
+          <!-- 小鱼 -->
+          <view class="fish-wrap {{isSlacking ? 'fish-swimming' : 'fish-idle'}}">
+            <view class="fish-body">
+              <view class="fish-eye">
+                <view class="fish-pupil"></view>
+              </view>
+              <view class="fish-blush"></view>
+              <view class="fish-dorsal"></view>
+            </view>
+            <view class="fish-tail-group">
+              <view class="fish-tail-up"></view>
+              <view class="fish-tail-down"></view>
+            </view>
+          </view>
         </view>
-        <text class="timer-text">{{slackingTimeStr}}</text>
-        <text class="timer-hint">{{isSlacking ? '点击暂停' : '点击开摸'}}</text>
+        <!-- 中心内容层 -->
+        <view class="bowl-content">
+          <text class="bowl-status {{isSlacking ? 'status-active' : 'status-idle'}}">{{isSlacking ? '正在摸鱼' : '休息中'}}</text>
+          <text class="bowl-timer {{isSlacking ? 'timer-active' : 'timer-idle'}}">{{slackingTimeStr}}</text>
+          <view class="bowl-btn {{isSlacking ? 'btn-active' : 'btn-idle'}}" catchtap="onToggleSlacking">
+            <text class="btn-icon">{{isSlacking ? '■' : '▶'}}</text>
+            <text class="btn-text">{{isSlacking ? '停止' : '开始'}}</text>
+          </view>
+        </view>
       </view>
-    </view>
-    <text class="progress-label">{{timeUntilOffWork}}</text>
-    <view class="progress-info" style="margin-top: 16rpx; font-size: 22rpx; color: #9E9E9E; text-align: center;">
-      <text class="progress-detail">📊 今日工时: {{todayWorkedTimeStr}} | 摸鱼: {{todaySlackingTimeStr}}</text>
     </view>
   </view>
 
@@ -43,57 +74,108 @@
     <text class="tip-text">👆 前往「我的」填写薪资，才能看到真实收益</text>
   </view>
 
-  <!-- 卡片网格 -->
-  <view class="cards-container">
-
-    <!-- ① 今日摸鱼收入（全宽） -->
-    <view class="card card-highlight">
-      <view class="card-row">
-        <view>
-          <text class="card-label">🤑 今日摸鱼收入</text>
-          <text class="card-value value-pulse">{{todayEarnings}}</text>
-          <text class="card-sub">{{secondSalary}}</text>
+  <!-- 工时进度条区域 -->
+  <view class="progress-section">
+    <view class="progress-top">
+      <view class="progress-time">
+        <text class="progress-time-icon">⏱</text>
+        <text class="progress-time-text"> 工时: {{todayWorkedTimeStr}}</text>
+      </view>
+      <view class="progress-ratio">摸鱼率: {{fishRatioStr}}</view>
+    </view>
+    <view class="progress-card">
+      <view class="progress-card-top">
+        <text class="progress-label">下班进度 {{offWorkPercent}}%</text>
+        <view class="progress-dots">
+          <view class="pdot {{offWorkPercent >= 20 ? 'pdot-on' : ''}}"></view>
+          <view class="pdot {{offWorkPercent >= 40 ? 'pdot-on' : ''}}"></view>
+          <view class="pdot {{offWorkPercent >= 60 ? 'pdot-on' : ''}}"></view>
+          <view class="pdot {{offWorkPercent >= 80 ? 'pdot-on' : ''}}"></view>
+          <view class="pdot {{offWorkPercent >= 100 ? 'pdot-on' : ''}}"></view>
         </view>
-        <text class="card-emoji-big">💸</text>
       </view>
-    </view>
-
-    <!-- ② V2.1 今日入账工资（全宽） -->
-    <view class="card card-worked">
-      <view class="card-row">
-        <view>
-          <text class="card-label">💼 今日入账工资</text>
-          <text class="card-value value-worked value-pulse-blue">{{todayWorkedEarnings}}</text>
-          <text class="card-sub">每秒入账 {{secondSalary}}</text>
+      <view class="progress-bar-bg">
+        <view class="progress-bar-fill" style="width: {{offWorkPercent}}%">
+          <view class="progress-bar-shine"></view>
         </view>
-        <text class="card-emoji-big">🏦</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 数据卡片区 -->
+  <view class="cards-area">
+
+    <!-- 今日摸鱼收入大卡片 -->
+    <view class="card-hero">
+      <view class="card-hero-deco"></view>
+      <view class="card-hero-body">
+        <view class="card-hero-left">
+          <view class="card-hero-label">
+            <text class="card-hero-label-icon">💰</text>
+            <text class="card-hero-label-text"> 今日摸鱼收入</text>
+          </view>
+          <text class="card-hero-value">{{todayEarnings}}</text>
+        </view>
+        <view class="card-hero-right">
+          <text class="card-hero-tag-label">实时流速</text>
+          <text class="card-hero-tag-value">{{secondSalary}}</text>
+        </view>
       </view>
     </view>
 
-    <!-- ④ 本月已赚 + 距离发薪日 -->
-    <view class="cards-row">
-      <view class="card card-half">
-        <text class="card-label">💰 本月已赚</text>
-        <text class="card-value value-pulse">{{monthEarnings}}</text>
-        <text class="card-sub">本月 {{workDaysInMonth}} 个工作日</text>
+    <!-- 2x2 数据网格 -->
+    <view class="cards-grid">
+      <!-- 今日入账 -->
+      <view class="card-item card-warm">
+        <view class="card-item-label">
+          <text class="card-item-label-icon">☕</text>
+          <text class="card-item-label-text"> 今日入账</text>
+        </view>
+        <text class="card-item-value card-value-warm">{{todayWorkedEarnings}}</text>
+        <text class="card-item-sub">实时结算中</text>
       </view>
-      <view class="card card-half" bindtap="onGoToCalendar">
-        <text class="card-label">📅 距离发薪日</text>
-        <text class="card-value">{{daysToPayday}}</text>
-        <text class="card-sub">天后发钱 →</text>
+
+      <!-- 本月已赚 -->
+      <view class="card-item card-white">
+        <view class="card-item-label">
+          <text class="card-item-label-icon">📈</text>
+          <text class="card-item-label-text"> 本月已赚</text>
+        </view>
+        <text class="card-item-value card-value-green">{{monthEarnings}}</text>
+        <text class="card-item-sub">{{workDaysInMonth}}个工作日</text>
+      </view>
+
+      <!-- 发薪倒数 -->
+      <view class="card-item card-white" bindtap="onGoToCalendar">
+        <view class="card-item-label">
+          <text class="card-item-label-icon">📅</text>
+          <text class="card-item-label-text"> 发薪倒数</text>
+        </view>
+        <view class="card-item-value-row">
+          <text class="card-item-value card-value-dark">{{daysToPayday}}</text>
+          <text class="card-item-unit">天</text>
+        </view>
+        <view class="card-item-link">
+          <text class="card-item-link-text">查看明细</text>
+          <text class="card-item-link-arrow"> ›</text>
+        </view>
+      </view>
+
+      <!-- 距离周末 -->
+      <view class="card-item card-white">
+        <view class="card-item-label">
+          <text class="card-item-label-icon">🌙</text>
+          <text class="card-item-label-text"> 距离周末</text>
+        </view>
+        <view class="card-item-value-row">
+          <text class="card-item-value card-value-dark">{{daysToWeekend}}</text>
+          <text class="card-item-unit">天</text>
+        </view>
+        <text class="card-item-encourage">坚持住！</text>
       </view>
     </view>
 
-    <!-- ⑤ 距离周末 -->
-    <view class="cards-row">
-      <view class="card card-half">
-        <text class="card-label">🎉 距离周末</text>
-        <text class="card-value">{{daysToWeekend}}</text>
-        <text class="card-sub">天后解放</text>
-      </view>
-    </view>
-
-    <!-- ⑥ V2.1 计算说明（可折叠） -->
+    <!-- 计算说明（可折叠）保留 -->
     <view class="calc-explain-wrap">
       <view class="calc-explain-header" bindtap="onToggleCalcExplain">
         <text class="calc-explain-title">📐 这些数字怎么算的？</text>

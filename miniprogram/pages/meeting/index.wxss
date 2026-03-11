@@ -2,7 +2,7 @@
 
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: #F8FAFC;
   display: flex;
   flex-direction: column;
 }
@@ -87,7 +87,7 @@
 .adj-btn {
   width: 72rpx;
   height: 72rpx;
-  background: #E8F5E9;
+  background: #EFF6FF;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -98,13 +98,13 @@
 .adj-icon {
   font-size: 44rpx;
   font-weight: 700;
-  color: #2E7D32;
+  color: #2563EB;
   line-height: 1;
 }
 .participants-num {
   font-size: 52rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #1E40AF;
   min-width: 160rpx;
   text-align: center;
 }
@@ -133,8 +133,8 @@
 }
 .btn-main:active { opacity: 0.85; }
 .btn-start {
-  background: linear-gradient(135deg, #66BB6A, #43A047);
-  box-shadow: 0 8rpx 24rpx rgba(76,175,80,0.4);
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
+  box-shadow: 0 8rpx 24rpx rgba(37,99,235,0.4);
 }
 .btn-stop {
   background: linear-gradient(135deg, #EF9A9A, #E53935);
@@ -206,7 +206,7 @@
 .salary-prefix {
   font-size: 32rpx;
   font-weight: 700;
-  color: #2E7D32;
+  color: #2563EB;
 }
 .custom-salary-input {
   flex: 1;
@@ -226,12 +226,12 @@
   border-radius: 48rpx;
   padding: 24rpx 0;
   text-align: center;
-  border: 1.5rpx solid #A5D6A7;
+  border: 1.5rpx solid #93C5FD;
   margin: 0;
 }
 .btn-share-meeting::after { border: none; }
-.btn-share-meeting:active { background: #F1F8E9; }
+.btn-share-meeting:active { background: #EFF6FF; }
 .btn-share-meeting-text {
   font-size: 30rpx;
-  color: #2E7D32;
+  color: #2563EB;
 }

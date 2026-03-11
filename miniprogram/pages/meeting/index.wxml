@@ -20,7 +20,7 @@
       <view class="adj-btn" bindtap="onIncParticipants"><text class="adj-icon">+</text></view>
     </view>
     <slider min="1" max="50" value="{{participants}}" show-value
-      activeColor="#43A047" block-color="#43A047"
+      activeColor="#3B82F6" block-color="#3B82F6"
       bindchange="onParticipantsChange" class="participants-slider" />
     <text class="slider-hint">（1~50人）</text>
   </view>
@@ -29,7 +29,7 @@
   <view class="section-card">
     <view class="custom-salary-header">
       <text class="section-title" style="margin-bottom:0">💵 自定义人均月薪</text>
-      <switch checked="{{useCustomSalary}}" color="#43A047" bindchange="onToggleCustomSalary" />
+      <switch checked="{{useCustomSalary}}" color="#3B82F6" bindchange="onToggleCustomSalary" />
     </view>
     <view class="custom-salary-body" wx:if="{{useCustomSalary}}">
       <text class="custom-salary-label">人均月薪（元）</text>

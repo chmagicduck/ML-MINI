@@ -73,8 +73,6 @@ Page({
         displayTag: result.tag,
         history,
       })
-
-      wx.vibrateShort({ type: 'medium' })
     }, ROLL_DURATION)
   },
 
@@ -87,10 +85,10 @@ Page({
     const { result } = this.data
     if (result) {
       return {
-        title: `别卷了！吗喽助手建议大家今天吃 ${result.emoji}${result.name}`,
+        title: `别卷了！鱼额宝建议大家今天吃 ${result.emoji}${result.name}`,
         path: '/pages/food/index',
       }
     }
-    return { title: '今天吃什么？让吗喽助手帮你决定！', path: '/pages/food/index' }
+    return { title: '今天吃什么？让鱼额宝帮你决定！', path: '/pages/food/index' }
   },
 })

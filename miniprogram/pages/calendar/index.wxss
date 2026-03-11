@@ -2,14 +2,14 @@
 
 .page {
   min-height: 100vh;
-  background: #F0F4F0;
+  background: #F8FAFC;
   display: flex;
   flex-direction: column;
 }
 
 /* ===== 月份标题 + V2.2 翻页导航 ===== */
 .month-header {
-  background: linear-gradient(135deg, #2E7D32, #43A047);
+  background: linear-gradient(135deg, #2563EB, #3B82F6);
   padding: 40rpx 32rpx 32rpx;
 }
 .month-nav {
@@ -52,7 +52,7 @@
 }
 .month-sub {
   font-size: 24rpx;
-  color: #A5D6A7;
+  color: #93C5FD;
   display: block;
 }
 
@@ -103,8 +103,8 @@
   border-color: transparent;
 }
 .day-holiday {
-  background: #E8F5E9;
-  border-color: #A5D6A7;
+  background: #EFF6FF;
+  border-color: #93C5FD;
 }
 .day-weekend {
   background: #FFEBEE;
@@ -115,8 +115,8 @@
   border-color: #F9A825;
 }
 .day-today {
-  background: #1B5E20;
-  border-color: #1B5E20;
+  background: #1E40AF;
+  border-color: #1E40AF;
 }
 .day-payday {
   background: #E3F2FD;
@@ -135,7 +135,7 @@
 
 .day-tag {
   font-size: 18rpx;
-  background: #1B5E20;
+  background: #1E40AF;
   color: #FFFFFF;
   border-radius: 6rpx;
   padding: 2rpx 6rpx;
@@ -143,7 +143,7 @@
   display: block;
 }
 .day-tag-holiday {
-  background: #43A047;
+  background: #2563EB;
 }
 .day-tag-makeup {
   background: #F57F17;
@@ -182,20 +182,20 @@
 /* ===== 发薪日倒计时 ===== */
 .payday-banner {
   margin: 0 32rpx 24rpx;
-  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+  background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
   border-radius: 20rpx;
   padding: 28rpx;
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 16rpx;
-  border: 1.5rpx solid #A5D6A7;
+  border: 1.5rpx solid #93C5FD;
 }
 .payday-icon { font-size: 48rpx; }
 .payday-text {
   font-size: 30rpx;
   font-weight: 700;
-  color: #1B5E20;
+  color: #1E40AF;
   flex: 1;
 }
 

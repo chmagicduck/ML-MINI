@@ -1,4 +1,4 @@
-// pages/index/index.ts — 首页仪表盘 V2.2
+// pages/index/index.ts — 鱼额宝首页 V1.0
 import {
   getSettings,
   getTodaySlackingSeconds,
@@ -45,7 +45,6 @@ const SLOGANS = [
 // ── 模块级状态（Page 单例安全）────────────────────────────────
 let _timer: ReturnType<typeof setInterval> | null = null
 let _settings: UserSettings | null = null
-let _audio: WechatMiniprogram.InnerAudioContext | null = null
 
 // 累计收益缓存，避免 timer tick 频繁读 Storage
 let _baseTotalMoney = 0
@@ -59,23 +58,6 @@ let _levelUpShowing = false
 let _clockTimer: ReturnType<typeof setInterval> | null = null
 const STORAGE_SYNC_INTERVAL_MS = 1000
 const AUTO_COMMIT_INTERVAL_SECONDS = 1
-// 金币雨 Canvas 上下文（onReady 初始化）
-let _coinCanvas: any = null
-let _coinCtx: any = null
-let _coinAnimTimer: ReturnType<typeof setInterval> | null = null
-// 上次触发金币雨时的 ¥10 门槛（防止重复触发）
-let _lastCoinThreshold = 0
-
-function playCoinsSound() {
-  try {
-    if (!_audio) {
-      _audio = wx.createInnerAudioContext()
-      _audio.src = '/assets/sounds/coins.mp3'
-    }
-    _audio.seek(0)
-    _audio.play()
-  } catch (_) {}
-}
 
 function dayKeyByTimestamp(ts: number = Date.now()): string {
   const now = new Date(ts)
@@ -83,12 +65,11 @@ function dayKeyByTimestamp(ts: number = Date.now()): string {
   const d = String(now.getDate()).padStart(2, '0')
   return `${now.getFullYear()}-${m}-${d}`
 }
+
 Page({
   data: {
     statusBarHeight: 0,
-    progressStyle: 'background: conic-gradient(#66BB6A 0%, #C8E6C9 0%)',
-    progressPercent: 0,
-    slackingPercent: 0,  // V1.0.1: 摸鱼时间占比
+    progressStyle: 'background: conic-gradient(#3B82F6 0%, #E2E8F0 0%)',
 
     // 摸鱼计时
     isSlacking: false,
@@ -96,10 +77,10 @@ Page({
     slackingTimeStr: '00:00:00',
 
     // 卡片数据
-    todayEarnings: '¥0.00',          // 今日摸鱼收入
-    todayWorkedEarnings: '¥0.00',    // V2.1 今日入账工资
-    monthEarnings: '¥0.00',          // 本月已赚
-    secondSalary: '¥0.0000/秒',      // 秒薪显示
+    todayEarnings: '¥0.00',
+    todayWorkedEarnings: '¥0.00',
+    monthEarnings: '¥0.00',
+    secondSalary: '¥0.0000/秒',
     daysToPayday: 0,
     daysToWeekend: 0,
     workDaysInMonth: 0,
@@ -115,24 +96,20 @@ Page({
     holidayText: '',
     isHolidayOrWeekend: false,
 
-    // V2.1 计算说明
+    // 计算说明
     showCalcExplain: false,
     secondSalaryValue: '0.0000',
 
-    // V2.2 金币雨
-    showCoinRain: false,
-
-    // V1.0.1 倒计时和工时显示
-    timeUntilOffWork: '还有 8 小时 30 分钟下班',
-    todayWorkedTimeStr: '00:00:00',  // 今日已工时
-    todaySlackingTimeStr: '00:00:00',  // 今日已摸工时
+    // 工时与进度
+    todayWorkedTimeStr: '00:00:00',
+    fishRatioStr: '0.0%',
+    offWorkPercent: 0,
 
     hasSettings: false,
     slogan: SLOGANS[0],
   },
 
   onLoad() {
-    // V1.0.1: 使用新 API getWindowInfo，兼容旧版本
     let statusBarHeight = 20
     try {
       const windowInfo = (wx as any).getWindowInfo?.()
@@ -140,7 +117,6 @@ Page({
         statusBarHeight = windowInfo.statusBarHeight
       }
     } catch (_) {
-      // 降级到旧 API
       const sysInfo = wx.getSystemInfoSync()
       statusBarHeight = sysInfo.statusBarHeight
     }
@@ -149,20 +125,14 @@ Page({
     this.setData({ statusBarHeight, slogan })
   },
 
-  onReady() {
-    this._initCoinCanvas()
-  },
-
   onShow() {
-    // V2.3 Fix: 重置升级弹窗标志和金币雨阈值
     _levelUpShowing = false
-    _lastCoinThreshold = 0
 
     _settings = getSettings()
     const hasSettings = _settings.monthlySalary > 0
     const slackingSeconds = getTodaySlackingSeconds()
 
-    // 启动自愈：补齐“今日未提交秒数”（防止异常退出导致累计数据永久丢失）
+    // 启动自愈：补齐"今日未提交秒数"
     let moyuStats = getMoyuStats()
     const todayKey = dayKeyByTimestamp()
     const committedTodaySecs = moyuStats.moyuDaysMap[todayKey] || 0
@@ -185,7 +155,6 @@ Page({
     // 等级 & 累计
     _baseTotalMoney = moyuStats.totalMoney
     const level = getMoyuLevel(_baseTotalMoney)
-    // V2.3 Fix: 每次 onShow 都重新初始化等级阈值（防止遗留状态影响升级检测）
     _lastLevelThreshold = level.threshold
 
     // 本月工作日数
@@ -213,17 +182,17 @@ Page({
 
     this._refresh()
     this._updateStaticCards()
-    this._updateTimeUntilOffWork()  // V1.0.1: 初始化倒计时
+    this._updateTimeUntilOffWork()
     this._startClock()
 
-    // V2.2: 检查持久化的升级通知（冷启动后仍可弹窗）
+    // 检查持久化的升级通知
     const pendingLevel = getPendingLevelUp()
     if (pendingLevel && !_levelUpShowing) {
       clearPendingLevelUp()
       setTimeout(() => this._showLevelUpModal(pendingLevel as MoyuLevel), 600)
     }
 
-    // V2.2: 离线收益弹窗（冷启动且距上次退出超 1 小时）
+    // 离线收益弹窗
     if (!this.data.isSlacking && _settings) {
       this._checkOfflineEarnings()
     }
@@ -235,21 +204,18 @@ Page({
   },
 
   onHide() {
-    // 保持 _timer 继续运行，确保战报页可读取实时摸鱼数据
     this._stopClock()
   },
 
   onUnload() {
-    // V2.3 Fix: 页面卸载时保存摸鱼数据
     if (this.data.isSlacking) {
       saveTodaySlackingSeconds(this.data.slackingSeconds)
     }
     this._stopClock()
     this._pause()
-    if (_coinAnimTimer !== null) { clearInterval(_coinAnimTimer); _coinAnimTimer = null }
   },
 
-  // ─────────── V2.2 离线收益弹窗 ──────────────────────────────
+  // ─────────── 离线收益弹窗 ──────────────────────────────
   _checkOfflineEarnings() {
     if (!_settings) return
     const exitState = getLastExitState()
@@ -273,51 +239,47 @@ Page({
     const offlineEarnings = earnedSecs * getSecondSalary(_settings)
     setTimeout(() => {
       wx.showModal({
-        title: '🐒 你不在的时候...',
-        content: `我偷偷帮你从老板兜里掏走了\n${formatMoney(offlineEarnings)}\n\n打卡上班，继续薅！`,
+        title: '🐟 你不在的时候...',
+        content: `鱼额宝偷偷帮你从老板兜里掏走了\n${formatMoney(offlineEarnings)}\n\n打卡上班，继续薅！`,
         confirmText: '收下！',
         showCancel: false,
       })
     }, 800)
   },
 
-  // ─────────── V1.0.1 进度条和工时显示 ─────────────────────────────
+  // ─────────── 进度条和工时显示 ─────────────────────────────
   _updateProgress() {
     if (!_settings) return
 
-    // 已工作秒数
     const workedSecs = calcTodayWorkedSeconds(_settings)
-
-    // 与计算引擎保持一致：统一用 getDailyWorkMinutes，避免口径偏差
     const totalWorkSeconds = Math.max(1, getDailyWorkMinutes(_settings) * 60)
-
-    // 摸鱼秒数
     const slackingSecs = this.data.slackingSeconds
 
-    // 计算百分比
+    // 下班进度百分比
+    const offWorkPercent = Math.min(100, Math.round((workedSecs / totalWorkSeconds) * 100))
+
+    // 摸鱼率
+    const fishRatio = workedSecs > 0 ? slackingSecs / workedSecs : 0
+    const fishRatioStr = `${(fishRatio * 100).toFixed(1)}%`
+
+    // 进度环样式（蓝色系）
     const workedPercent = Math.min(100, Math.round((workedSecs / totalWorkSeconds) * 100))
     const slackingPercent = Math.min(100, Math.round((slackingSecs / totalWorkSeconds) * 100))
-    // V1.0.1 Fix: 防止两个百分比之和超过 100%
     const combinedPercent = Math.min(100, workedPercent + slackingPercent)
 
-    // 更新进度条样式：两层圆形（已工作绿色 + 已摸鱼蓝色）
-    const style = `background: conic-gradient(
-      #66BB6A ${workedPercent}%,
-      #42A5F5 ${workedPercent}%,
-      #42A5F5 ${combinedPercent}%,
-      #C8E6C9 ${combinedPercent}%
-    )`
+    // 鱼缸计时器用的进度样式：摸鱼部分用蓝色环
+    const fishVisualDegree = ((slackingSecs % 3600) / 3600) * 360
+    const style = `background: conic-gradient(#3B82F6 ${fishVisualDegree}deg, #E2E8F0 ${fishVisualDegree}deg 260deg, #F1F5F9 260deg)`
 
     this.setData({
-      progressPercent: workedPercent,
-      slackingPercent,
       progressStyle: style,
       todayWorkedTimeStr: formatDuration(workedSecs),
-      todaySlackingTimeStr: formatDuration(slackingSecs),
+      fishRatioStr,
+      offWorkPercent,
     })
   },
 
-  // ─────────── V1.0.1 下班倒计时 ─────────────────────────────
+  // ─────────── 下班倒计时 ─────────────────────────────
   _updateTimeUntilOffWork() {
     if (!_settings) return
     const [eh, em] = _settings.workEndTime.split(':').map(Number)
@@ -325,22 +287,12 @@ Page({
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eh, em, 0, 0)
     const remaining = endOfDay.getTime() - now.getTime()
 
-    let text: string
     if (remaining <= 0) {
-      text = '🎉 已下班，尽情摸鱼！'
-    } else {
-      const totalMinutes = Math.floor(remaining / 60000)
-      const hours = Math.floor(totalMinutes / 60)
-      const minutes = totalMinutes % 60
-      text = hours > 0
-        ? `还有 ${hours} 小时 ${minutes} 分钟下班`
-        : `还有 ${minutes} 分钟下班！`
+      this.setData({ offWorkPercent: 100 })
     }
-
-    this.setData({ timeUntilOffWork: text })
   },
 
-  // ─────────── 刷新（静态时机调用）────────────────────────────
+  // ─────────── 刷新 ────────────────────────────
   _refresh() {
     if (!_settings) return
     const s = _settings
@@ -367,20 +319,15 @@ Page({
   _checkLevelUp(currentTotalMoney: number) {
     const newLevel = getMoyuLevel(currentTotalMoney)
 
-    // V2.3 Fix: 简化升级检测逻辑
-    // 如果新等级的阈值 > 上次记录的等级阈值，说明升级了
     if (newLevel.threshold > _lastLevelThreshold) {
       _lastLevelThreshold = newLevel.threshold
-      console.log(`[升级触发] 🎉 升级到 ${newLevel.name}！准备弹窗...`)
       this.setData({
         levelName: newLevel.name,
         levelEmoji: newLevel.emoji,
         levelColor: newLevel.color,
         isGoldLevel: newLevel.isGold,
       })
-      // V2.2: 先持久化再弹窗
       setPendingLevelUp(newLevel)
-      this._triggerCoinRain()
       this._showLevelUpModal(newLevel)
     }
   },
@@ -388,26 +335,20 @@ Page({
   _showLevelUpModal(level: MoyuLevel) {
     if (_levelUpShowing) return
     _levelUpShowing = true
-    if (_settings?.vibrateEnabled) {
-      try {
-        wx.vibrateShort({ type: 'medium' })
-      } catch (_) {}
-    }
     wx.showModal({
-      title: '🎉 吗喽进化了！',
+      title: '🎉 等级提升！',
       content: `${level.emoji} ${level.name} 解锁！\n\n你的累计摸鱼收益突破了新门槛，\n继续摸，继续进化！`,
-      confirmText: '去战报',  // V2.3 Fix: 缩短为4汉字以内，修复 wx.showModal 限制
-      cancelText: '继续摸鱼',
-      success: (res) => {
+      confirmText: '知道了',
+      showCancel: false,
+      success: () => {
         _levelUpShowing = false
         clearPendingLevelUp()
-        if (res.confirm) wx.switchTab({ url: '/pages/stats/index' })
       },
       fail: () => { _levelUpShowing = false },
     })
   },
 
-  // ─────────── 始终运行的时钟（入账工资/本月已赚/进度环）──────
+  // ─────────── 始终运行的时钟 ──────
   _startClock() {
     if (_clockTimer !== null) return
     _clockTimer = setInterval(() => {
@@ -418,7 +359,7 @@ Page({
         monthEarnings: formatMoney(calcMonthEarnings(_settings)),
       })
       this._updateProgress()
-      this._updateTimeUntilOffWork()  // V1.0.1: 每秒更新倒计时
+      this._updateTimeUntilOffWork()
     }, 1000)
   },
 
@@ -429,7 +370,7 @@ Page({
     }
   },
 
-  // ─────────── 摸鱼计时器（100ms，仅摸鱼中运行）──────────────
+  // ─────────── 摸鱼计时器（100ms）──────────────
   _startTimer() {
     if (_timer !== null) return
 
@@ -455,7 +396,7 @@ Page({
       const nowMs = Date.now()
       const currentDayKey = dayKeyByTimestamp(nowMs)
 
-      // 跨天处理：归档前一天，再从新一天 0 秒开始
+      // 跨天处理
       if (currentDayKey !== activeDayKey) {
         const closingSeconds = baseSeconds + (nowMs - startAt) / 1000
         commitDelta(closingSeconds, activeDayKey)
@@ -464,31 +405,30 @@ Page({
         startAt = nowMs
         activeDayKey = currentDayKey
         _lastCommitSeconds = 0
-        _lastCoinThreshold = 0
 
         saveTodaySlackingSeconds(0)
         this.setData({
           slackingSeconds: 0,
           slackingTimeStr: '00:00:00',
-          todaySlackingTimeStr: '00:00:00',
+          todayWorkedTimeStr: '00:00:00',
         })
         this._updateStaticCards()
       }
 
       const seconds = baseSeconds + (nowMs - startAt) / 1000
 
-      // 降低同步写频率：每秒刷一次 storage
+      // 同步写频率控制
       if (nowMs - lastStorageSyncAt >= STORAGE_SYNC_INTERVAL_MS) {
         saveTodaySlackingSeconds(seconds)
         lastStorageSyncAt = nowMs
       }
 
-      // 增量提交：至少每秒提交一次，避免异常退出后大段数据丢失
+      // 增量提交
       if (seconds - _lastCommitSeconds >= AUTO_COMMIT_INTERVAL_SECONDS) {
         commitDelta(seconds, activeDayKey)
       }
 
-      // 工作时段结束自动停表（防止持续刷到非工作时间）
+      // 工作时段结束自动停表
       if (!isWorkingNow(_settings)) {
         saveTodaySlackingSeconds(seconds)
         this.setData({
@@ -501,10 +441,10 @@ Page({
         return
       }
 
-      // 今日摸鱼收入（仅摸鱼中刷新）
+      // 今日摸鱼收入
       const todayEarnings = formatMoney(calcTodayEarnings(_settings, seconds))
 
-      // 实时累计（已提交 + 未提交增量）
+      // 实时累计
       const liveDelta = Math.max(0, seconds - _lastCommitSeconds)
       const liveMoney = liveDelta * getSecondSalary(_settings)
       const currentTotalMoney = _baseTotalMoney + liveMoney
@@ -515,14 +455,6 @@ Page({
         todayEarnings,
         totalMoney: formatMoney(currentTotalMoney),
       })
-
-      // V1.0.1: 金币雨——每突破 ¥1 整数门槛触发一次
-      const earnedInt = Math.floor(calcTodayEarnings(_settings, seconds))
-      if (earnedInt > _lastCoinThreshold && earnedInt >= 1) {
-        _lastCoinThreshold = earnedInt
-        this._triggerCoinRain()
-        if (_settings?.soundEnabled) playCoinsSound()
-      }
 
       // 等级升级检测
       this._checkLevelUp(currentTotalMoney)
@@ -548,118 +480,8 @@ Page({
     }
   },
 
-  // ─────────── V2.2 金币雨 ─────────────────────────────────
-  _initCoinCanvas() {
-    wx.createSelectorQuery()
-      .select('#coin-rain-canvas')
-      .fields({ node: true, size: true })
-      .exec((res: any) => {
-        if (!res || !res[0] || !res[0].node) return
-        _coinCanvas = res[0].node
-        // V1.0.1: 使用新 API getDeviceInfo
-        let dpr = 2
-        try {
-          const deviceInfo = (wx as any).getDeviceInfo?.()
-          if (deviceInfo && deviceInfo.pixelRatio) {
-            dpr = deviceInfo.pixelRatio
-          }
-        } catch (_) {
-          dpr = wx.getSystemInfoSync().pixelRatio || 2
-        }
-        _coinCanvas.width = res[0].width * dpr
-        _coinCanvas.height = res[0].height * dpr
-        _coinCtx = _coinCanvas.getContext('2d')
-        _coinCtx.scale(dpr, dpr)
-      })
-  },
-
-  _triggerCoinRain() {
-    if (!_coinCtx || _coinAnimTimer !== null) return
-    const canvas = _coinCanvas
-    // V1.0.1: 使用新 API getDeviceInfo
-    let dpr = 2
-    try {
-      const deviceInfo = (wx as any).getDeviceInfo?.()
-      if (deviceInfo && deviceInfo.pixelRatio) {
-        dpr = deviceInfo.pixelRatio
-      }
-    } catch (_) {
-      dpr = wx.getSystemInfoSync().pixelRatio || 2
-    }
-    const W = canvas.width / dpr
-    const H = canvas.height / dpr
-
-    // V1.0.1: 增强粒子系统（粒子数、旋转、椭圆、重力）
-    interface Particle {
-      x: number
-      y: number
-      vx: number
-      vy: number
-      size: number
-      opacity: number
-      rotation: number
-      rotationSpeed: number
-      aspect: number
-      color: string
-    }
-
-    const COLORS = ['#FFD700', '#FFA000', '#FF8F00']
-    const particles: Particle[] = Array.from({ length: 40 }, () => ({
-      x: 40 + Math.random() * (W - 80),
-      y: -20 - Math.random() * 60,
-      vx: (Math.random() - 0.5) * 3,
-      vy: 6 + Math.random() * 6,
-      size: 14 + Math.random() * 18,
-      opacity: 1,
-      rotation: Math.random() * Math.PI * 2,
-      rotationSpeed: (Math.random() - 0.5) * 0.1,
-      aspect: 0.4 + Math.random() * 0.2,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    }))
-
-    let frame = 0
-    const TOTAL = 50
-    const FADE_AT = 28
-
-    _coinAnimTimer = setInterval(() => {
-      _coinCtx.clearRect(0, 0, W, H)
-      frame++
-
-      for (const p of particles) {
-        p.y += p.vy
-        p.x += p.vx
-        p.vy += 0.4  // V1.0.1: 重力加速度（替代纯空气阻力）
-        p.rotation += p.rotationSpeed
-
-        if (frame > FADE_AT) {
-          p.opacity = Math.max(0, 1 - (frame - FADE_AT) / (TOTAL - FADE_AT))
-        }
-
-        // V1.0.1: 椭圆金币绘制（模拟硬币侧面倾斜）
-        _coinCtx.save()
-        _coinCtx.globalAlpha = p.opacity
-        _coinCtx.translate(p.x, p.y)
-        _coinCtx.rotate(p.rotation)
-        _coinCtx.scale(1, p.aspect)
-        _coinCtx.fillStyle = p.color
-        _coinCtx.beginPath()
-        _coinCtx.arc(0, 0, p.size, 0, Math.PI * 2)
-        _coinCtx.fill()
-        _coinCtx.restore()
-      }
-
-      if (frame >= TOTAL) {
-        clearInterval(_coinAnimTimer!)
-        _coinAnimTimer = null
-        _coinCtx.clearRect(0, 0, W, H)
-        _coinCtx.globalAlpha = 1
-      }
-    }, 33)
-  },
-
   // ─────────── 切换摸鱼模式 ────────────────────────────────
   onToggleSlacking() {
-    // V2.2: 工作时间外禁止开摸
     if (!this.data.isSlacking && _settings && !isWorkingNow(_settings)) {
       wx.showToast({ title: '工作时间外无法开启摸鱼 🐟', icon: 'none', duration: 2000 })
       return
@@ -668,7 +490,6 @@ Page({
     const isSlacking = !this.data.isSlacking
     this.setData({ isSlacking })
     if (isSlacking) {
-      // V2.3 Fix: 首次开启摸鱼时展示初始身份，用 success 回调确保弹窗完全关闭后再启动 timer
       if (!hasShownInitialIdentity()) {
         const initialLevel = getMoyuLevel(0)
         setInitialIdentityShown()
@@ -678,25 +499,11 @@ Page({
           confirmText: '开始摸鱼',
           showCancel: false,
           success: () => {
-            // 弹窗关闭后再启动计时器
             this._startTimer()
-            if (_settings?.soundEnabled) playCoinsSound()
-            if (_settings?.vibrateEnabled) {
-              try {
-                wx.vibrateShort({ type: 'light' })
-              } catch (_) {}
-            }
           }
         })
       } else {
-        // 已显示过初始身份，直接启动计时器
         this._startTimer()
-        if (_settings?.soundEnabled) playCoinsSound()
-        if (_settings?.vibrateEnabled) {
-          try {
-            wx.vibrateShort({ type: 'light' })
-          } catch (_) {}
-        }
       }
     } else {
       this._pause()
@@ -709,5 +516,5 @@ Page({
   },
 
   // ─────────── 导航 ────────────────────────────────────────
-  onGoToCalendar(){ wx.navigateTo({ url: '/pages/calendar/index' }) },
+  onGoToCalendar() { wx.navigateTo({ url: '/pages/calendar/index' }) },
 })

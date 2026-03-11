@@ -262,11 +262,6 @@ Page({
     const fishRatio = workedSecs > 0 ? slackingSecs / workedSecs : 0
     const fishRatioStr = `${(fishRatio * 100).toFixed(1)}%`
 
-    // 进度环样式（蓝色系）
-    const workedPercent = Math.min(100, Math.round((workedSecs / totalWorkSeconds) * 100))
-    const slackingPercent = Math.min(100, Math.round((slackingSecs / totalWorkSeconds) * 100))
-    const combinedPercent = Math.min(100, workedPercent + slackingPercent)
-
     // 鱼缸计时器用的进度样式：摸鱼部分用蓝色环
     const fishVisualDegree = ((slackingSecs % 3600) / 3600) * 360
     const style = `background: conic-gradient(#3B82F6 ${fishVisualDegree}deg, #E2E8F0 ${fishVisualDegree}deg 260deg, #F1F5F9 260deg)`

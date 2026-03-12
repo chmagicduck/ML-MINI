@@ -1,5 +1,4 @@
-// pages/settings/basic.ts — 基本设置表单 V1.0.1
-// V1.0.1 变更：移除退休日期字段 UI，添加数据重置功能，增广告位
+// pages/settings/basic.ts — 基本设置表单
 import { getSettings, saveSettings } from '../../utils/storage'
 import { UserSettings, WorkdayMode } from '../../utils/types'
 
@@ -31,13 +30,14 @@ Page({
     lunchStartIndex: 24,
     lunchEndIndex: 26,
 
-    // V1.0.1: 广告位配置
-    adUnitId: '', // 待配置真实 unit-id
+    fromOnboarding: false,
   },
 
-  onLoad() {
+  onLoad(options: Record<string, string>) {
+    const fromOnboarding = options.from === 'onboarding'
     const settings = getSettings()
     this.setData({
+      fromOnboarding,
       settings,
       payDayIndex: settings.payDay - 1,
       workStartIndex: this._timeToIndex(settings.workStartTime),
@@ -90,7 +90,7 @@ Page({
     this.setData({ 'settings.workdayMode': e.detail.value as WorkdayMode })
   },
 
-  // V1.0.1 保存前校验
+  // 保存前校验
   onSave() {
     const { settings } = this.data
     if (!settings.monthlySalary || settings.monthlySalary <= 0) {
@@ -106,8 +106,14 @@ Page({
       return
     }
     saveSettings(settings)
-    wx.showToast({ title: '保存成功 🎉', icon: 'success' })
-    setTimeout(() => wx.navigateBack(), 1200)
+
+    if (this.data.fromOnboarding) {
+      wx.showToast({ title: '设置完成 🎉', icon: 'success' })
+      setTimeout(() => wx.reLaunch({ url: '/pages/index/index' }), 1200)
+    } else {
+      wx.showToast({ title: '保存成功 🎉', icon: 'success' })
+      setTimeout(() => wx.navigateBack(), 1200)
+    }
   },
 
 })

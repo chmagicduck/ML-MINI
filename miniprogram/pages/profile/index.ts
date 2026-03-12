@@ -1,5 +1,13 @@
-// pages/profile/index.ts — 个人基地 V1.0
-import { getSettings, getMoyuStats, getTodaySlackingSeconds } from '../../utils/storage'
+// pages/profile/index.ts — 个人基地
+import {
+  getSettings,
+  getMoyuStats,
+  getTodaySlackingSeconds,
+  getUserAvatar,
+  saveUserAvatar,
+  getUserNickname,
+  saveUserNickname,
+} from '../../utils/storage'
 import {
   getMoyuLevel,
   getNextMoyuLevel,
@@ -15,14 +23,20 @@ interface RoadmapNode {
   isReached: boolean
 }
 
+let _profileTimer: ReturnType<typeof setInterval> | null = null
+
 Page({
   data: {
+    // 用户信息
+    avatarUrl: '',
+    nickname: '',
+
     // 收益 & 等级
-    totalMoney: '¥0.00',
+    totalMoney: '¥0.0000',
     levelName: '职场新人',
     levelEmoji: '🐣',
     levelProgress: 0,
-    diffToNext: '0.00',
+    diffToNext: '0.0000',
     isMaxLevel: false,
 
     // 摸鱼天数
@@ -38,7 +52,34 @@ Page({
   },
 
   onShow() {
+    this.setData({
+      avatarUrl: getUserAvatar(),
+      nickname: getUserNickname(),
+    })
     this._loadData()
+    this._startRealtimeRefresh()
+  },
+
+  onHide() {
+    this._stopRealtimeRefresh()
+  },
+
+  onUnload() {
+    this._stopRealtimeRefresh()
+  },
+
+  _startRealtimeRefresh() {
+    if (_profileTimer !== null) return
+    _profileTimer = setInterval(() => {
+      this._loadData()
+    }, 1000)
+  },
+
+  _stopRealtimeRefresh() {
+    if (_profileTimer !== null) {
+      clearInterval(_profileTimer)
+      _profileTimer = null
+    }
   },
 
   _loadData() {
@@ -66,7 +107,7 @@ Page({
       const span = nextLevel.threshold - level.threshold
       const earned = displayTotalMoney - level.threshold
       levelProgress = Math.min(100, Math.round((earned / span) * 100))
-      diffToNext = (nextLevel.threshold - displayTotalMoney).toFixed(2)
+      diffToNext = (nextLevel.threshold - displayTotalMoney).toFixed(4)
     } else {
       isMaxLevel = true
     }
@@ -138,6 +179,33 @@ Page({
     })
   },
 
+  onChooseAvatar(e: any) {
+    const tempPath: string = e.detail.avatarUrl
+    if (!tempPath) return
+    const fs = wx.getFileSystemManager()
+    const savedPath = `${wx.env.USER_DATA_PATH}/avatar.png`
+    fs.saveFile({
+      tempFilePath: tempPath,
+      filePath: savedPath,
+      success: () => {
+        saveUserAvatar(savedPath)
+        this.setData({ avatarUrl: savedPath })
+      },
+      fail: () => {
+        saveUserAvatar(tempPath)
+        this.setData({ avatarUrl: tempPath })
+      },
+    })
+  },
+
+  onNicknameChange(e: any) {
+    const name: string = (e.detail.value || '').trim()
+    if (name) {
+      saveUserNickname(name)
+      this.setData({ nickname: name })
+    }
+  },
+
   onGoToBasic() {
     wx.navigateTo({ url: '/pages/settings/basic' })
   },
@@ -164,7 +232,9 @@ Page({
               'pendingLevelUp',
               'lastExitState',
               'initialIdentityShown',
-              'currentSkin',
+              'onboardingDone',
+              'userAvatar',
+              'userNickname',
             ]
 
             keysToRemove.forEach(key => {
@@ -184,7 +254,7 @@ Page({
             setTimeout(() => {
               wx.reLaunch({ url: '/pages/index/index' })
             }, 2000)
-          } catch (err) {
+          } catch (_) {
             wx.showToast({ title: '重置失败，请重试', icon: 'none' })
           }
         }

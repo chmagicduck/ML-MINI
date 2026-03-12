@@ -1,4 +1,4 @@
-// pages/meeting/index.ts — 会议烧钱机 V2.2（支持自定义人均月薪 + 分享）
+// pages/meeting/index.ts — 会议烧钱机（支持自定义人均月薪 + 分享）
 import { getSettings, saveMeetingRunningState, getMeetingRunningState, clearMeetingRunningState } from '../../utils/storage'
 import { getSecondSalary, formatMoney, getWorkingDaysInMonth, getDailyWorkMinutes } from '../../utils/calculator'
 
@@ -11,12 +11,12 @@ Page({
     participants: 5,
     isRunning: false,
     elapsedSeconds: 0,
-    totalCost: '¥0.00',
-    costPerSecond: '¥0.00/秒',
+    totalCost: '¥0.0000',
+    costPerSecond: '¥0.0000/秒',
     perSecondRaw: 0,          // 自己的秒薪
     hasSettings: false,
 
-    // V2.2 自定义人均月薪
+    // 自定义人均月薪
     useCustomSalary: false,
     customSalaryStr: '',      // input 绑定的字符串
     customSalaryNum: 0,       // 解析后的数值
@@ -106,14 +106,14 @@ Page({
     this._updateCostDisplay()
   },
 
-  // V2.2: 自定义月薪开关
+  // 自定义月薪开关
   onToggleCustomSalary() {
     const useCustomSalary = !this.data.useCustomSalary
     this.setData({ useCustomSalary })
     this._updateCostDisplay()
   },
 
-  // V2.2: 自定义月薪输入
+  // 自定义月薪输入
   onCustomSalaryInput(e: WechatMiniprogram.Input) {
     const str = e.detail.value
     const num = parseFloat(str) || 0
@@ -128,7 +128,7 @@ Page({
   onReset() {
     this._stop()
     clearMeetingRunningState()
-    this.setData({ elapsedSeconds: 0, totalCost: '¥0.00' })
+    this.setData({ elapsedSeconds: 0, totalCost: '¥0.0000' })
   },
 
   _start() {
@@ -146,7 +146,7 @@ Page({
     this.setData({ isRunning: false })
   },
 
-  // V2.2: 分享
+  // 分享
   onShareAppMessage() {
     const { participants, totalCost } = this.data
     const costRate = formatMoney(_secondCost)

@@ -80,7 +80,7 @@ Page({
     this.setData({ result: null, displayName: '???', displayEmoji: '🎰', displayTag: '点击开始抽奖' })
   },
 
-  // V2.2: 分享
+  // 分享
   onShareAppMessage() {
     const { result } = this.data
     if (result) {

@@ -1,4 +1,4 @@
-/* pages/lab/index.wxss — 深海实验室 V1.0 */
+/* pages/lab/index.wxss — 深海实验室 */
 
 .page {
   min-height: 100vh;

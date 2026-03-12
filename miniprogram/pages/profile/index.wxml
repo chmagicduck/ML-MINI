@@ -1,16 +1,19 @@
-<!--pages/profile/index.wxml — 个人基地 V1.0-->
+<!--pages/profile/index.wxml — 个人基地-->
 <view class="page">
 
   <!-- 1. 顶部个人资料区 -->
   <view class="profile-header">
     <view class="avatar-wrap">
-      <view class="avatar-circle">
-        <text class="avatar-placeholder">👤</text>
-      </view>
+      <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <image wx:if="{{avatarUrl}}" class="avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
+        <view wx:else class="avatar-circle">
+          <text class="avatar-placeholder">👤</text>
+        </view>
+      </button>
       <view class="avatar-online"></view>
     </view>
     <view class="profile-info">
-      <text class="profile-name">微信用户</text>
+      <input type="nickname" class="profile-name-input" value="{{nickname}}" placeholder="点击设置昵称" bindchange="onNicknameChange" />
       <text class="profile-sub">摸鱼天数: {{moyuDays}}天 · 已同步</text>
     </view>
     <text class="profile-arrow">›</text>
@@ -115,19 +118,8 @@
     </view>
   </view>
 
-  <!-- 6. 设置列表组2: 外观皮肤 + 时钟样式 -->
+  <!-- 6. 设置列表组2: 时钟样式 -->
   <view class="settings-group">
-    <view class="setting-item">
-      <view class="setting-icon-wrap">
-        <text class="setting-icon">🎨</text>
-      </view>
-      <text class="setting-label">外观皮肤</text>
-      <view class="setting-right">
-        <text class="setting-value">深海</text>
-        <text class="setting-arrow">›</text>
-      </view>
-    </view>
-    <view class="setting-divider"></view>
     <view class="setting-item">
       <view class="setting-icon-wrap">
         <text class="setting-icon">🕐</text>

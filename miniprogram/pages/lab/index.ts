@@ -1,4 +1,4 @@
-// pages/lab/index.ts — 深海实验室 V1.0
+// pages/lab/index.ts — 深海实验室
 Page({
   data: {},
 

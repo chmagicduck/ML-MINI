@@ -1,0 +1,60 @@
+<!--pages/onboarding/index.wxml — 引导页-->
+<view class="page">
+
+  <!-- 状态栏占位 -->
+  <view style="height: {{statusBarHeight}}px;"></view>
+
+  <!-- 顶部动画区 -->
+  <view class="top-area">
+    <!-- 动态背景球 -->
+    <view class="blob blob-1"></view>
+    <view class="blob blob-2"></view>
+    <view class="blob blob-3"></view>
+
+    <!-- 浮动气泡 -->
+    <view class="float-bubble fb-1"></view>
+    <view class="float-bubble fb-2"></view>
+    <view class="float-bubble fb-3"></view>
+    <view class="float-bubble fb-4"></view>
+    <view class="float-bubble fb-5"></view>
+    <view class="float-bubble fb-6"></view>
+
+    <!-- 步骤图标 -->
+    <view class="icon-card {{currentBgClass}}">
+      <text class="icon-text">{{currentIcon}}</text>
+    </view>
+  </view>
+
+  <!-- 内容区 -->
+  <view class="content-area">
+    <!-- 步骤指示器 -->
+    <view class="dots-row">
+      <view wx:for="{{dotIndexes}}" wx:key="*this"
+            class="dot {{step === item ? 'dot-active' : 'dot-idle'}}"></view>
+    </view>
+
+    <!-- 标题 & 描述 -->
+    <text class="ob-title">{{currentTitle}}</text>
+    <text class="ob-desc">{{currentDesc}}</text>
+
+    <!-- 装饰卡片 -->
+    <view class="deco-card">
+      <view class="deco-icon-wrap">
+        <text class="deco-icon">☕</text>
+      </view>
+      <view class="deco-text-wrap">
+        <text class="deco-title">打工人专属</text>
+        <text class="deco-sub">合理摸鱼，生活更美好</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="btn-area">
+    <view class="ob-btn" bindtap="onNext">
+      <text class="ob-btn-text">{{btnText}}</text>
+      <text class="ob-btn-arrow">→</text>
+    </view>
+  </view>
+
+</view>

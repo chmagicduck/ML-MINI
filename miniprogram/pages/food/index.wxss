@@ -155,7 +155,7 @@
   color: #2563EB;
 }
 
-/* ===== V2.2 食物分享按钮 ===== */
+/* ===== 食物分享按钮 ===== */
 .btn-share-food {
   display: block;
   margin: 16rpx 0 0;

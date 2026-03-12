@@ -1,4 +1,4 @@
-/* pages/index/index.wxss — 鱼额宝首页 V1.0 */
+/* pages/index/index.wxss — 鱼额宝首页 */
 
 .page {
   min-height: 100vh;
@@ -518,7 +518,7 @@
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
-  min-height: 200rpx;
+  min-height: 130rpx;
 }
 .card-warm {
   background: #FFFBF5;

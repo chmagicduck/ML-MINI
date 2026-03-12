@@ -1,4 +1,4 @@
-/* pages/meeting/index.wxss — 会议烧钱机 V2 */
+/* pages/meeting/index.wxss — 会议烧钱机 */
 
 .page {
   min-height: 100vh;
@@ -175,7 +175,7 @@
 /* ===== 底部安全区 ===== */
 .safe-bottom { height: 80rpx; }
 
-/* ===== V2.2 自定义月薪 ===== */
+/* ===== 自定义月薪 ===== */
 .custom-salary-header {
   display: flex;
   flex-direction: row;
@@ -220,7 +220,7 @@
   margin-top: 10rpx;
 }
 
-/* ===== V2.2 分享按钮 ===== */
+/* ===== 分享按钮 ===== */
 .btn-share-meeting {
   background: #FFFFFF;
   border-radius: 48rpx;

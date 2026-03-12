@@ -1,5 +1,5 @@
-<!--pages/settings/basic.wxml — 基本设置表单 V2.1-->
-<!-- V2.1 变更：移除晚休/加班间隙，移除入职日期 -->
+<!--pages/settings/basic.wxml — 基本设置表单-->
+<!-- 变更：移除晚休/加班间隙，移除入职日期 -->
 <scroll-view scroll-y class="page">
 
   <!-- ===== 薪资配置 ===== -->
@@ -120,11 +120,6 @@
   <!-- ===== 保存按钮 ===== -->
   <view class="save-wrap">
     <button class="save-btn" bindtap="onSave">💾 保存设置</button>
-  </view>
-
-  <!-- V1.0.1 广告位 -->
-  <view class="ad-wrap" wx:if="{{adUnitId}}">
-    <ad unit-id="{{adUnitId}}" ad-intervals="30"></ad>
   </view>
 
   <view class="safe-bottom"></view>

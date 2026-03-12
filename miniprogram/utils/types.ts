@@ -10,9 +10,6 @@ export interface UserSettings {
   lunchBreakEnabled: boolean   // 午休开关
   lunchBreakStart: string      // 午休开始 "12:00"
   lunchBreakEnd: string        // 午休结束 "13:00"
-  eveningBreakEnabled: boolean // 晚休开关
-  eveningBreakStart: string    // 晚休开始
-  eveningBreakEnd: string      // 晚休结束
   workdayMode: WorkdayMode     // 工作日模式
   joinDate: string             // 入职日期 "YYYY-MM-DD"
   retirementDate: string       // 退休日期 "YYYY-MM-DD"
@@ -30,28 +27,45 @@ export interface PoopSession {
   earnings: number
 }
 
-/** V2: 累计摸鱼统计 */
+export type MoyuEventSource = 'index_timer' | 'manual_edit' | 'repair'
+
+export interface MoyuEvent {
+  id: string
+  dayKey: string                  // "YYYY-MM-DD"
+  startAt: number                 // 会话起始时间戳(ms)
+  endAt: number                   // 会话结束时间戳(ms)
+  seconds: number                 // 会话时长（秒）
+  money: number                   // 会话收益（按当时薪资快照入账）
+  source: MoyuEventSource
+  note?: string
+  createdAt: number
+  updatedAt: number
+  deletedAt?: number
+}
+
+/** 累计摸鱼统计 */
 export interface MoyuStats {
   totalMoney: number                    // 累计摸鱼收益（元）
   totalSeconds: number                  // 累计摸鱼秒数
   moyuDaysMap: Record<string, number>  // "YYYY-MM-DD": 当日摸鱼秒数（用于热力图）
+  events: MoyuEvent[]                   // 摸鱼事件行
 }
 
-/** V1.0.1: 拉粑粑计时器运行状态 */
+/** 拉粑粑计时器运行状态 */
 export interface PoopRunningState {
   isRunning: boolean    // 是否正在计时
   sessionSeconds: number // 当次计时秒数
   sessionStartTime: number | null // 当次计时开始时刻（用于补齐）
 }
 
-/** V2: 吗喽等级定义 */
+/** 吗喽等级定义 */
 export interface MoyuLevel {
   name: string      // 等级名
   emoji: string     // 图标
   threshold: number // 最低累计金额
   color: string     // 主色
   isGold: boolean   // 是否显示金色边框（摸鱼大圣）
-  text: string      // V1.0.1: 等级反讽文案
+  text: string      // 等级反讽文案
 }
 
 export const MOYU_LEVELS: MoyuLevel[] = [
@@ -75,9 +89,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
   lunchBreakEnabled: true,
   lunchBreakStart: '12:00',
   lunchBreakEnd: '13:00',
-  eveningBreakEnabled: false,
-  eveningBreakStart: '17:30',
-  eveningBreakEnd: '18:00',
   workdayMode: 'double',
   joinDate: '2020-01-01',
   retirementDate: '2055-01-01',
@@ -87,54 +98,5 @@ export const DEFAULT_MOYU_STATS: MoyuStats = {
   totalMoney: 0,
   totalSeconds: 0,
   moyuDaysMap: {},
+  events: [],
 }
-
-// ─────────── V1.0.1: 皮肤系统 ────────────────────────────────
-
-export type SkinId = 'default' | 'suit' | 'rich' | 'cute' | 'bamboo'
-
-export type UnlockType = 'default' | 'ad' | 'level'
-
-export interface Skin {
-  name: string
-  primaryColor: string
-  image: string
-  unlockType: UnlockType
-  unlockLevel?: number  // 仅 unlockType: 'level' 时有效
-}
-
-export const SKINS: Record<SkinId, Skin> = {
-  default: {
-    name: '默认',
-    primaryColor: '#4CAF50',
-    image: 'assets/images/skins/malou-default.png',
-    unlockType: 'default',
-  },
-  suit: {
-    name: '西装',
-    primaryColor: '#2196F3',
-    image: 'assets/images/skins/malou-suit.png',
-    unlockType: 'ad',
-  },
-  rich: {
-    name: '土豪',
-    primaryColor: '#FFD700',
-    image: 'assets/images/skins/malou-rich.png',
-    unlockType: 'level',
-    unlockLevel: 50000,
-  },
-  cute: {
-    name: '萌系',
-    primaryColor: '#FF69B4',
-    image: 'assets/images/skins/malou-cute.png',
-    unlockType: 'ad',
-  },
-  bamboo: {
-    name: '竹子',
-    primaryColor: '#00897B',
-    image: 'assets/images/skins/malou-bamboo.png',
-    unlockType: 'ad',
-  },
-}
-
-export const DEFAULT_SKIN: SkinId = 'default'

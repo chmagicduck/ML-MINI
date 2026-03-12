@@ -1,4 +1,4 @@
-<!--pages/calendar/index.wxml — 节假日日历 V2.2-->
+<!--pages/calendar/index.wxml — 节假日日历-->
 <view class="page">
   <!-- 月份标题 + 翻页 -->
   <view class="month-header">

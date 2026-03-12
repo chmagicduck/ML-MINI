@@ -1,4 +1,4 @@
-// pages/calendar/index.ts — 节假日日历 V2.2（支持全年翻月）
+// pages/calendar/index.ts — 节假日日历（支持全年翻月）
 import { getSettings } from '../../utils/storage'
 import { getDaysToPayday } from '../../utils/calculator'
 import { getMonthDayStatuses, DayStatus } from '../../utils/holiday'

@@ -1,4 +1,4 @@
-/* pages/profile/index.wxss — 个人基地 V1.0 */
+/* pages/profile/index.wxss — 个人基地 */
 
 .page {
   min-height: 100vh;
@@ -18,6 +18,8 @@
 .avatar-wrap {
   position: relative;
   flex-shrink: 0;
+  width: 96rpx;
+  height: 96rpx;
 }
 .avatar-circle {
   width: 96rpx;
@@ -32,6 +34,43 @@
   overflow: hidden;
 }
 .avatar-placeholder { font-size: 48rpx; }
+/* 头像按钮 & 图片 */
+.avatar-btn {
+  display: block;
+  width: 96rpx !important;
+  height: 96rpx !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  line-height: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.avatar-btn::after { border: none; }
+.avatar-img {
+  display: block;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  border: 3rpx solid #FFFFFF;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
+}
+/* 昵称输入框 */
+.profile-name-input {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #1E293B;
+  line-height: 1;
+  height: 48rpx;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+}
 .avatar-online {
   position: absolute;
   bottom: -2rpx;

@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/onboarding/index",
     "pages/stats/index",
     "pages/lab/index",
     "pages/profile/index",

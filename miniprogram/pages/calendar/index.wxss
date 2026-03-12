@@ -1,4 +1,4 @@
-/* pages/calendar/index.wxss — 节假日日历 V2 */
+/* pages/calendar/index.wxss — 节假日日历 */
 
 .page {
   min-height: 100vh;
@@ -7,7 +7,7 @@
   flex-direction: column;
 }
 
-/* ===== 月份标题 + V2.2 翻页导航 ===== */
+/* ===== 月份标题 + 翻页导航 ===== */
 .month-header {
   background: linear-gradient(135deg, #2563EB, #3B82F6);
   padding: 40rpx 32rpx 32rpx;

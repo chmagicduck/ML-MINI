@@ -1,4 +1,4 @@
-<!--pages/meeting/index.wxml — 会议烧钱机 V2.2-->
+<!--pages/meeting/index.wxml — 会议烧钱机-->
 <view class="page">
   <view class="tip-banner" wx:if="{{!hasSettings}}">
     <text class="tip-text">⚠️ 未设置薪资，以0计算。请前往「我的」配置</text>
@@ -25,7 +25,7 @@
     <text class="slider-hint">（1~50人）</text>
   </view>
 
-  <!-- V2.2 自定义人均月薪 -->
+  <!-- 自定义人均月薪 -->
   <view class="section-card">
     <view class="custom-salary-header">
       <text class="section-title" style="margin-bottom:0">💵 自定义人均月薪</text>

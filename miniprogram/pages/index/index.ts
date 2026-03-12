@@ -1,4 +1,4 @@
-// pages/index/index.ts — 鱼额宝首页 V1.0
+// pages/index/index.ts — 鱼额宝首页
 import {
   getSettings,
   getTodaySlackingSeconds,
@@ -13,12 +13,14 @@ import {
   clearLastExitState,
   hasShownInitialIdentity,
   setInitialIdentityShown,
+  isOnboardingDone,
 } from '../../utils/storage'
 import {
   getSecondSalary,
   calcTodayEarnings,
   calcTodayWorkedEarnings,
   calcTodayWorkedSeconds,
+  calcWorkedSecondsBetween,
   calcMonthEarnings,
   getDailyWorkMinutes,
   getDaysToPayday,
@@ -50,6 +52,9 @@ let _settings: UserSettings | null = null
 let _baseTotalMoney = 0
 // 上次 commit 时的摸鱼秒数，用于增量计算
 let _lastCommitSeconds = 0
+// 当前计时轮次的基准秒和起始时间（用于生成事件时间段）
+let _timerBaseSeconds = 0
+let _timerStartAt = 0
 // 已知的最高等级门槛；-1 表示未初始化（防止启动时误弹）
 let _lastLevelThreshold = -1
 // 升级弹窗是否正在展示（防止连续弹出）
@@ -66,6 +71,14 @@ function dayKeyByTimestamp(ts: number = Date.now()): string {
   return `${now.getFullYear()}-${m}-${d}`
 }
 
+function dayStartTimestampByKey(dayKey: string): number {
+  const parts = dayKey.split('-')
+  const y = Number(parts[0]) || 0
+  const m = Number(parts[1]) || 1
+  const d = Number(parts[2]) || 1
+  return new Date(y, m - 1, d, 0, 0, 0, 0).getTime()
+}
+
 Page({
   data: {
     statusBarHeight: 0,
@@ -77,9 +90,9 @@ Page({
     slackingTimeStr: '00:00:00',
 
     // 卡片数据
-    todayEarnings: '¥0.00',
-    todayWorkedEarnings: '¥0.00',
-    monthEarnings: '¥0.00',
+    todayEarnings: '¥0.0000',
+    todayWorkedEarnings: '¥0.0000',
+    monthEarnings: '¥0.0000',
     secondSalary: '¥0.0000/秒',
     daysToPayday: 0,
     daysToWeekend: 0,
@@ -90,7 +103,7 @@ Page({
     levelEmoji: '🐂',
     levelColor: '#9E9E9E',
     isGoldLevel: false,
-    totalMoney: '¥0.00',
+    totalMoney: '¥0.0000',
 
     // 节假日
     holidayText: '',
@@ -110,6 +123,12 @@ Page({
   },
 
   onLoad() {
+    // 首次使用：跳转引导页
+    if (!isOnboardingDone()) {
+      wx.reLaunch({ url: '/pages/onboarding/index' })
+      return
+    }
+
     let statusBarHeight = 20
     try {
       const windowInfo = (wx as any).getWindowInfo?.()
@@ -139,7 +158,10 @@ Page({
     const uncommittedTodaySecs = Math.max(0, slackingSeconds - committedTodaySecs)
     if (_settings && uncommittedTodaySecs > 0.001) {
       const uncommittedMoney = uncommittedTodaySecs * getSecondSalary(_settings)
-      const committed = commitMoyuSessionForDay(todayKey, uncommittedTodaySecs, uncommittedMoney)
+      const committed = commitMoyuSessionForDay(todayKey, uncommittedTodaySecs, uncommittedMoney, {
+        source: 'repair',
+        note: 'startup-self-heal',
+      })
       if (committed) {
         moyuStats = getMoyuStats()
       }
@@ -222,19 +244,13 @@ Page({
     clearLastExitState()
     if (!exitState) return
 
-    const elapsed = Date.now() - exitState.ts
+    const nowMs = Date.now()
+    const elapsed = nowMs - exitState.ts
     const hourMs = 3600000
-    const exitDate = new Date(exitState.ts)
-    const today = new Date()
-    const sameDay = exitDate.getFullYear() === today.getFullYear()
-      && exitDate.getMonth() === today.getMonth()
-      && exitDate.getDate() === today.getDate()
+    if (elapsed < hourMs) return
 
-    if (elapsed < hourMs || !sameDay) return
-
-    const nowWorkedSecs = calcTodayWorkedSeconds(_settings)
-    const earnedSecs = Math.max(0, nowWorkedSecs - exitState.workedSecs)
-    if (earnedSecs <= 0) return
+    const earnedSecs = calcWorkedSecondsBetween(_settings, exitState.ts, nowMs)
+    if (earnedSecs <= 0.001) return
 
     const offlineEarnings = earnedSecs * getSecondSalary(_settings)
     setTimeout(() => {
@@ -277,7 +293,9 @@ Page({
   // ─────────── 下班倒计时 ─────────────────────────────
   _updateTimeUntilOffWork() {
     if (!_settings) return
-    const [eh, em] = _settings.workEndTime.split(':').map(Number)
+    const parts = _settings.workEndTime.split(':')
+    const eh = Number(parts[0]) || 0
+    const em = Number(parts[1]) || 0
     const now = new Date()
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eh, em, 0, 0)
     const remaining = endOfDay.getTime() - now.getTime()
@@ -374,12 +392,25 @@ Page({
     let activeDayKey = dayKeyByTimestamp(startAt)
     let lastStorageSyncAt = 0
 
+    _timerBaseSeconds = baseSeconds
+    _timerStartAt = startAt
+
     const commitDelta = (seconds: number, dayKey: string) => {
       if (!_settings) return
       const deltaSeconds = seconds - _lastCommitSeconds
       if (deltaSeconds <= 0.001) return
+
+      const startOffsetSeconds = Math.max(0, _lastCommitSeconds - baseSeconds)
+      const endOffsetSeconds = Math.max(0, seconds - baseSeconds)
+      const eventStartAt = startAt + startOffsetSeconds * 1000
+      const eventEndAt = Math.max(eventStartAt, startAt + endOffsetSeconds * 1000)
+
       const deltaMoney = deltaSeconds * getSecondSalary(_settings)
-      const committed = commitMoyuSessionForDay(dayKey, deltaSeconds, deltaMoney)
+      const committed = commitMoyuSessionForDay(dayKey, deltaSeconds, deltaMoney, {
+        startAt: eventStartAt,
+        endAt: eventEndAt,
+        source: 'index_timer',
+      })
       if (committed) {
         _baseTotalMoney += deltaMoney
         _lastCommitSeconds = seconds
@@ -393,13 +424,16 @@ Page({
 
       // 跨天处理
       if (currentDayKey !== activeDayKey) {
-        const closingSeconds = baseSeconds + (nowMs - startAt) / 1000
+        const boundaryMs = dayStartTimestampByKey(currentDayKey)
+        const closingSeconds = baseSeconds + Math.max(0, boundaryMs - startAt) / 1000
         commitDelta(closingSeconds, activeDayKey)
 
         baseSeconds = 0
-        startAt = nowMs
+        startAt = boundaryMs
         activeDayKey = currentDayKey
         _lastCommitSeconds = 0
+        _timerBaseSeconds = baseSeconds
+        _timerStartAt = startAt
 
         saveTodaySlackingSeconds(0)
         this.setData({
@@ -466,12 +500,24 @@ Page({
       if (_settings && currentSeconds > _lastCommitSeconds) {
         const deltaSeconds = currentSeconds - _lastCommitSeconds
         const deltaMoney = deltaSeconds * getSecondSalary(_settings)
-        const committed = commitMoyuSession(deltaSeconds, deltaMoney)
+
+        const startOffsetSeconds = Math.max(0, _lastCommitSeconds - _timerBaseSeconds)
+        const endOffsetSeconds = Math.max(0, currentSeconds - _timerBaseSeconds)
+        const eventStartAt = _timerStartAt + startOffsetSeconds * 1000
+        const eventEndAt = Math.max(eventStartAt, _timerStartAt + endOffsetSeconds * 1000)
+
+        const committed = commitMoyuSession(deltaSeconds, deltaMoney, {
+          startAt: eventStartAt,
+          endAt: eventEndAt,
+          source: 'index_timer',
+        })
         if (committed) {
           _baseTotalMoney += deltaMoney
           _lastCommitSeconds = currentSeconds
         }
       }
+      _timerBaseSeconds = 0
+      _timerStartAt = 0
     }
   },
 

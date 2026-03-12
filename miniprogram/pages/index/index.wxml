@@ -1,4 +1,4 @@
-<!--index.wxml — 首页鱼额宝 V1.0-->
+<!--index.wxml — 首页鱼额宝-->
 <view class="page">
 
   <!-- 自定义导航栏 -->

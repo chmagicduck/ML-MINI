@@ -20,14 +20,14 @@ Page({
     isRunning: false,
     sessionSeconds: 0,
     sessionTimeStr: '00:00:00',
-    sessionEarnings: '¥0.00',
+    sessionEarnings: '¥0.0000',
 
     // 历史统计
     totalSeconds: 0,
-    totalEarnings: '¥0.00',
+    totalEarnings: '¥0.0000',
     sessionCount: 0,
     todaySeconds: 0,
-    todayEarnings: '¥0.00',
+    todayEarnings: '¥0.0000',
 
     // 当前秒薪
     secondSalary: 0,
@@ -44,7 +44,7 @@ Page({
   },
 
   onShow() {
-    // V1.0.1: 恢复计时器运行状态（切后台或切子页返回时）
+    // 恢复计时器运行状态（切后台或切子页返回时）
     const runningState = getPoopRunningState()
     if (runningState && runningState.isRunning && runningState.sessionStartTime) {
       // 计算离线期间补齐的秒数
@@ -71,7 +71,7 @@ Page({
   // H-8: onHide 时暂停计时，防止切后台继续空转
   onHide() {
     this._stopTimer(false)
-    // V1.0.1: 保存运行状态，用于 onShow 恢复
+    // 保存运行状态，用于 onShow 恢复
     if (this.data.isRunning) {
       savePoopRunningState({
         isRunning: true,
@@ -166,12 +166,12 @@ Page({
     if (this.data.isRunning) {
       // 停止并保存
       this._stopTimer(true)
-      clearPoopRunningState()  // V1.0.1: 停止时清除运行状态
+      clearPoopRunningState()  // 停止时清除运行状态
       this.setData({
         isRunning: false,
         sessionSeconds: 0,
         sessionTimeStr: '00:00:00',
-        sessionEarnings: '¥0.00',
+        sessionEarnings: '¥0.0000',
         encouragement: '本次收益已入账，辛苦了！✅',
       })
     } else {

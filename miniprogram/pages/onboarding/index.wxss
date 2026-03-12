@@ -1,0 +1,212 @@
+/* pages/onboarding/index.wxss — 引导页 */
+
+.page {
+  min-height: 100vh;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 顶部动画区 ===== */
+.top-area {
+  position: relative;
+  height: 38vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 动态背景球 */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80rpx);
+  opacity: 0.7;
+}
+.blob-1 {
+  top: -10%; left: -10%;
+  width: 512rpx; height: 512rpx;
+  background: #DBEAFE;
+  animation: blob 7s infinite alternate;
+}
+.blob-2 {
+  top: -5%; right: -5%;
+  width: 512rpx; height: 512rpx;
+  background: #E9D5FF;
+  animation: blob 7s infinite alternate 2s;
+}
+.blob-3 {
+  bottom: 10%; left: 20%;
+  width: 384rpx; height: 384rpx;
+  background: #FCE7F3;
+  animation: blob 7s infinite alternate 4s;
+}
+
+/* 浮动气泡 */
+.float-bubble {
+  position: absolute;
+  background: rgba(96, 165, 250, 0.2);
+  border-radius: 50%;
+  animation: float-up 4s infinite linear;
+}
+.fb-1 { bottom: -20rpx; left: calc(50% - 120rpx); width: 40rpx; height: 40rpx; animation-delay: 0s; animation-duration: 3.5s; }
+.fb-2 { bottom: -20rpx; left: calc(50% - 60rpx); width: 30rpx; height: 30rpx; animation-delay: 0.5s; animation-duration: 4s; }
+.fb-3 { bottom: -20rpx; left: 50%; width: 50rpx; height: 50rpx; animation-delay: 1s; animation-duration: 3.2s; }
+.fb-4 { bottom: -20rpx; left: calc(50% + 60rpx); width: 20rpx; height: 20rpx; animation-delay: 1.5s; animation-duration: 4.5s; }
+.fb-5 { bottom: -20rpx; left: calc(50% + 120rpx); width: 35rpx; height: 35rpx; animation-delay: 2s; animation-duration: 3.8s; }
+.fb-6 { bottom: -20rpx; left: calc(50% + 180rpx); width: 25rpx; height: 25rpx; animation-delay: 2.5s; animation-duration: 4.2s; }
+
+/* 步骤图标 */
+.icon-card {
+  position: relative;
+  z-index: 1;
+  padding: 64rpx;
+  border-radius: 50rpx;
+  box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.08);
+  border: 8rpx solid #FFFFFF;
+  transform: scale(1.1);
+  transition: background 0.5s ease;
+}
+.icon-bg-blue { background: #EFF6FF; }
+.icon-bg-orange { background: #FFF7ED; }
+.icon-bg-green { background: #F0FDF4; }
+
+.icon-text {
+  font-size: 96rpx;
+  display: block;
+  text-align: center;
+}
+
+/* ===== 内容区 ===== */
+.content-area {
+  flex: 1;
+  padding: 0 64rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 步骤指示器 */
+.dots-row {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 48rpx;
+}
+.dot {
+  height: 12rpx;
+  border-radius: 12rpx;
+  transition: all 0.3s ease;
+}
+.dot-active {
+  width: 80rpx;
+  background: #2563EB;
+}
+.dot-idle {
+  width: 16rpx;
+  background: #E5E7EB;
+}
+
+/* 标题 & 描述 */
+.ob-title {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+  display: block;
+  margin-bottom: 16rpx;
+}
+.ob-desc {
+  font-size: 32rpx;
+  color: #6B7280;
+  line-height: 1.6;
+  display: block;
+  min-height: 180rpx;
+}
+
+/* 装饰卡片 */
+.deco-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  background: #F8FAFC;
+  padding: 32rpx 40rpx;
+  border-radius: 32rpx;
+  border: 1rpx solid #F1F5F9;
+  margin-top: 32rpx;
+  animation: fade-in-up 0.6s ease-out;
+}
+.deco-icon-wrap {
+  background: #FFFFFF;
+  padding: 20rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border: 1rpx solid #F8FAFC;
+}
+.deco-icon {
+  font-size: 48rpx;
+}
+.deco-text-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.deco-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1E293B;
+  display: block;
+}
+.deco-sub {
+  font-size: 24rpx;
+  color: #94A3B8;
+  display: block;
+  margin-top: 4rpx;
+}
+
+/* ===== 底部按钮 ===== */
+.btn-area {
+  padding: 0 64rpx 80rpx;
+}
+.ob-btn {
+  width: 100%;
+  height: 112rpx;
+  background: #2563EB;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  box-shadow: 0 16rpx 48rpx rgba(37, 99, 235, 0.15);
+}
+.ob-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+.ob-btn-text {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+.ob-btn-arrow {
+  font-size: 34rpx;
+  color: #FFFFFF;
+}
+
+/* ===== 动画 ===== */
+@keyframes blob {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30rpx, -40rpx) scale(1.1); }
+  66% { transform: translate(-20rpx, 20rpx) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 0.5; }
+  100% { transform: translateY(-200rpx) scale(1.5); opacity: 0; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(30rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}

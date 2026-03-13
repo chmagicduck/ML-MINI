@@ -359,6 +359,24 @@ export function isWorkingNow(settings: UserSettings): boolean {
   return currentSec >= startSec && currentSec <= endSec
 }
 
+/**
+ * 判断当前时刻是否处于午休时间
+ * 条件：午休开关开启 + 工作日 + 当前时间在午休区间内
+ */
+export function isLunchBreakNow(settings: UserSettings): boolean {
+  if (!settings.lunchBreakEnabled) return false
+
+  const now = new Date()
+  if (!isWorkingDay(now.getFullYear(), now.getMonth(), now.getDate(), settings.workdayMode)) {
+    return false
+  }
+
+  const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()
+  const lunchStartSec = parseTimeToMinutes(settings.lunchBreakStart) * 60
+  const lunchEndSec = parseTimeToMinutes(settings.lunchBreakEnd) * 60
+  return currentSec >= lunchStartSec && currentSec < lunchEndSec
+}
+
 // ─────────── 洋流情报：时间分布统计 ────────────────────────────
 
 /** 时间分布统计结果（用于洋流情报甜甜圈图） */

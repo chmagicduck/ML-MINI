@@ -25,6 +25,7 @@ import {
   getWorkingDaysInMonth,
   getMoyuLevel,
   isWorkingNow,
+  isLunchBreakNow,
   formatMoney,
   formatDuration,
   calcStatsBreakdown,
@@ -122,7 +123,6 @@ Page({
     offWorkPercent: 0,
     offWorkCountdown: '',
 
-    hasSettings: false,
     slogan: SLOGANS[0],
   },
 
@@ -152,7 +152,6 @@ Page({
     _levelUpShowing = false
 
     _settings = getSettings()
-    const hasSettings = _settings.monthlySalary > 0
     const slackingSeconds = getTodaySlackingSeconds()
 
     // 启动自愈：补齐"今日未提交秒数"
@@ -193,7 +192,6 @@ Page({
     const secondSalaryValue = getSecondSalary(_settings).toFixed(4)
 
     this.setData({
-      hasSettings,
       slackingSeconds,
       holidayText,
       isHolidayOrWeekend,
@@ -263,10 +261,10 @@ Page({
     const moyuPct = (breakdown.moyuSeconds / total) * 100
     const futurePct = (breakdown.futureSeconds / total) * 100
 
-    // conic-gradient: 工作(#CBD5E1) → 摸鱼(#3B82F6) → 未到(#F1F5F9)
-    const d1 = (workPct / 100) * 360
-    const d2 = d1 + (moyuPct / 100) * 360
-    const progressStyle = `background: conic-gradient(#CBD5E1 0deg ${d1}deg, #3B82F6 ${d1}deg ${d2}deg, #F1F5F9 ${d2}deg 360deg)`
+    // conic-gradient: 摸鱼(#3B82F6) 从起始位置出发 → 工作(#CBD5E1) → 未到(#F1F5F9)
+    const d1 = (moyuPct / 100) * 360
+    const d2 = d1 + (workPct / 100) * 360
+    const progressStyle = `background: conic-gradient(#3B82F6 0deg ${d1}deg, #CBD5E1 ${d1}deg ${d2}deg, #F1F5F9 ${d2}deg 360deg)`
 
     const hasFuture = breakdown.futureSeconds > 0
 
@@ -463,6 +461,19 @@ Page({
         commitDelta(seconds, activeDayKey)
       }
 
+      // 午休时间自动暂停
+      if (isLunchBreakNow(_settings)) {
+        saveTodaySlackingSeconds(seconds)
+        this.setData({
+          slackingSeconds: seconds,
+          slackingTimeStr: formatDuration(seconds),
+          isSlacking: false,
+        })
+        this._pause()
+        wx.showToast({ title: '午休时间，自动暂停摸鱼', icon: 'none', duration: 1800 })
+        return
+      }
+
       // 工作时段结束自动停表
       if (!isWorkingNow(_settings)) {
         saveTodaySlackingSeconds(seconds)
@@ -531,9 +542,15 @@ Page({
 
   // ─────────── 切换摸鱼模式 ────────────────────────────────
   onToggleSlacking() {
-    if (!this.data.isSlacking && _settings && !isWorkingNow(_settings)) {
-      wx.showToast({ title: '工作时间外无法开启摸鱼 🐟', icon: 'none', duration: 2000 })
-      return
+    if (!this.data.isSlacking && _settings) {
+      if (!isWorkingNow(_settings)) {
+        wx.showToast({ title: '工作时间外无法开启摸鱼', icon: 'none', duration: 2000 })
+        return
+      }
+      if (isLunchBreakNow(_settings)) {
+        wx.showToast({ title: '午休时间无法开启摸鱼', icon: 'none', duration: 2000 })
+        return
+      }
     }
 
     const isSlacking = !this.data.isSlacking

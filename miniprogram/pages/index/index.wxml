@@ -69,25 +69,21 @@
     </view>
   </view>
 
-  <!-- 未配置薪资提示 -->
-  <view class="tip-banner" wx:if="{{!hasSettings}}">
-    <text class="tip-text">👆 前往「我的」填写薪资，才能看到真实收益</text>
-  </view>
-
   <!-- 工时进度条区域 -->
   <view class="progress-section">
     <view class="ring-legend">
+      <text class="progress-section-title">工作情况：</text>
       <view class="ring-legend-item">
         <view class="ring-dot ring-dot-work"></view>
-        <text class="ring-legend-text">工作 {{workPctStr}}</text>
-      </view>
-      <view class="ring-legend-item">
-        <view class="ring-dot ring-dot-moyu"></view>
-        <text class="ring-legend-text ring-legend-text-moyu">摸鱼 {{moyuPctStr}}</text>
+        <text class="ring-legend-text">已完成 {{workPctStr}}</text>
       </view>
       <view class="ring-legend-item" wx:if="{{hasFuture}}">
         <view class="ring-dot ring-dot-future"></view>
-        <text class="ring-legend-text ring-legend-text-future">未到 {{futurePctStr}}</text>
+        <text class="ring-legend-text ring-legend-text-future">未完成 {{futurePctStr}}</text>
+      </view>
+      <view class="ring-legend-item">
+        <view class="ring-dot ring-dot-moyu"></view>
+        <text class="ring-legend-text ring-legend-text-moyu">摸鱼率 {{moyuPctStr}}</text>
       </view>
     </view>
     <view class="progress-card">

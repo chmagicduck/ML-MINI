@@ -1,4 +1,4 @@
-// pages/poop/index.ts — 带薪拉粑粑计时器
+// pages/poop/index.ts — 带薪拉粑粑计时器（VIP厕位版）
 import {
   getSettings,
   getPoopStats,
@@ -6,17 +6,21 @@ import {
   savePoopRunningState,
   getPoopRunningState,
   clearPoopRunningState,
+  addManualPoopSession,
 } from '../../utils/storage'
 import { getSecondSalary, formatMoney, formatDuration } from '../../utils/calculator'
 import { PoopStats } from '../../utils/types'
 
 let _timer: ReturnType<typeof setInterval> | null = null
-// C-3: sessions 最多保留 200 条，防止存储溢出
 const MAX_SESSIONS = 200
+
+function genId(): string {
+  return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+}
 
 Page({
   data: {
-    // 当次计时
+    // 计时状态
     isRunning: false,
     sessionSeconds: 0,
     sessionTimeStr: '00:00:00',
@@ -33,7 +37,15 @@ Page({
     secondSalary: 0,
 
     // 鼓励语
-    encouragement: '开始你的专属VIP包厢时光 👑',
+    encouragement: '开始你的专属VIP包厢时光',
+
+    // 门动画状态
+    doorOpen: false,
+
+    // 手动记录
+    showManualInput: false,
+    manualMinutes: '',
+    manualPreviewEarnings: '¥0.0000',
   },
 
   onLoad() {
@@ -44,21 +56,19 @@ Page({
   },
 
   onShow() {
-    // 恢复计时器运行状态（切后台或切子页返回时）
     const runningState = getPoopRunningState()
     if (runningState && runningState.isRunning && runningState.sessionStartTime) {
-      // 计算离线期间补齐的秒数
       const offlineSecs = Math.floor((Date.now() - runningState.sessionStartTime) / 1000)
       const newSessionSeconds = runningState.sessionSeconds + offlineSecs
 
       this.setData({
         isRunning: true,
+        doorOpen: true,
         sessionSeconds: newSessionSeconds,
         sessionTimeStr: formatDuration(newSessionSeconds),
         sessionEarnings: formatMoney(this.data.secondSalary * newSessionSeconds),
       })
 
-      // 重启计时器
       this._startTimer()
     }
   },
@@ -68,10 +78,8 @@ Page({
     clearPoopRunningState()
   },
 
-  // H-8: onHide 时暂停计时，防止切后台继续空转
   onHide() {
     this._stopTimer(false)
-    // 保存运行状态，用于 onShow 恢复
     if (this.data.isRunning) {
       savePoopRunningState({
         isRunning: true,
@@ -79,7 +87,7 @@ Page({
         sessionStartTime: Date.now(),
       })
     }
-    this.setData({ isRunning: false })
+    this.setData({ isRunning: false, doorOpen: false })
   },
 
   _loadStats() {
@@ -100,12 +108,13 @@ Page({
 
   _todayKey(): string {
     const now = new Date()
-    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+    const m = String(now.getMonth() + 1).padStart(2, '0')
+    const d = String(now.getDate()).padStart(2, '0')
+    return `${now.getFullYear()}-${m}-${d}`
   },
 
   _startTimer() {
     if (_timer !== null) return
-    // C-1: 基于时间戳，消除 setInterval 抖动误差
     const baseSeconds = this.data.sessionSeconds
     const startAt = Date.now()
     _timer = setInterval(() => {
@@ -137,15 +146,17 @@ Page({
     const stats: PoopStats = getPoopStats()
 
     const newSession = {
+      id: genId(),
       date: this._todayKey(),
       seconds: sessionSeconds,
       earnings,
+      source: 'timer' as const,
+      createdAt: Date.now(),
     }
 
     const newStats: PoopStats = {
       totalSeconds: stats.totalSeconds + sessionSeconds,
       totalEarnings: stats.totalEarnings + earnings,
-      // C-3: 截断到最近 MAX_SESSIONS 条，防止存储溢出
       sessions: [...stats.sessions, newSession].slice(-MAX_SESSIONS),
     }
 
@@ -154,33 +165,91 @@ Page({
   },
 
   _getEncouragement(seconds: number): string {
-    if (seconds < 60) return '刚进场，慢慢来 🚽'
-    if (seconds < 180) return '进入状态了，好好享受 💆'
-    if (seconds < 300) return '五分钟！职场 VIP 选手 👑'
-    if (seconds < 600) return '十分钟大关！你已是传说 🏆'
-    if (seconds < 1800) return '半小时！你在办公室还是桑拿房？🔥'
-    return '要不要叫同事来找你？😂'
+    if (seconds < 60) return '刚进场，慢慢来'
+    if (seconds < 180) return '进入状态了，好好享受'
+    if (seconds < 300) return '五分钟！职场VIP选手'
+    if (seconds < 600) return '十分钟大关！你已是传说'
+    if (seconds < 1800) return '半小时！你在办公室还是桑拿房？'
+    return '要不要叫同事来找你？'
   },
 
   onToggle() {
     if (this.data.isRunning) {
-      // 停止并保存
       this._stopTimer(true)
-      clearPoopRunningState()  // 停止时清除运行状态
+      clearPoopRunningState()
       this.setData({
         isRunning: false,
+        doorOpen: false,
         sessionSeconds: 0,
         sessionTimeStr: '00:00:00',
         sessionEarnings: '¥0.0000',
-        encouragement: '本次收益已入账，辛苦了！✅',
+        encouragement: '本次收益已入账，辛苦了！',
       })
     } else {
-      // 开始
       this.setData({
         isRunning: true,
-        encouragement: '开始你的专属VIP包厢时光 👑',
+        doorOpen: true,
+        encouragement: '开始你的专属VIP包厢时光',
       })
       this._startTimer()
     }
+  },
+
+  // ─────────── 手动记录 ───────────────────────────
+
+  onShowManualInput() {
+    this.setData({
+      showManualInput: true,
+      manualMinutes: '',
+      manualPreviewEarnings: '¥0.0000',
+    })
+  },
+
+  onHideManualInput() {
+    this.setData({ showManualInput: false })
+  },
+
+  onManualMinutesInput(e: WechatMiniprogram.Input) {
+    const val = e.detail.value.trim()
+    const minutes = parseFloat(val)
+    if (!isNaN(minutes) && minutes > 0) {
+      const earnings = this.data.secondSalary * minutes * 60
+      this.setData({
+        manualMinutes: val,
+        manualPreviewEarnings: formatMoney(earnings),
+      })
+    } else {
+      this.setData({
+        manualMinutes: val,
+        manualPreviewEarnings: '¥0.0000',
+      })
+    }
+  },
+
+  onConfirmManual() {
+    const minutes = parseFloat(this.data.manualMinutes)
+    if (isNaN(minutes) || minutes <= 0) {
+      wx.showToast({ title: '请输入有效分钟数', icon: 'none' })
+      return
+    }
+
+    const seconds = Math.round(minutes * 60)
+    const earnings = this.data.secondSalary * seconds
+    const date = this._todayKey()
+
+    const success = addManualPoopSession(seconds, earnings, date)
+    if (success) {
+      this._loadStats()
+      this.setData({ showManualInput: false, manualMinutes: '' })
+      wx.showToast({ title: '记录成功', icon: 'success' })
+    } else {
+      wx.showToast({ title: '保存失败', icon: 'none' })
+    }
+  },
+
+  // ─────────── 导航 ───────────────────────────────
+
+  onGoHistory() {
+    wx.navigateTo({ url: '/pages/poop-history/index' })
   },
 })

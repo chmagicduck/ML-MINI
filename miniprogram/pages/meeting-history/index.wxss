@@ -1,0 +1,237 @@
+/* pages/meeting-history/index.wxss — 会议历史记录 */
+
+.page {
+  min-height: 100vh;
+  background: #F8FAFC;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 160rpx 32rpx;
+}
+.empty-icon {
+  font-size: 96rpx;
+  display: block;
+  margin-bottom: 24rpx;
+}
+.empty-text {
+  font-size: 32rpx;
+  color: #757575;
+  display: block;
+  margin-bottom: 12rpx;
+}
+.empty-hint {
+  font-size: 26rpx;
+  color: #BDBDBD;
+  display: block;
+}
+
+/* ===== 记录列表 ===== */
+.record-list {
+  padding: 24rpx 32rpx 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.record-card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+
+/* ===== 记录内容 ===== */
+.record-content {
+  padding: 28rpx;
+}
+.record-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+.record-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #333;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.record-date {
+  font-size: 22rpx;
+  color: #BDBDBD;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+/* ===== 记录详情 ===== */
+.record-details {
+  display: flex;
+  flex-direction: row;
+  gap: 24rpx;
+  margin-bottom: 20rpx;
+}
+.detail-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #F8FAFC;
+  border-radius: 12rpx;
+  padding: 16rpx 8rpx;
+}
+.detail-label {
+  font-size: 22rpx;
+  color: #9E9E9E;
+  display: block;
+  margin-bottom: 6rpx;
+}
+.detail-value {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333;
+}
+.detail-cost {
+  color: #C62828;
+}
+
+/* ===== 操作按钮 ===== */
+.record-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  border-top: 1rpx solid #F0F0F0;
+  padding-top: 16rpx;
+}
+.action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 12rpx 0;
+  border-radius: 8rpx;
+}
+.action-btn:active { opacity: 0.7; }
+.action-share-btn {
+  background: transparent;
+  border: none;
+  margin: 0;
+  padding: 12rpx 0;
+  line-height: normal;
+  font-size: inherit;
+}
+.action-share-btn::after { border: none; }
+.action-text {
+  font-size: 26rpx;
+}
+.action-edit {
+  color: #2563EB;
+}
+.action-share {
+  color: #16A34A;
+}
+.action-delete {
+  color: #E53935;
+}
+
+/* ===== 编辑区域 ===== */
+.edit-area {
+  padding: 28rpx;
+}
+.edit-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20rpx;
+}
+.edit-label {
+  font-size: 24rpx;
+  color: #757575;
+  display: block;
+  margin-bottom: 8rpx;
+}
+.edit-input {
+  background: #F5F5F5;
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  font-size: 30rpx;
+  color: #333;
+}
+.edit-btn-row {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+.edit-btn {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  border-radius: 12rpx;
+}
+.edit-btn-cancel {
+  background: #F5F5F5;
+}
+.edit-btn-cancel:active { background: #E0E0E0; }
+.edit-btn-save {
+  background: #2563EB;
+}
+.edit-btn-save:active { opacity: 0.85; }
+.edit-btn-text {
+  font-size: 28rpx;
+  color: #757575;
+}
+.edit-btn-text-save {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* ===== 分页 ===== */
+.pagination {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 32rpx;
+  padding: 32rpx 32rpx 0;
+}
+.page-btn {
+  background: #FFFFFF;
+  border-radius: 12rpx;
+  padding: 16rpx 32rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
+}
+.page-btn:active { background: #F5F5F5; }
+.page-btn-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.page-btn-text {
+  font-size: 26rpx;
+  color: #2563EB;
+}
+.page-info {
+  font-size: 26rpx;
+  color: #757575;
+}
+
+/* ===== 总计 ===== */
+.total-bar {
+  padding: 24rpx 32rpx;
+  text-align: center;
+}
+.total-text {
+  font-size: 24rpx;
+  color: #BDBDBD;
+}
+
+/* ===== 底部安全区 ===== */
+.safe-bottom { height: 80rpx; }

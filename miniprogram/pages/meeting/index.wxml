@@ -1,14 +1,56 @@
-<!--pages/meeting/index.wxml — 会议烧钱机-->
+<!--pages/meeting/index.wxml — 烧钱会议机（重构版）-->
 <view class="page">
+  <!-- 未设置薪资提示 -->
   <view class="tip-banner" wx:if="{{!hasSettings}}">
-    <text class="tip-text">⚠️ 未设置薪资，以0计算。请前往「我的」配置</text>
+    <text class="tip-text">未设置薪资，以0计算。请前往「我的」配置</text>
   </view>
 
-  <!-- 主显示区 -->
-  <view class="burn-display {{isRunning ? 'burn-display-active' : ''}}">
+  <!-- 金额显示区 -->
+  <view class="burn-display">
     <text class="burn-label">本场会议已消耗公司</text>
-    <text class="burn-amount {{isRunning ? 'amount-pulse' : ''}}">{{totalCost}}</text>
-    <text class="burn-rate">{{costPerSecond}}</text>
+    <view class="burn-amount-row">
+      <text class="burn-currency">¥</text>
+      <text class="burn-amount {{isRunning ? 'fire-glow' : ''}}">{{totalCost}}</text>
+    </view>
+    <text class="burn-rate">¥{{costPerSecond}}/秒</text>
+    <text class="burn-elapsed">{{elapsedDisplay}}</text>
+  </view>
+
+  <!-- 会议桌可视化区域 -->
+  <view class="table-scene">
+    <view class="table-container {{isRunning ? 'table-container-active' : ''}}">
+      <!-- 椭圆形会议桌 -->
+      <view class="meeting-table {{isRunning ? 'meeting-table-active' : ''}}">
+        <text class="table-fire" wx:if="{{isRunning}}">🔥</text>
+        <text class="table-label" wx:else>会议桌</text>
+      </view>
+      <!-- 围绕桌子的头像 -->
+      <view
+        wx:for="{{avatarList}}"
+        wx:key="index"
+        class="avatar-slot avatar-pos-{{item.index}} {{isRunning ? 'avatar-running' : ''}}"
+        style="animation-delay: {{item.index * 0.08}}s;"
+      >
+        <text class="avatar-emoji">{{item.emoji}}</text>
+        <view class="avatar-glow" wx:if="{{isRunning}}"></view>
+      </view>
+    </view>
+    <text class="table-count">{{participants}} 人参会</text>
+  </view>
+
+  <!-- 会议名称输入 -->
+  <view class="section-card">
+    <text class="section-title">📋 会议名称</text>
+    <view class="name-input-wrap">
+      <input
+        class="name-input"
+        placeholder="输入会议名称（必填）"
+        value="{{meetingName}}"
+        bindinput="onMeetingNameInput"
+        maxlength="30"
+        disabled="{{isRunning}}"
+      />
+    </view>
   </view>
 
   <!-- 参会人数控制 -->
@@ -52,12 +94,21 @@
     <view class="btn-main {{isRunning ? 'btn-stop' : 'btn-start'}}" bindtap="onToggle">
       <text class="btn-main-text">{{isRunning ? '⏸ 暂停会议' : '▶ 开始计时'}}</text>
     </view>
+    <view class="btn-end" bindtap="onEndMeeting" wx:if="{{elapsedSeconds > 0}}">
+      <text class="btn-end-text">⏹ 结束会议</text>
+    </view>
     <view class="btn-reset" bindtap="onReset">
       <text class="btn-reset-text">🔄 重置</text>
     </view>
     <button class="btn-share-meeting" open-type="share">
       <text class="btn-share-meeting-text">📤 分享给同事</text>
     </button>
+  </view>
+
+  <!-- 查看过往会议入口 -->
+  <view class="history-entry" bindtap="onGoHistory">
+    <text class="history-entry-text">📊 查看过往会议</text>
+    <text class="history-entry-arrow">›</text>
   </view>
 
   <!-- 趣味提示 -->

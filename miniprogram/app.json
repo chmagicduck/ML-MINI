@@ -10,7 +10,9 @@
     "pages/food/index",
     "pages/meeting/index",
     "pages/calendar/index",
-    "pages/data-manage/index"
+    "pages/data-manage/index",
+    "pages/meeting-history/index",
+    "pages/poop-history/index"
   ],
   "tabBar": {
     "color": "#757575",

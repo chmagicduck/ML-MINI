@@ -1,58 +1,261 @@
 <!--pages/food/index.wxml — 今天吃什么-->
 <view class="page">
 
-  <!-- 标题区 -->
-  <view class="hero">
-    <text class="hero-title">今天吃什么？</text>
-    <text class="hero-sub">困扰全体打工人的世纪难题</text>
-  </view>
+  <!-- ==================== 抽奖视图 ==================== -->
+  <block wx:if="{{!showManager}}">
 
-  <!-- 抽奖机 -->
-  <view class="slot-machine">
-    <!-- 主显示区 -->
-    <view class="slot-display {{isRolling ? 'rolling' : result ? 'result-show' : ''}}">
-      <text class="slot-emoji">{{displayEmoji}}</text>
-      <text class="slot-name">{{displayName}}</text>
-      <text class="slot-tag {{result ? 'tag-visible' : ''}}">{{displayTag}}</text>
+    <!-- 标题区 -->
+    <view class="hero">
+      <text class="hero-title">今天吃什么？</text>
+      <text class="hero-sub">困扰全体打工人的世纪难题</text>
     </view>
 
-    <!-- 抽奖按钮 -->
-    <view wx:if="{{!result}}" class="btn-roll {{isRolling ? 'btn-rolling' : ''}}" bindtap="onRoll">
-      <text class="btn-roll-text">{{isRolling ? '抽取中...' : '🎲 帮我决定！'}}</text>
-    </view>
+    <!-- 抽奖机 -->
+    <view class="slot-machine">
+      <!-- 主显示区 -->
+      <view class="slot-display {{isRolling ? 'rolling' : result ? 'result-show' : ''}}">
+        <text class="slot-emoji">{{displayEmoji}}</text>
+        <text class="slot-name">{{displayName}}</text>
+        <text class="slot-tag {{result ? 'tag-visible' : ''}}">{{displayTag}}</text>
+      </view>
 
-    <!-- 结果操作 -->
-    <block wx:if="{{result}}">
-      <view class="result-actions">
-        <view class="btn-confirm">
-          <text class="btn-confirm-text">✅ 就这个了！</text>
+      <!-- 抽奖按钮 -->
+      <view wx:if="{{!result}}" class="btn-roll {{isRolling ? 'btn-rolling' : ''}}" bindtap="onRoll">
+        <text class="btn-roll-text">{{isRolling ? '抽取中...' : '🎲 帮我决定！'}}</text>
+      </view>
+
+      <!-- 结果操作 -->
+      <block wx:if="{{result}}">
+        <view class="result-actions">
+          <view class="btn-confirm" bindtap="onConfirm">
+            <text class="btn-confirm-text">就这个了！</text>
+          </view>
+          <view class="btn-reroll" bindtap="onReroll">
+            <text class="btn-reroll-text">再抽一次</text>
+          </view>
         </view>
-        <view class="btn-reroll" bindtap="onReroll">
-          <text class="btn-reroll-text">🔄 再抽一次</text>
+        <!-- 分享按钮 -->
+        <button class="btn-share-food" open-type="share">
+          <text class="btn-share-food-text">分享给群里</text>
+        </button>
+      </block>
+    </view>
+
+    <!-- 管理入口 -->
+    <view class="manager-entry" bindtap="onOpenManager">
+      <text class="manager-entry-icon">⚙️</text>
+      <text class="manager-entry-text">管理食物选项</text>
+      <text class="manager-entry-arrow">›</text>
+    </view>
+
+    <!-- 最近记录 -->
+    <view class="history-section" wx:if="{{history.length > 0}}">
+      <text class="history-title">最近吃过</text>
+      <view class="history-list">
+        <view class="history-item" wx:for="{{history}}" wx:key="index">
+          <text class="history-emoji">{{item.emoji}}</text>
+          <text class="history-name">{{item.name}}</text>
+          <text class="history-date">{{item.date}}</text>
         </view>
       </view>
-      <!-- 分享按钮 -->
-      <button class="btn-share-food" open-type="share">
-        <text class="btn-share-food-text">📤 分享给群里</text>
-      </button>
+    </view>
+
+    <!-- 吃饭名言 -->
+    <view class="quote-card">
+      <text class="quote-text">"民以食为天，打工人以摸鱼为天" — 某匿名员工</text>
+    </view>
+
+  </block>
+
+  <!-- ==================== 管理视图 ==================== -->
+  <block wx:if="{{showManager}}">
+
+    <!-- 管理视图标题栏 -->
+    <view class="manager-header">
+      <view class="manager-back" bindtap="onCloseManager">
+        <text class="manager-back-icon">‹</text>
+        <text class="manager-back-text">返回</text>
+      </view>
+      <text class="manager-title">食物管理</text>
+      <view class="manager-header-right"></view>
+    </view>
+
+    <!-- 食物列表 -->
+    <view class="food-list">
+      <view
+        class="food-card {{editingId === item.id ? 'food-card-editing' : ''}}"
+        wx:for="{{foodList}}"
+        wx:key="id"
+      >
+        <!-- 普通显示模式 -->
+        <block wx:if="{{editingId !== item.id}}">
+          <view class="food-card-main">
+            <view class="food-card-left">
+              <text class="food-card-emoji">{{item.emoji}}</text>
+              <view class="food-card-info">
+                <text class="food-card-name">{{item.name}}</text>
+                <text class="food-card-tag" wx:if="{{item.tag}}">{{item.tag}}</text>
+              </view>
+            </view>
+            <view class="food-card-right">
+              <text class="food-card-count">已吃 {{foodStats[item.id] || 0}} 次</text>
+              <view class="food-card-actions">
+                <view class="food-card-btn food-card-btn-edit" data-id="{{item.id}}" bindtap="onStartEdit">
+                  <text class="food-card-btn-text">编辑</text>
+                </view>
+                <view class="food-card-btn food-card-btn-delete" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onDeleteFood">
+                  <text class="food-card-btn-text food-card-btn-delete-text">删除</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          <!-- 权重滑块 -->
+          <view class="food-card-weight">
+            <text class="food-card-weight-label">权重</text>
+            <slider
+              class="food-card-slider"
+              min="1"
+              max="10"
+              step="1"
+              value="{{item.weight}}"
+              activeColor="#2563EB"
+              backgroundColor="#E2E8F0"
+              block-size="20"
+              data-id="{{item.id}}"
+              bindchange="onWeightChange"
+            />
+            <text class="food-card-weight-value">{{item.weight}}</text>
+          </view>
+        </block>
+
+        <!-- 编辑模式 -->
+        <block wx:if="{{editingId === item.id}}">
+          <view class="edit-form">
+            <view class="edit-form-title">编辑食物</view>
+            <view class="edit-form-row">
+              <text class="edit-form-label">Emoji</text>
+              <input
+                class="edit-form-input edit-form-input-short"
+                value="{{editForm.emoji}}"
+                bindinput="onEditEmojiInput"
+                maxlength="4"
+              />
+            </view>
+            <view class="edit-form-row">
+              <text class="edit-form-label">名称</text>
+              <input
+                class="edit-form-input"
+                value="{{editForm.name}}"
+                bindinput="onEditNameInput"
+                maxlength="20"
+                placeholder="食物名称"
+              />
+            </view>
+            <view class="edit-form-row">
+              <text class="edit-form-label">标签</text>
+              <input
+                class="edit-form-input"
+                value="{{editForm.tag}}"
+                bindinput="onEditTagInput"
+                maxlength="10"
+                placeholder="一句话描述"
+              />
+            </view>
+            <view class="edit-form-row">
+              <text class="edit-form-label">权重</text>
+              <slider
+                class="edit-form-slider"
+                min="1"
+                max="10"
+                step="1"
+                value="{{editForm.weight}}"
+                activeColor="#2563EB"
+                backgroundColor="#E2E8F0"
+                block-size="20"
+                show-value="{{true}}"
+                bindchange="onEditWeightChange"
+              />
+            </view>
+            <view class="edit-form-actions">
+              <view class="edit-form-btn edit-form-btn-cancel" bindtap="onCancelEdit">
+                <text class="edit-form-btn-text">取消</text>
+              </view>
+              <view class="edit-form-btn edit-form-btn-save" bindtap="onSaveEdit">
+                <text class="edit-form-btn-text edit-form-btn-save-text">保存</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 新增食物区域 -->
+    <block wx:if="{{!showAddForm}}">
+      <view class="add-food-entry" bindtap="onShowAddForm">
+        <text class="add-food-entry-icon">+</text>
+        <text class="add-food-entry-text">新增食物</text>
+      </view>
     </block>
-  </view>
 
-  <!-- 最近记录 -->
-  <view class="history-section" wx:if="{{history.length > 0}}">
-    <text class="history-title">最近吃过</text>
-    <view class="history-list">
-      <view class="history-item" wx:for="{{history}}" wx:key="index">
-        <text class="history-emoji">{{item.emoji}}</text>
-        <text class="history-name">{{item.name}}</text>
+    <block wx:if="{{showAddForm}}">
+      <view class="add-food-form">
+        <view class="edit-form-title">新增食物</view>
+        <view class="edit-form-row">
+          <text class="edit-form-label">Emoji</text>
+          <input
+            class="edit-form-input edit-form-input-short"
+            value="{{newForm.emoji}}"
+            bindinput="onNewEmojiInput"
+            maxlength="4"
+          />
+        </view>
+        <view class="edit-form-row">
+          <text class="edit-form-label">名称</text>
+          <input
+            class="edit-form-input"
+            value="{{newForm.name}}"
+            bindinput="onNewNameInput"
+            maxlength="20"
+            placeholder="食物名称"
+          />
+        </view>
+        <view class="edit-form-row">
+          <text class="edit-form-label">标签</text>
+          <input
+            class="edit-form-input"
+            value="{{newForm.tag}}"
+            bindinput="onNewTagInput"
+            maxlength="10"
+            placeholder="一句话描述（选填）"
+          />
+        </view>
+        <view class="edit-form-row">
+          <text class="edit-form-label">权重</text>
+          <slider
+            class="edit-form-slider"
+            min="1"
+            max="10"
+            step="1"
+            value="{{newForm.weight}}"
+            activeColor="#2563EB"
+            backgroundColor="#E2E8F0"
+            block-size="20"
+            show-value="{{true}}"
+            bindchange="onNewWeightChange"
+          />
+        </view>
+        <view class="edit-form-actions">
+          <view class="edit-form-btn edit-form-btn-cancel" bindtap="onHideAddForm">
+            <text class="edit-form-btn-text">取消</text>
+          </view>
+          <view class="edit-form-btn edit-form-btn-save" bindtap="onAddFood">
+            <text class="edit-form-btn-text edit-form-btn-save-text">添加</text>
+          </view>
+        </view>
       </view>
-    </view>
-  </view>
+    </block>
 
-  <!-- 吃饭名言 -->
-  <view class="quote-card">
-    <text class="quote-text">"民以食为天，打工人以摸鱼为天" — 某匿名员工</text>
-  </view>
+  </block>
 
   <view class="safe-bottom"></view>
 </view>

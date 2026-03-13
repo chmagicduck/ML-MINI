@@ -3,12 +3,17 @@
 import {
   UserSettings,
   PoopStats,
+  PoopSession,
   MoyuStats,
   DEFAULT_SETTINGS,
   DEFAULT_MOYU_STATS,
   PoopRunningState,
   MoyuEvent,
   MoyuEventSource,
+  MeetingRecord,
+  FoodItem,
+  FoodHistory,
+  DEFAULT_FOOD_LIST,
 } from './types'
 
 /** Storage key 常量集中管理 */
@@ -22,6 +27,9 @@ const KEYS = {
   ONBOARDING_DONE: 'onboardingDone',
   USER_AVATAR: 'userAvatar',
   USER_NICKNAME: 'userNickname',
+  MEETING_RECORDS: 'meetingRecords',
+  FOOD_CONFIG: 'foodConfig',
+  FOOD_HISTORY: 'foodHistory',
 }
 
 // ─────────── 内部工具函数 ────────────────────────────────────
@@ -205,7 +213,7 @@ export function saveSettings(settings: UserSettings): void {
 export function getPoopStats(): PoopStats {
   try {
     const stored = wx.getStorageSync(KEYS.POOP_STATS)
-    if (stored) return stored
+    if (stored) return stored as PoopStats
   } catch (_) {}
   return { totalSeconds: 0, totalEarnings: 0, sessions: [] }
 }
@@ -423,6 +431,7 @@ interface MeetingRunningState {
   participants?: number
   useCustomSalary?: boolean
   customSalaryNum?: number
+  meetingName?: string
 }
 
 const MEETING_RUNNING_STATE_KEY = 'meetingRunningState'
@@ -475,4 +484,201 @@ export function getUserNickname(): string {
 
 export function saveUserNickname(name: string): void {
   try { wx.setStorageSync(KEYS.USER_NICKNAME, name) } catch (_) {}
+}
+
+// ─────────── 会议记录 CRUD ────────────────────────────────────
+
+/** 读取所有会议记录 */
+export function getMeetingRecords(): MeetingRecord[] {
+  try {
+    return (wx.getStorageSync(KEYS.MEETING_RECORDS) || []) as MeetingRecord[]
+  } catch (_) {
+    return []
+  }
+}
+
+/** 保存会议记录（追加一条） */
+export function saveMeetingRecord(record: MeetingRecord): void {
+  try {
+    const records = getMeetingRecords()
+    wx.setStorageSync(KEYS.MEETING_RECORDS, [...records, record])
+  } catch (_) {}
+}
+
+/** 更新会议记录 */
+export function updateMeetingRecord(id: string, updates: Partial<MeetingRecord>): boolean {
+  try {
+    const records = getMeetingRecords()
+    const idx = records.findIndex(r => r.id === id)
+    if (idx === -1) return false
+    const updated = records.map(r => r.id === id ? { ...r, ...updates } : r)
+    wx.setStorageSync(KEYS.MEETING_RECORDS, updated)
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
+/** 删除会议记录 */
+export function deleteMeetingRecord(id: string): boolean {
+  try {
+    const records = getMeetingRecords()
+    const filtered = records.filter(r => r.id !== id)
+    if (filtered.length === records.length) return false
+    wx.setStorageSync(KEYS.MEETING_RECORDS, filtered)
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
+/** 分页获取会议记录（按创建时间倒序） */
+export function getMeetingRecordsPaged(page: number, pageSize: number = 10): { records: MeetingRecord[], total: number } {
+  const all = getMeetingRecords().sort((a, b) => b.createdAt - a.createdAt)
+  const start = (page - 1) * pageSize
+  return {
+    records: all.slice(start, start + pageSize),
+    total: all.length,
+  }
+}
+
+// ─────────── 蹲坑记录扩展 CRUD ──────────────────────────────
+
+/** 添加手动蹲坑记录 */
+export function addManualPoopSession(seconds: number, earnings: number, date: string): boolean {
+  try {
+    const stats = getPoopStats()
+    const session: PoopSession = {
+      id: genEventId(),
+      date,
+      seconds,
+      earnings,
+      source: 'manual',
+      createdAt: Date.now(),
+    }
+    const newStats: PoopStats = {
+      totalSeconds: stats.totalSeconds + seconds,
+      totalEarnings: stats.totalEarnings + earnings,
+      sessions: [...stats.sessions, session].slice(-200),
+    }
+    savePoopStats(newStats)
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
+/** 更新蹲坑记录 */
+export function updatePoopSession(id: string, updates: Partial<PoopSession>): boolean {
+  try {
+    const stats = getPoopStats()
+    const idx = stats.sessions.findIndex(s => s.id === id)
+    if (idx === -1) return false
+    const old = stats.sessions[idx]
+    const updated = { ...old, ...updates }
+    const sessions = stats.sessions.map(s => s.id === id ? updated : s)
+    // 重新计算总计
+    const totalSeconds = sessions.reduce((sum, s) => sum + s.seconds, 0)
+    const totalEarnings = sessions.reduce((sum, s) => sum + s.earnings, 0)
+    savePoopStats({ totalSeconds, totalEarnings, sessions })
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
+/** 删除蹲坑记录 */
+export function deletePoopSession(id: string): boolean {
+  try {
+    const stats = getPoopStats()
+    const sessions = stats.sessions.filter(s => s.id !== id)
+    if (sessions.length === stats.sessions.length) return false
+    const totalSeconds = sessions.reduce((sum, s) => sum + s.seconds, 0)
+    const totalEarnings = sessions.reduce((sum, s) => sum + s.earnings, 0)
+    savePoopStats({ totalSeconds, totalEarnings, sessions })
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
+/** 分页获取蹲坑记录（按创建时间倒序） */
+export function getPoopSessionsPaged(page: number, pageSize: number = 10): { sessions: PoopSession[], total: number } {
+  const all = getPoopStats().sessions.sort((a, b) => b.createdAt - a.createdAt)
+  const start = (page - 1) * pageSize
+  return {
+    sessions: all.slice(start, start + pageSize),
+    total: all.length,
+  }
+}
+
+// ─────────── 食物配置 CRUD ────────────────────────────────────
+
+/** 读取食物配置（首次使用返回默认列表） */
+export function getFoodConfig(): FoodItem[] {
+  try {
+    const stored = wx.getStorageSync(KEYS.FOOD_CONFIG)
+    if (stored && Array.isArray(stored) && stored.length > 0) return stored as FoodItem[]
+  } catch (_) {}
+  return DEFAULT_FOOD_LIST.map(item => ({ ...item }))
+}
+
+/** 保存完整食物配置 */
+export function saveFoodConfig(items: FoodItem[]): void {
+  try { wx.setStorageSync(KEYS.FOOD_CONFIG, items) } catch (_) {}
+}
+
+/** 添加食物选项 */
+export function addFoodItem(item: FoodItem): void {
+  const items = getFoodConfig()
+  saveFoodConfig([...items, item])
+}
+
+/** 更新食物选项 */
+export function updateFoodItem(id: string, updates: Partial<FoodItem>): boolean {
+  const items = getFoodConfig()
+  const idx = items.findIndex(f => f.id === id)
+  if (idx === -1) return false
+  saveFoodConfig(items.map(f => f.id === id ? { ...f, ...updates } : f))
+  return true
+}
+
+/** 删除食物选项 */
+export function deleteFoodItem(id: string): boolean {
+  const items = getFoodConfig()
+  const filtered = items.filter(f => f.id !== id)
+  if (filtered.length === items.length) return false
+  saveFoodConfig(filtered)
+  return true
+}
+
+// ─────────── 食物历史记录 ────────────────────────────────────
+
+/** 读取食物选择历史 */
+export function getFoodHistory(): FoodHistory[] {
+  try {
+    return (wx.getStorageSync(KEYS.FOOD_HISTORY) || []) as FoodHistory[]
+  } catch (_) {
+    return []
+  }
+}
+
+/** 添加食物选择记录 */
+export function addFoodHistory(entry: FoodHistory): void {
+  try {
+    const history = getFoodHistory()
+    // 保留最近 500 条
+    const updated = [...history, entry].slice(-500)
+    wx.setStorageSync(KEYS.FOOD_HISTORY, updated)
+  } catch (_) {}
+}
+
+/** 获取食物选择统计（foodId → 次数） */
+export function getFoodHistoryStats(): Record<string, number> {
+  const history = getFoodHistory()
+  const stats: Record<string, number> = {}
+  for (const entry of history) {
+    stats[entry.foodId] = (stats[entry.foodId] || 0) + 1
+  }
+  return stats
 }

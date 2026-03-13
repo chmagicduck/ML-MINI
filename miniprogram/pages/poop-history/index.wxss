@@ -1,0 +1,397 @@
+/* pages/poop-history/index.wxss — 蹲坑历史记录 */
+.page {
+  min-height: 100vh;
+  background: #F8FAFC;
+  padding: 0 32rpx 80rpx;
+}
+
+/* ===== 汇总卡片 ===== */
+.summary-card {
+  background: linear-gradient(160deg, #EFF6FF, #FFFFFF);
+  border-radius: 24rpx;
+  margin-top: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.08);
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.summary-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1E40AF;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.summary-label {
+  font-size: 22rpx;
+  color: #94A3B8;
+}
+
+.summary-divider {
+  width: 1rpx;
+  height: 56rpx;
+  background: #E2E8F0;
+}
+
+/* ===== 列表区域 ===== */
+.list-section {
+  margin-top: 24rpx;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+  padding: 0 4rpx;
+}
+
+.list-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #334155;
+}
+
+.list-count {
+  font-size: 24rpx;
+  color: #94A3B8;
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #64748B;
+  margin-bottom: 8rpx;
+}
+
+.empty-hint {
+  font-size: 24rpx;
+  color: #94A3B8;
+}
+
+/* ===== 记录条目 ===== */
+.session-item {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.session-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.session-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.session-date {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8rpx;
+}
+
+.session-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.session-duration {
+  font-size: 24rpx;
+  color: #64748B;
+}
+
+.source-tag {
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.tag-timer {
+  background: #EFF6FF;
+}
+
+.tag-manual {
+  background: #FFF7ED;
+}
+
+.source-tag-text {
+  font-size: 20rpx;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.session-right {
+  display: flex;
+  align-items: center;
+}
+
+.session-earnings {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2563EB;
+}
+
+.session-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #F1F5F9;
+}
+
+.action-btn {
+  padding: 8rpx 24rpx;
+  border-radius: 12rpx;
+}
+
+.action-edit {
+  background: #F1F5F9;
+}
+
+.action-edit:active {
+  background: #E2E8F0;
+}
+
+.action-delete {
+  background: #FEF2F2;
+}
+
+.action-delete:active {
+  background: #FEE2E2;
+}
+
+.action-text {
+  font-size: 24rpx;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.action-text-danger {
+  font-size: 24rpx;
+  color: #EF4444;
+  font-weight: 500;
+}
+
+/* ===== 分页 ===== */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32rpx;
+  margin: 32rpx 0;
+}
+
+.page-btn {
+  padding: 16rpx 32rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.page-btn:active {
+  opacity: 0.7;
+}
+
+.page-btn-disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.page-btn-text {
+  font-size: 26rpx;
+  color: #2563EB;
+  font-weight: 500;
+}
+
+.page-info {
+  font-size: 26rpx;
+  color: #94A3B8;
+}
+
+/* ===== 分享按钮 ===== */
+.share-btn {
+  margin: 24rpx 0;
+  background: linear-gradient(135deg, #60A5FA, #2563EB) !important;
+  border-radius: 48rpx !important;
+  padding: 24rpx 0 !important;
+  border: none !important;
+  line-height: normal !important;
+}
+
+.share-btn::after {
+  border: none;
+}
+
+.share-btn-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+/* ===== 编辑面板 ===== */
+.edit-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.panel-hide {
+  pointer-events: none;
+}
+
+.edit-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+
+.edit-card {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 40rpx 40rpx calc(40rpx + env(safe-area-inset-bottom));
+  z-index: 101;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.edit-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1E293B;
+  display: block;
+  margin-bottom: 32rpx;
+  text-align: center;
+}
+
+.edit-input-row {
+  display: flex;
+  align-items: center;
+  background: #F1F5F9;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.edit-input {
+  flex: 1;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.edit-unit {
+  font-size: 28rpx;
+  color: #94A3B8;
+  margin-left: 12rpx;
+}
+
+.edit-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 8rpx;
+  margin-bottom: 32rpx;
+}
+
+.edit-preview-label {
+  font-size: 26rpx;
+  color: #94A3B8;
+}
+
+.edit-preview-value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2563EB;
+}
+
+.edit-btn-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.edit-btn-cancel {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  border-radius: 16rpx;
+  background: #F1F5F9;
+}
+
+.edit-btn-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.edit-btn-confirm {
+  flex: 2;
+  text-align: center;
+  padding: 24rpx 0;
+  border-radius: 16rpx;
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
+}
+
+.edit-btn-confirm:active {
+  opacity: 0.85;
+}
+
+.edit-btn-text-primary {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.safe-bottom {
+  height: 80rpx;
+}

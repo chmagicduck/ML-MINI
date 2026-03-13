@@ -31,7 +31,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 8rpx 32rpx rgba(0,0,0,0.1);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
 }
 
 .slot-display {
@@ -173,13 +173,43 @@
   font-weight: 600;
 }
 
+/* ===== 管理入口按钮 ===== */
+.manager-entry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+.manager-entry:active {
+  background: #F8FAFC;
+}
+.manager-entry-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+.manager-entry-text {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #334155;
+}
+.manager-entry-arrow {
+  font-size: 36rpx;
+  color: #94A3B8;
+  font-weight: 300;
+}
+
 /* ===== 历史记录 ===== */
 .history-section {
   margin-top: 24rpx;
   background: #fff;
   border-radius: 20rpx;
   padding: 28rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
 }
 .history-title {
   font-size: 24rpx;
@@ -209,6 +239,11 @@
   font-size: 24rpx;
   color: #555;
 }
+.history-date {
+  font-size: 20rpx;
+  color: #94A3B8;
+  margin-left: 4rpx;
+}
 
 /* ===== 名言 ===== */
 .quote-card {
@@ -223,6 +258,283 @@
   color: #F9A825;
   font-style: italic;
   line-height: 1.6;
+}
+
+/* ===== 管理视图 — 标题栏 ===== */
+.manager-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx 0 24rpx;
+}
+.manager-back {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 8rpx 0;
+}
+.manager-back:active {
+  opacity: 0.6;
+}
+.manager-back-icon {
+  font-size: 40rpx;
+  color: #2563EB;
+  font-weight: 300;
+  margin-right: 4rpx;
+  line-height: 1;
+}
+.manager-back-text {
+  font-size: 28rpx;
+  color: #2563EB;
+  font-weight: 600;
+}
+.manager-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1E293B;
+}
+.manager-header-right {
+  width: 100rpx;
+}
+
+/* ===== 管理视图 — 食物列表 ===== */
+.food-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.food-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+}
+.food-card-editing {
+  border: 2rpx solid #2563EB;
+  box-shadow: 0 4rpx 20rpx rgba(37, 99, 235, 0.15);
+}
+
+.food-card-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.food-card-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+.food-card-emoji {
+  font-size: 48rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+.food-card-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.food-card-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1E293B;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.food-card-tag {
+  font-size: 22rpx;
+  color: #94A3B8;
+  margin-top: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.food-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+.food-card-count {
+  font-size: 22rpx;
+  color: #64748B;
+  margin-bottom: 8rpx;
+}
+.food-card-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 12rpx;
+}
+.food-card-btn {
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  border: 1.5rpx solid #E2E8F0;
+}
+.food-card-btn:active {
+  opacity: 0.7;
+}
+.food-card-btn-edit {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+}
+.food-card-btn-delete {
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+.food-card-btn-text {
+  font-size: 22rpx;
+  color: #2563EB;
+  font-weight: 500;
+}
+.food-card-btn-delete-text {
+  color: #EF4444;
+}
+
+/* 权重滑块行 */
+.food-card-weight {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #F1F5F9;
+}
+.food-card-weight-label {
+  font-size: 22rpx;
+  color: #94A3B8;
+  flex-shrink: 0;
+  width: 60rpx;
+}
+.food-card-slider {
+  flex: 1;
+  margin: 0 8rpx;
+}
+.food-card-weight-value {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #2563EB;
+  width: 48rpx;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ===== 编辑/新增 表单 ===== */
+.edit-form {
+  padding: 4rpx 0;
+}
+.edit-form-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 20rpx;
+}
+.edit-form-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.edit-form-label {
+  font-size: 26rpx;
+  color: #64748B;
+  width: 90rpx;
+  flex-shrink: 0;
+}
+.edit-form-input {
+  flex: 1;
+  height: 72rpx;
+  background: #F8FAFC;
+  border: 1.5rpx solid #E2E8F0;
+  border-radius: 14rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #1E293B;
+}
+.edit-form-input-short {
+  max-width: 160rpx;
+  flex: none;
+  text-align: center;
+}
+.edit-form-slider {
+  flex: 1;
+}
+.edit-form-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+.edit-form-btn {
+  flex: 1;
+  padding: 20rpx 0;
+  border-radius: 40rpx;
+  text-align: center;
+}
+.edit-form-btn:active {
+  opacity: 0.8;
+}
+.edit-form-btn-cancel {
+  background: #F1F5F9;
+}
+.edit-form-btn-save {
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
+  box-shadow: 0 4rpx 16rpx rgba(37, 99, 235, 0.3);
+}
+.edit-form-btn-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #64748B;
+}
+.edit-form-btn-save-text {
+  color: #fff;
+}
+
+/* ===== 新增食物入口 ===== */
+.add-food-entry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24rpx;
+  background: #fff;
+  border: 2rpx dashed #BFDBFE;
+  border-radius: 20rpx;
+  padding: 28rpx 0;
+  gap: 8rpx;
+}
+.add-food-entry:active {
+  background: #EFF6FF;
+}
+.add-food-entry-icon {
+  font-size: 36rpx;
+  color: #2563EB;
+  font-weight: 300;
+  line-height: 1;
+}
+.add-food-entry-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2563EB;
+}
+
+/* 新增食物表单卡片 */
+.add-food-form {
+  margin-top: 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  border: 2rpx solid #2563EB;
+  box-shadow: 0 4rpx 20rpx rgba(37, 99, 235, 0.15);
 }
 
 .safe-bottom {

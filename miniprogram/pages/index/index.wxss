@@ -347,6 +347,10 @@
   padding: 0 48rpx;
   margin-top: 24rpx;
 }
+.progress-section-title {
+  font-size: 20rpx;
+  color: #475569;
+}
 .progress-top {
   display: flex;
   justify-content: space-between;

@@ -22,9 +22,44 @@ export interface PoopStats {
 }
 
 export interface PoopSession {
-  date: string      // "YYYY-MM-DD"
+  id: string                      // 唯一标识
+  date: string                    // "YYYY-MM-DD"
   seconds: number
   earnings: number
+  source: 'timer' | 'manual'     // 来源：计时器 / 手动记录
+  createdAt: number               // 创建时间戳
+}
+
+/** 会议记录 */
+export interface MeetingRecord {
+  id: string
+  name: string                    // 会议名称
+  participants: number            // 参会人数
+  totalCost: number               // 总消耗金额
+  durationSeconds: number         // 会议时长（秒）
+  averageSalary: number           // 人均月薪
+  startTime: number               // 开始时间戳
+  endTime: number                 // 结束时间戳
+  createdAt: number
+}
+
+/** 食物选项 */
+export interface FoodItem {
+  id: string
+  name: string
+  emoji: string
+  tag: string
+  weight: number                  // 概率权重 1-10
+  isDefault: boolean              // 是否为默认选项
+}
+
+/** 食物选择历史记录 */
+export interface FoodHistory {
+  foodId: string
+  foodName: string
+  emoji: string
+  date: string                    // "YYYY-MM-DD"
+  createdAt: number
 }
 
 export type MoyuEventSource = 'index_timer' | 'manual_edit' | 'repair'
@@ -100,3 +135,22 @@ export const DEFAULT_MOYU_STATS: MoyuStats = {
   moyuDaysMap: {},
   events: [],
 }
+
+/** 默认食物列表 */
+export const DEFAULT_FOOD_LIST: FoodItem[] = [
+  { id: 'default_1',  name: '黄焖鸡米饭', emoji: '🍗', tag: '万年不变', weight: 5, isDefault: true },
+  { id: 'default_2',  name: '麻辣烫',     emoji: '🌶️', tag: '灵魂所在', weight: 5, isDefault: true },
+  { id: 'default_3',  name: '沙县小吃',   emoji: '🥢', tag: '国民选择', weight: 5, isDefault: true },
+  { id: 'default_4',  name: '兰州拉面',   emoji: '🍜', tag: '西北风情', weight: 5, isDefault: true },
+  { id: 'default_5',  name: '螺蛳粉',     emoji: '🐌', tag: '臭名远扬', weight: 5, isDefault: true },
+  { id: 'default_6',  name: '外卖随便点', emoji: '📱', tag: '懒人福音', weight: 5, isDefault: true },
+  { id: 'default_7',  name: '便利店凑合', emoji: '🏪', tag: '社畜标配', weight: 5, isDefault: true },
+  { id: 'default_8',  name: '蹭同事的',   emoji: '👀', tag: '白嫖大师', weight: 5, isDefault: true },
+  { id: 'default_9',  name: '不吃了！减肥！', emoji: '🥗', tag: '每天都说', weight: 5, isDefault: true },
+  { id: 'default_10', name: '回家吃',     emoji: '🏠', tag: '梦想而已', weight: 5, isDefault: true },
+  { id: 'default_11', name: '公司食堂',   emoji: '🍽️', tag: '爱恨交织', weight: 5, isDefault: true },
+  { id: 'default_12', name: '包子+豆浆',  emoji: '🥛', tag: '快速解决', weight: 5, isDefault: true },
+  { id: 'default_13', name: '烤鸭饭',     emoji: '🦆', tag: '犒劳自己', weight: 5, isDefault: true },
+  { id: 'default_14', name: '炒饭随便配', emoji: '🍳', tag: '万能基础', weight: 5, isDefault: true },
+  { id: 'default_15', name: '火锅（下班约）', emoji: '🫕', tag: '快乐源泉', weight: 5, isDefault: true },
+]

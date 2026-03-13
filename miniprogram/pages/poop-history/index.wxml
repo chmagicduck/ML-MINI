@@ -1,0 +1,111 @@
+<!--pages/poop-history/index.wxml — 蹲坑历史记录-->
+<view class="page">
+
+  <!-- 汇总卡片 -->
+  <view class="summary-card">
+    <view class="summary-row">
+      <view class="summary-item">
+        <text class="summary-value">{{totalEarnings}}</text>
+        <text class="summary-label">累计收益</text>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <text class="summary-value">{{totalDurationStr}}</text>
+        <text class="summary-label">累计时长</text>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <text class="summary-value">{{totalCount}}</text>
+        <text class="summary-label">总次数</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 记录列表 -->
+  <view class="list-section">
+    <view class="list-header">
+      <text class="list-title">蹲坑记录</text>
+      <text class="list-count">第 {{currentPage}}/{{totalPages}} 页</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{sessions.length === 0}}">
+      <text class="empty-icon">🚽</text>
+      <text class="empty-text">还没有蹲坑记录</text>
+      <text class="empty-hint">去蹲坑页面开始你的第一次带薪蹲坑吧</text>
+    </view>
+
+    <!-- 记录条目 -->
+    <view class="session-item" wx:for="{{sessions}}" wx:key="id">
+      <view class="session-main">
+        <view class="session-left">
+          <text class="session-date">{{item.date}}</text>
+          <view class="session-meta">
+            <text class="session-duration">{{item.durationStr}}</text>
+            <view class="source-tag {{item.source === 'timer' ? 'tag-timer' : 'tag-manual'}}">
+              <text class="source-tag-text">{{item.sourceLabel}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="session-right">
+          <text class="session-earnings">{{item.earningsStr}}</text>
+        </view>
+      </view>
+      <view class="session-actions">
+        <view class="action-btn action-edit" data-id="{{item.id}}" bindtap="onEditSession">
+          <text class="action-text">编辑</text>
+        </view>
+        <view class="action-btn action-delete" data-id="{{item.id}}" bindtap="onDeleteSession">
+          <text class="action-text-danger">删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分页控制 -->
+  <view class="pagination" wx:if="{{totalPages > 1}}">
+    <view class="page-btn {{currentPage <= 1 ? 'page-btn-disabled' : ''}}" bindtap="onPrevPage">
+      <text class="page-btn-text">上一页</text>
+    </view>
+    <text class="page-info">{{currentPage}} / {{totalPages}}</text>
+    <view class="page-btn {{!hasMore ? 'page-btn-disabled' : ''}}" bindtap="onNextPage">
+      <text class="page-btn-text">下一页</text>
+    </view>
+  </view>
+
+  <!-- 分享按钮 -->
+  <button class="share-btn" open-type="share">
+    <text class="share-btn-text">分享我的蹲坑战绩</text>
+  </button>
+
+  <!-- 编辑面板 -->
+  <view class="edit-panel {{showEditPanel ? 'panel-show' : 'panel-hide'}}">
+    <view class="edit-mask" wx:if="{{showEditPanel}}" bindtap="onCancelEdit"></view>
+    <view class="edit-card" wx:if="{{showEditPanel}}">
+      <text class="edit-title">修改蹲坑时长</text>
+      <view class="edit-input-row">
+        <input class="edit-input"
+               type="digit"
+               placeholder="输入分钟数"
+               value="{{editMinutes}}"
+               bindinput="onEditMinutesInput"
+               focus="{{showEditPanel}}" />
+        <text class="edit-unit">分钟</text>
+      </view>
+      <view class="edit-preview">
+        <text class="edit-preview-label">重新计算收益</text>
+        <text class="edit-preview-value">{{editPreviewEarnings}}</text>
+      </view>
+      <view class="edit-btn-row">
+        <view class="edit-btn-cancel" bindtap="onCancelEdit">
+          <text class="edit-btn-text">取消</text>
+        </view>
+        <view class="edit-btn-confirm" bindtap="onConfirmEdit">
+          <text class="edit-btn-text-primary">确认修改</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

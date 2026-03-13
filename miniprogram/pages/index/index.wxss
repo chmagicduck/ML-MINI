@@ -1,4 +1,4 @@
-/* pages/index/index.wxss — 鱼额宝首页 */
+/* pages/index/index.wxss — 领潮中心 */
 
 .page {
   min-height: 100vh;
@@ -330,7 +330,7 @@
   background: #F3F4F6;
   color: #6B7280;
 }
-.btn-icon { font-size: 16rpx; }
+.btn-icon { font-size: 20rpx; }
 .btn-text { font-size: 22rpx; }
 
 /* ===== 提示横幅 ===== */
@@ -363,14 +363,38 @@
 }
 .progress-time-icon { color: #60A5FA; }
 .progress-time-text { color: #94A3B8; }
-.progress-ratio {
+
+/* ===== 4 段式圆环图例 ===== */
+.ring-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+  padding: 0 8rpx;
+}
+.ring-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+.ring-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+.ring-dot-work { background: #CBD5E1; }
+.ring-dot-moyu { background: #3B82F6; }
+.ring-dot-future {
+  background: #F1F5F9;
+  border: 1rpx solid #D1D5DB;
+}
+.ring-legend-text {
   font-size: 20rpx;
   font-weight: 700;
-  color: #2563EB;
-  background: #EFF6FF;
-  padding: 4rpx 16rpx;
-  border-radius: 12rpx;
+  color: #94A3B8;
 }
+.ring-legend-text-moyu { color: #3B82F6; }
+.ring-legend-text-future { color: #D1D5DB; }
 
 .progress-card {
   background: rgba(249, 250, 251, 0.8);
@@ -422,6 +446,16 @@
   inset: 0;
   background: rgba(255,255,255,0.2);
   animation: pulse-shine 2s ease-in-out infinite;
+}
+
+/* ===== 下班倒计时 ===== */
+.countdown-text {
+  display: block;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #3B82F6;
+  margin-top: 16rpx;
 }
 
 /* ===== 数据卡片区 ===== */
@@ -490,7 +524,7 @@
   flex-shrink: 0;
 }
 .card-hero-tag-label {
-  font-size: 16rpx;
+  font-size: 20rpx;
   font-weight: 700;
   color: rgba(255,255,255,0.5);
   display: block;
@@ -577,7 +611,7 @@
   margin-top: 8rpx;
 }
 .card-item-link-text {
-  font-size: 18rpx;
+  font-size: 20rpx;
   color: #3B82F6;
   font-weight: 700;
 }
@@ -587,7 +621,7 @@
 }
 
 .card-item-encourage {
-  font-size: 18rpx;
+  font-size: 20rpx;
   color: #818CF8;
   font-weight: 700;
   font-style: italic;

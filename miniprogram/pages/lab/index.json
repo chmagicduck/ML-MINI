@@ -1,3 +1,6 @@
 {
-  "usingComponents": {}
+  "usingComponents": {},
+  "navigationBarTitleText": "深海动力室",
+  "navigationBarBackgroundColor": "#F8FAFC",
+  "navigationBarTextStyle": "black"
 }

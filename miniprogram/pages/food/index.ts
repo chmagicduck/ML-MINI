@@ -85,10 +85,10 @@ Page({
     const { result } = this.data
     if (result) {
       return {
-        title: `别卷了！鱼额宝建议大家今天吃 ${result.emoji}${result.name}`,
+        title: `别卷了！薪潮涌动建议大家今天吃 ${result.emoji}${result.name}`,
         path: '/pages/food/index',
       }
     }
-    return { title: '今天吃什么？让鱼额宝帮你决定！', path: '/pages/food/index' }
+    return { title: '今天吃什么？让薪潮涌动帮你决定！', path: '/pages/food/index' }
   },
 })

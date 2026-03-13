@@ -46,9 +46,7 @@ Page({
     roadmapNodes: [] as RoadmapNode[],
     roadmapActiveWidth: '0%',
 
-    // 统计
-    beatPercent: '99.2%',
-    efficiencyLabel: '优秀',
+    // 统计（已移除击败同事和摸鱼效率）
   },
 
   onShow() {
@@ -112,7 +110,7 @@ Page({
       isMaxLevel = true
     }
 
-    // 摸鱼天数
+    // 摸鱼天数：实际有摸鱼记录的天数
     const moyuDays = Object.keys(stats.moyuDaysMap).length
 
     // 路线图节点
@@ -141,29 +139,6 @@ Page({
       ? `calc(${(currentLevelIndex / (MOYU_LEVELS.length - 1)) * 100}% - 16rpx)`
       : '0%'
 
-    // 摸鱼效率标签
-    const totalSeconds = stats.totalSeconds + uncommittedSecs
-    let efficiencyLabel = '一般'
-    if (totalSeconds > 3600 * 50) {
-      efficiencyLabel = '卓越'
-    } else if (totalSeconds > 3600 * 20) {
-      efficiencyLabel = '优秀'
-    } else if (totalSeconds > 3600 * 5) {
-      efficiencyLabel = '良好'
-    }
-
-    // 击败同事百分比（基于摸鱼天数的简化算法）
-    let beatPercent = '50.0%'
-    if (moyuDays > 100) {
-      beatPercent = '99.9%'
-    } else if (moyuDays > 50) {
-      beatPercent = '95.0%'
-    } else if (moyuDays > 20) {
-      beatPercent = '85.0%'
-    } else if (moyuDays > 5) {
-      beatPercent = '60.0%'
-    }
-
     this.setData({
       totalMoney: formatMoney(displayTotalMoney),
       levelName: level.name,
@@ -174,8 +149,6 @@ Page({
       moyuDays,
       roadmapNodes,
       roadmapActiveWidth,
-      beatPercent,
-      efficiencyLabel,
     })
   },
 
@@ -214,51 +187,7 @@ Page({
     wx.navigateTo({ url: '/pages/calendar/index' })
   },
 
-  resetAllData() {
-    wx.showModal({
-      title: '⚠️ 确认重置所有数据？',
-      content: '此操作将清空所有摸鱼记录、战报数据和带薪拉粑粑统计，不可恢复。',
-      confirmText: '确认重置',
-      confirmColor: '#EF4444',
-      success: (res) => {
-        if (res.confirm) {
-          try {
-            const keysToRemove = [
-              'userSettings',
-              'moyuStats',
-              'poopStats',
-              'poopRunningState',
-              'meetingRunningState',
-              'pendingLevelUp',
-              'lastExitState',
-              'initialIdentityShown',
-              'onboardingDone',
-              'userAvatar',
-              'userNickname',
-            ]
-
-            keysToRemove.forEach(key => {
-              wx.removeStorageSync(key)
-            })
-
-            try {
-              const allKeys = wx.getStorageInfoSync().keys
-              allKeys.forEach((key: string) => {
-                if (key.startsWith('slackingToday_')) {
-                  wx.removeStorageSync(key)
-                }
-              })
-            } catch (_) {}
-
-            wx.showToast({ title: '已重置所有数据', icon: 'success', duration: 2000 })
-            setTimeout(() => {
-              wx.reLaunch({ url: '/pages/index/index' })
-            }, 2000)
-          } catch (_) {
-            wx.showToast({ title: '重置失败，请重试', icon: 'none' })
-          }
-        }
-      }
-    })
+  onGoToDataManage() {
+    wx.navigateTo({ url: '/pages/data-manage/index' })
   },
 })

@@ -10,7 +10,7 @@ interface StepInfo {
 
 const STEPS: StepInfo[] = [
   {
-    title: '欢迎来到鱼额宝',
+    title: '欢迎来到薪潮涌动',
     description: '在这里，每一秒的工作都有价值。我们将时间转化为实时收益，让摸鱼变得理直气壮。',
     icon: '✨',
     bgClass: 'icon-bg-blue',
@@ -23,7 +23,7 @@ const STEPS: StepInfo[] = [
   },
   {
     title: '下班倒计时',
-    description: '不再盯着枯燥的时钟。通过"下班进度条"，陪着你的小鱼一起游向自由。',
+    description: '不再盯着枯燥的时钟。通过"退潮倒计时"，陪着你的小鱼一起游向自由。',
     icon: '🎯',
     bgClass: 'icon-bg-green',
   },
@@ -68,7 +68,7 @@ Page({
         currentIcon: info.icon,
         currentBgClass: info.bgClass,
         isLastStep: next === STEPS.length - 1,
-        btnText: next === STEPS.length - 1 ? '开启鱼额宝' : '继续探索',
+        btnText: next === STEPS.length - 1 ? '开启薪潮涌动' : '继续探索',
       })
     } else {
       setOnboardingDone()

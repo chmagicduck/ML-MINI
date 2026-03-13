@@ -139,7 +139,7 @@
   gap: 4rpx;
 }
 .earnings-label {
-  font-size: 18rpx;
+  font-size: 20rpx;
   color: #93C5FD;
   font-weight: 700;
   opacity: 0.8;
@@ -185,13 +185,13 @@
   margin-bottom: 8rpx;
 }
 .earnings-progress-label {
-  font-size: 18rpx;
+  font-size: 20rpx;
   color: #93C5FD;
   font-weight: 700;
   opacity: 0.7;
 }
 .earnings-progress-hint {
-  font-size: 18rpx;
+  font-size: 20rpx;
   color: #FFFFFF;
   font-weight: 700;
 }
@@ -248,7 +248,7 @@
   color: #334155;
 }
 .roadmap-max {
-  font-size: 18rpx;
+  font-size: 20rpx;
   color: #94A3B8;
   font-weight: 700;
 }
@@ -314,58 +314,13 @@
 .node-icon { font-size: 28rpx; }
 .node-lock { font-size: 20rpx; }
 .node-name {
-  font-size: 16rpx;
+  font-size: 20rpx;
   margin-top: 4rpx;
   font-weight: 800;
   text-align: center;
 }
 .name-reached { color: #2563EB; }
 .name-locked { color: #94A3B8; }
-
-/* ===== 统计面板 ===== */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
-  margin-bottom: 24rpx;
-}
-.stat-card {
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 20rpx;
-  border: 1rpx solid #F1F5F9;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-}
-.stat-icon-wrap {
-  width: 56rpx; height: 56rpx;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.stat-icon-blue { background: #EFF6FF; }
-.stat-icon-orange { background: #FFF7ED; }
-.stat-icon-text { font-size: 24rpx; }
-.stat-content {
-  display: flex;
-  flex-direction: column;
-  gap: 4rpx;
-}
-.stat-label {
-  font-size: 18rpx;
-  font-weight: 700;
-  color: #94A3B8;
-  display: block;
-}
-.stat-value {
-  font-size: 26rpx;
-  font-weight: 800;
-  color: #334155;
-  display: block;
-}
 
 /* ===== 设置列表 ===== */
 .settings-group {
@@ -433,7 +388,7 @@
   justify-content: center;
 }
 .footer-text {
-  font-size: 18rpx;
+  font-size: 20rpx;
   color: #CBD5E1;
   font-weight: 700;
   letter-spacing: 2rpx;

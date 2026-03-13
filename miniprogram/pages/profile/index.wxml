@@ -24,7 +24,7 @@
     <view class="earnings-deco"></view>
     <view class="earnings-top">
       <view class="earnings-left">
-        <text class="earnings-label">当前摸鱼总收益</text>
+        <text class="earnings-label">累计摸鱼总收益</text>
         <text class="earnings-value">{{totalMoney}}</text>
       </view>
       <view class="earnings-badge">
@@ -77,29 +77,7 @@
     </view>
   </view>
 
-  <!-- 4. 统计面板 -->
-  <view class="stats-grid">
-    <view class="stat-card">
-      <view class="stat-icon-wrap stat-icon-blue">
-        <text class="stat-icon-text">📈</text>
-      </view>
-      <view class="stat-content">
-        <text class="stat-label">击败同事</text>
-        <text class="stat-value">{{beatPercent}}</text>
-      </view>
-    </view>
-    <view class="stat-card">
-      <view class="stat-icon-wrap stat-icon-orange">
-        <text class="stat-icon-text">☕</text>
-      </view>
-      <view class="stat-content">
-        <text class="stat-label">摸鱼效率</text>
-        <text class="stat-value">{{efficiencyLabel}}</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 5. 设置列表组1: 薪资工时 + 节假日 -->
+  <!-- 4. 设置列表组1: 薪资工时 + 节假日 -->
   <view class="settings-group">
     <view class="setting-item" bindtap="onGoToBasic">
       <view class="setting-icon-wrap">
@@ -132,7 +110,7 @@
     </view>
   </view>
 
-  <!-- 7. 设置列表组3: 关于 + 清除数据 -->
+  <!-- 7. 设置列表组3: 关于 + 数据管理 -->
   <view class="settings-group settings-group-last">
     <view class="setting-item">
       <view class="setting-icon-wrap">
@@ -142,18 +120,18 @@
       <text class="setting-arrow">›</text>
     </view>
     <view class="setting-divider"></view>
-    <view class="setting-item setting-danger" bindtap="resetAllData">
-      <view class="setting-icon-wrap setting-icon-danger">
-        <text class="setting-icon">🔄</text>
+    <view class="setting-item" bindtap="onGoToDataManage">
+      <view class="setting-icon-wrap">
+        <text class="setting-icon">📦</text>
       </view>
-      <text class="setting-label setting-label-danger">清除数据</text>
+      <text class="setting-label">数据管理</text>
       <text class="setting-arrow">›</text>
     </view>
   </view>
 
   <!-- 页脚 -->
   <view class="footer">
-    <text class="footer-text">鱼额宝 · 个人基地 v2.5.0</text>
+    <text class="footer-text">薪潮涌动 · 个人基地 v2.5.0</text>
   </view>
 
   <view class="safe-bottom"></view>

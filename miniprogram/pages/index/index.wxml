@@ -1,11 +1,11 @@
-<!--index.wxml — 首页鱼额宝-->
+<!--index.wxml — 领潮中心-->
 <view class="page">
 
   <!-- 自定义导航栏 -->
   <view class="nav-bar" style="padding-top: {{statusBarHeight}}px">
     <view class="nav-left">
-      <view class="nav-logo">鱼</view>
-      <text class="nav-title">鱼额宝</text>
+      <view class="nav-logo">潮</view>
+      <text class="nav-title">薪潮涌动</text>
     </view>
     <view class="nav-capsule">
       <view class="capsule-dot"></view>
@@ -76,16 +76,23 @@
 
   <!-- 工时进度条区域 -->
   <view class="progress-section">
-    <view class="progress-top">
-      <view class="progress-time">
-        <text class="progress-time-icon">⏱</text>
-        <text class="progress-time-text"> 工时: {{todayWorkedTimeStr}}</text>
+    <view class="ring-legend">
+      <view class="ring-legend-item">
+        <view class="ring-dot ring-dot-work"></view>
+        <text class="ring-legend-text">工作 {{workPctStr}}</text>
       </view>
-      <view class="progress-ratio">摸鱼率: {{fishRatioStr}}</view>
+      <view class="ring-legend-item">
+        <view class="ring-dot ring-dot-moyu"></view>
+        <text class="ring-legend-text ring-legend-text-moyu">摸鱼 {{moyuPctStr}}</text>
+      </view>
+      <view class="ring-legend-item" wx:if="{{hasFuture}}">
+        <view class="ring-dot ring-dot-future"></view>
+        <text class="ring-legend-text ring-legend-text-future">未到 {{futurePctStr}}</text>
+      </view>
     </view>
     <view class="progress-card">
       <view class="progress-card-top">
-        <text class="progress-label">下班进度 {{offWorkPercent}}%</text>
+        <text class="progress-label">退潮倒计时 {{offWorkPercent}}%</text>
         <view class="progress-dots">
           <view class="pdot {{offWorkPercent >= 20 ? 'pdot-on' : ''}}"></view>
           <view class="pdot {{offWorkPercent >= 40 ? 'pdot-on' : ''}}"></view>
@@ -99,6 +106,8 @@
           <view class="progress-bar-shine"></view>
         </view>
       </view>
+      <!-- 下班倒计时文字 -->
+      <text class="countdown-text" wx:if="{{offWorkCountdown}}">{{offWorkCountdown}}</text>
     </view>
   </view>
 
@@ -117,7 +126,7 @@
           <text class="card-hero-value">{{todayEarnings}}</text>
         </view>
         <view class="card-hero-right">
-          <text class="card-hero-tag-label">实时流速</text>
+          <text class="card-hero-tag-label">潮汐压强</text>
           <text class="card-hero-tag-value">{{secondSalary}}</text>
         </view>
       </view>

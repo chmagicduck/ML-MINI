@@ -1,93 +1,44 @@
-<!--pages/lab/index.wxml — 深海实验室-->
+<!--pages/lab/index.wxml — 深海动力室-->
 <view class="page">
 
-  <!-- 页眉 -->
-  <view class="lab-header">
-    <view class="header-title-row">
-      <view class="header-icon-box">
-        <text class="header-icon-text">🔬</text>
+  <!-- 功能列表卡片 -->
+  <view class="lab-card">
+    <view class="lab-item" bindtap="onGoToMeeting">
+      <view class="lab-item-icon icon-meeting">
+        <text class="icon-text">💸</text>
       </view>
-      <text class="header-title">实验室</text>
-    </view>
-    <text class="header-sub">打工人的秘密武器库 · SECRET WEAPONS</text>
-  </view>
-
-  <!-- 核心大卡片: 烧钱会议室 -->
-  <view class="hero-card" bindtap="onGoToMeeting">
-    <view class="hero-blur-bg"></view>
-    <view class="hero-deco-circle"></view>
-
-    <view class="hero-top">
-      <view class="hero-icon-box">
-        <text class="hero-icon">💸</text>
+      <view class="lab-item-info">
+        <text class="lab-item-title">烧钱会议室</text>
+        <text class="lab-item-desc">实时计算会议成本，感受燃烧的钱</text>
       </view>
-      <view class="hero-tags">
-        <view class="hero-tag-rt">
-          <text class="hero-tag-rt-text">REALTIME</text>
-        </view>
-        <view class="hero-tag-fire">
-          <text class="hero-fire-icon">🔥</text>
-          <text class="hero-fire-text">燃烧中</text>
-        </view>
-      </view>
+      <text class="lab-item-arrow">›</text>
     </view>
 
-    <view class="hero-info">
-      <text class="hero-name">烧钱会议室</text>
-      <text class="hero-desc">实时计算会议成本，感受燃烧的钱</text>
+    <view class="lab-divider"></view>
+
+    <view class="lab-item" bindtap="onGoToPoop">
+      <view class="lab-item-icon icon-poop">
+        <text class="icon-text">💩</text>
+      </view>
+      <view class="lab-item-info">
+        <text class="lab-item-title">带薪拉粑粑</text>
+        <text class="lab-item-desc">如厕即赚钱，记录年度如厕收益</text>
+      </view>
+      <text class="lab-item-arrow">›</text>
     </view>
 
-    <view class="hero-bottom">
-      <view class="hero-avatars">
-        <view class="hero-avatar">👤</view>
-        <view class="hero-avatar hero-avatar-2">👤</view>
-        <view class="hero-avatar hero-avatar-3">👤</view>
-      </view>
-      <text class="hero-users">已有 2,419 位组长在使用</text>
-    </view>
+    <view class="lab-divider"></view>
 
-    <view class="hero-arrow-btn">
-      <text class="hero-arrow">›</text>
-    </view>
-  </view>
-
-  <!-- 2列功能网格 -->
-  <view class="feature-grid">
-    <!-- 带薪拉粑粑 -->
-    <view class="feature-card feature-card-white" bindtap="onGoToPoop">
-      <view class="feature-top-line feature-line-amber"></view>
-      <view class="feature-icon-box">
-        <text class="feature-icon">💩</text>
+    <view class="lab-item" bindtap="onGoToFood">
+      <view class="lab-item-icon icon-food">
+        <text class="icon-text">🍱</text>
       </view>
-      <text class="feature-name">带薪拉粑粑</text>
-      <text class="feature-desc">如厕即赚钱\n记录年度收益</text>
-      <view class="feature-go-btn">
-        <text class="feature-go-arrow">›</text>
+      <view class="lab-item-info">
+        <text class="lab-item-title">今天吃什么</text>
+        <text class="lab-item-desc">选择困难症救星，帮你做决定</text>
       </view>
+      <text class="lab-item-arrow">›</text>
     </view>
-
-    <!-- 今天吃什么 -->
-    <view class="feature-card feature-card-indigo" bindtap="onGoToFood">
-      <view class="feature-top-line feature-line-indigo"></view>
-      <view class="feature-icon-box feature-icon-shadow">
-        <text class="feature-icon">🍱</text>
-      </view>
-      <text class="feature-name">今天吃什么</text>
-      <text class="feature-desc">选择困难症\n终极救星</text>
-      <view class="feature-go-btn feature-go-indigo">
-        <text class="feature-go-icon">⚡</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 底部预告 -->
-  <view class="coming-soon">
-    <view class="coming-left">
-      <text class="coming-icon">✨</text>
-      <text class="coming-text">更多研发中...</text>
-    </view>
-    <view class="coming-line"></view>
-    <view class="coming-dot"></view>
   </view>
 
   <view class="safe-bottom"></view>

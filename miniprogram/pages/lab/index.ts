@@ -1,4 +1,4 @@
-// pages/lab/index.ts — 深海实验室
+// pages/lab/index.ts — 深海动力室
 Page({
   data: {},
 

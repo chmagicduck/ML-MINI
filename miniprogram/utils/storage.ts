@@ -1,4 +1,5 @@
-// 本地存储工具函数
+// 本地存储工具函数 — 负责所有 wx.Storage 的读写操作
+// 核心职责：用户设置、摸鱼统计（事件源模式）、各页面运行状态的持久化
 import {
   UserSettings,
   PoopStats,
@@ -10,23 +11,27 @@ import {
   MoyuEventSource,
 } from './types'
 
+/** Storage key 常量集中管理 */
 const KEYS = {
   SETTINGS: 'userSettings',
   POOP_STATS: 'poopStats',
   MOYU_STATS: 'moyuStats',
   SLACKING_PREFIX: 'slackingToday_',
   PENDING_LEVEL_UP: 'pendingLevelUp',
-  LAST_EXIT_STATE: 'lastExitState',
   INITIAL_IDENTITY_SHOWN: 'initialIdentityShown',
   ONBOARDING_DONE: 'onboardingDone',
   USER_AVATAR: 'userAvatar',
   USER_NICKNAME: 'userNickname',
 }
 
+// ─────────── 内部工具函数 ────────────────────────────────────
+
+/** 获取今天的日期 key（格式 YYYY-MM-DD） */
 function todayKey(): string {
   return dayKeyByTimestamp(Date.now())
 }
 
+/** 时间戳转日期 key */
 function dayKeyByTimestamp(ts: number): string {
   const now = new Date(ts)
   const m = String(now.getMonth() + 1).padStart(2, '0')
@@ -34,19 +39,23 @@ function dayKeyByTimestamp(ts: number): string {
   return `${now.getFullYear()}-${m}-${d}`
 }
 
+/** 安全转数值，处理 NaN/Infinity 返回 fallback */
 function toFiniteNumber(value: unknown, fallback: number = 0): number {
   const n = Number(value)
   return isFinite(n) ? n : fallback
 }
 
+/** 校验日期 key 格式 YYYY-MM-DD */
 function isValidDayKey(dayKey: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(dayKey)
 }
 
+/** 生成唯一事件 ID（时间戳 + 随机串） */
 function genEventId(): string {
   return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 }
 
+/** 裁剪日期映射表，仅保留最近 N 天的记录 */
 function trimOldDays(map: Record<string, number>, keepDays: number): Record<string, number> {
   const keys = Object.keys(map).sort()
   if (keys.length <= keepDays) return map
@@ -58,6 +67,7 @@ function trimOldDays(map: Record<string, number>, keepDays: number): Record<stri
   return trimmed
 }
 
+/** 规范化事件来源字段，无效值回退为 'repair' */
 function normalizeSource(raw: unknown): MoyuEventSource {
   if (raw === 'index_timer' || raw === 'manual_edit' || raw === 'repair') {
     return raw
@@ -65,6 +75,10 @@ function normalizeSource(raw: unknown): MoyuEventSource {
   return 'repair'
 }
 
+/**
+ * 清洗单条摸鱼事件，校验并修复所有字段
+ * 返回 null 表示此条事件无效（秒数为0或数据损坏）
+ */
 function sanitizeEvent(raw: unknown): MoyuEvent | null {
   if (!raw || typeof raw !== 'object') return null
   const item = raw as Partial<MoyuEvent>
@@ -107,6 +121,7 @@ function sanitizeEvent(raw: unknown): MoyuEvent | null {
   return event
 }
 
+/** 从事件列表重新聚合 totalMoney/totalSeconds/moyuDaysMap */
 function buildAggregatesFromEvents(events: MoyuEvent[]): Pick<MoyuStats, 'totalMoney' | 'totalSeconds' | 'moyuDaysMap'> {
   let totalMoney = 0
   let totalSeconds = 0
@@ -132,6 +147,10 @@ function buildAggregatesFromEvents(events: MoyuEvent[]): Pick<MoyuStats, 'totalM
   }
 }
 
+/**
+ * 读取并规范化摸鱼统计数据
+ * 若数据损坏或聚合值偏差，自动修复并标记 changed=true
+ */
 function normalizeMoyuStats(raw: unknown): { stats: MoyuStats; changed: boolean } {
   if (!raw || typeof raw !== 'object') {
     return { stats: { ...DEFAULT_MOYU_STATS }, changed: false }
@@ -162,6 +181,9 @@ function normalizeMoyuStats(raw: unknown): { stats: MoyuStats; changed: boolean 
   return { stats, changed }
 }
 
+// ─────────── 用户设置 ────────────────────────────────────────
+
+/** 读取用户设置，缺失字段用默认值填充 */
 export function getSettings(): UserSettings {
   try {
     const stored = wx.getStorageSync(KEYS.SETTINGS)
@@ -172,10 +194,14 @@ export function getSettings(): UserSettings {
   return { ...DEFAULT_SETTINGS }
 }
 
+/** 保存用户设置 */
 export function saveSettings(settings: UserSettings): void {
   wx.setStorageSync(KEYS.SETTINGS, settings)
 }
 
+// ─────────── 拉粑粑统计 ────────────────────────────────────
+
+/** 读取拉粑粑累计统计 */
 export function getPoopStats(): PoopStats {
   try {
     const stored = wx.getStorageSync(KEYS.POOP_STATS)
@@ -184,6 +210,7 @@ export function getPoopStats(): PoopStats {
   return { totalSeconds: 0, totalEarnings: 0, sessions: [] }
 }
 
+/** 保存拉粑粑统计 */
 export function savePoopStats(stats: PoopStats): void {
   try {
     wx.setStorageSync(KEYS.POOP_STATS, stats)
@@ -192,6 +219,9 @@ export function savePoopStats(stats: PoopStats): void {
   }
 }
 
+// ─────────── 今日摸鱼秒数（按天隔离） ──────────────────────
+
+/** 读取今日已摸鱼秒数 */
 export function getTodaySlackingSeconds(): number {
   try {
     const key = KEYS.SLACKING_PREFIX + todayKey()
@@ -201,6 +231,7 @@ export function getTodaySlackingSeconds(): number {
   }
 }
 
+/** 保存今日摸鱼秒数 */
 export function saveTodaySlackingSeconds(seconds: number): boolean {
   const key = KEYS.SLACKING_PREFIX + todayKey()
   try {
@@ -231,6 +262,7 @@ export function saveMoyuStats(stats: MoyuStats): void {
   } catch (_) {}
 }
 
+/** 提交元信息（可选时间段、来源、备注） */
 export interface MoyuCommitMeta {
   startAt?: number
   endAt?: number
@@ -238,6 +270,13 @@ export interface MoyuCommitMeta {
   note?: string
 }
 
+/** 相邻事件合并的最大间隔（毫秒）；间隔在此范围内的连续事件合并为一条 */
+const EVENT_MERGE_GAP_MS = 1500
+
+/**
+ * 判断新事件是否可以合并到最后一条事件中
+ * 条件：同天、同来源、同备注、间隔不超过 EVENT_MERGE_GAP_MS
+ */
 function canMergeEvent(last: MoyuEvent | undefined, incoming: MoyuEvent): boolean {
   if (!last) return false
   if (last.deletedAt) return false
@@ -245,9 +284,13 @@ function canMergeEvent(last: MoyuEvent | undefined, incoming: MoyuEvent): boolea
   if (last.source !== incoming.source) return false
   if ((last.note || '') !== (incoming.note || '')) return false
   const gapMs = incoming.startAt - last.endAt
-  return gapMs >= 0 && gapMs <= 1500
+  return gapMs >= 0 && gapMs <= EVENT_MERGE_GAP_MS
 }
 
+/**
+ * 按天提交摸鱼会话（内部核心方法）
+ * 步骤：1.校验 → 2.构建事件 → 3.尝试合并或追加 → 4.更新聚合值 → 5.写入存储
+ */
 function commitMoyuSessionByDay(
   dayKey: string,
   newSeconds: number,
@@ -353,31 +396,6 @@ export function getPendingLevelUp(): PendingLevel | null {
 
 export function clearPendingLevelUp(): void {
   try { wx.removeStorageSync(KEYS.PENDING_LEVEL_UP) } catch (_) {}
-}
-
-// ─────────── 离线收益弹窗状态 ─────────────────────────
-
-interface ExitState {
-  ts: number        // 退出时刻 timestamp
-}
-
-export function saveLastExitState(): void {
-  try { wx.setStorageSync(KEYS.LAST_EXIT_STATE, { ts: Date.now() }) } catch (_) {}
-}
-
-export function getLastExitState(): ExitState | null {
-  try {
-    const value = wx.getStorageSync(KEYS.LAST_EXIT_STATE)
-    if (!value) return null
-    const ts = toFiniteNumber((value as { ts?: number }).ts, 0)
-    return ts > 0 ? { ts } : null
-  } catch (_) {
-    return null
-  }
-}
-
-export function clearLastExitState(): void {
-  try { wx.removeStorageSync(KEYS.LAST_EXIT_STATE) } catch (_) {}
 }
 
 // ─────────── 拉粑粑计时器运行状态 ────────────────────

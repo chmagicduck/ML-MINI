@@ -9,7 +9,8 @@
     "pages/poop/index",
     "pages/food/index",
     "pages/meeting/index",
-    "pages/calendar/index"
+    "pages/calendar/index",
+    "pages/data-manage/index"
   ],
   "tabBar": {
     "color": "#757575",
@@ -19,19 +20,19 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "摸鱼中心",
+        "text": "领潮中心",
         "iconPath": "assets/images/tabbar/grey/tab-money.png",
         "selectedIconPath": "assets/images/tabbar/blue/tab-money-active.png"
       },
       {
         "pagePath": "pages/stats/index",
-        "text": "情报中心",
+        "text": "洋流情报",
         "iconPath": "assets/images/tabbar/grey/tab-chart.png",
         "selectedIconPath": "assets/images/tabbar/blue/tab-chart-active.png"
       },
       {
         "pagePath": "pages/lab/index",
-        "text": "实验室",
+        "text": "深海动力室",
         "iconPath": "assets/images/tabbar/grey/tab-lab.png",
         "selectedIconPath": "assets/images/tabbar/blue/tab-lab-active.png"
       },
@@ -45,7 +46,7 @@
   },
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "鱼额宝",
+    "navigationBarTitleText": "薪潮涌动",
     "navigationBarBackgroundColor": "#FFFFFF",
     "backgroundColor": "#F8FAFC",
     "backgroundTextStyle": "light"

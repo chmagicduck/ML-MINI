@@ -1,62 +1,165 @@
-/* pages/stats/index.wxss — 情报局（待开发） */
+/* pages/stats/index.wxss — 洋流情报 */
 
 .page {
   min-height: 100vh;
   background: #F8FAFC;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
-.placeholder-wrap {
+/* ===== 维度切换 tab ===== */
+.tab-bar {
+  display: flex;
+  margin: 24rpx 32rpx;
+  background: #F1F5F9;
+  border-radius: 32rpx;
+  padding: 6rpx;
+}
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 28rpx;
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #94A3B8;
+  transition: all 0.2s;
+}
+.tab-active {
+  background: #3B82F6;
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(59, 130, 246, 0.3);
+}
+
+/* ===== 核心看板卡片 ===== */
+.chart-card {
+  margin: 0 32rpx;
+  background: #FFFFFF;
+  border-radius: 48rpx;
+  padding: 48rpx 40rpx;
+  box-shadow: 0 8rpx 24rpx rgba(59, 130, 246, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16rpx;
-  padding-bottom: 160rpx;
 }
 
-.placeholder-icon {
-  font-size: 120rpx;
-  display: block;
-  margin-bottom: 16rpx;
+/* ===== CSS 甜甜圈图 ===== */
+.donut-wrap {
+  position: relative;
+  width: 400rpx;
+  height: 400rpx;
 }
-
-.placeholder-title {
-  font-size: 36rpx;
-  font-weight: 800;
-  color: #1E293B;
-  display: block;
+.donut-ring {
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 50%;
 }
-
-.placeholder-desc {
-  font-size: 26rpx;
+.donut-hole {
+  position: absolute;
+  top: 36rpx;
+  left: 36rpx;
+  width: 328rpx;
+  height: 328rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+.donut-center {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.center-label {
+  font-size: 20rpx;
+  font-weight: 600;
   color: #94A3B8;
   display: block;
-  font-weight: 500;
+}
+.center-rate {
+  font-size: 56rpx;
+  font-weight: 900;
+  color: #3B82F6;
+  display: block;
+  margin-top: 4rpx;
 }
 
-.placeholder-dots {
+/* ===== 数据图例列表 ===== */
+.legend-list {
+  width: 100%;
+  margin-top: 48rpx;
   display: flex;
-  flex-direction: row;
-  gap: 12rpx;
-  margin-top: 24rpx;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+}
+.legend-bg-gray { background: #F8FAFC; }
+.legend-bg-blue {
+  background: #EFF6FF;
+  border: 1rpx solid #DBEAFE;
+}
+.legend-bg-future {
+  background: #FFFFFF;
+  border: 1rpx dashed #E5E7EB;
+  opacity: 0.7;
 }
 
-.dot {
-  width: 12rpx;
-  height: 12rpx;
+.legend-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.legend-dot {
+  width: 20rpx;
+  height: 20rpx;
   border-radius: 50%;
-  background: #CBD5E1;
-  animation: dot-bounce 1.4s infinite ease-in-out both;
+}
+.dot-gray { background: #CBD5E1; }
+.dot-blue { background: #3B82F6; }
+.dot-future {
+  background: #F1F5F9;
+  border: 2rpx solid #D1D5DB;
 }
 
-.dot-1 { animation-delay: 0s; }
-.dot-2 { animation-delay: 0.2s; }
-.dot-3 { animation-delay: 0.4s; }
-
-@keyframes dot-bounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-  40% { transform: scale(1); opacity: 1; }
+.legend-name {
+  font-size: 26rpx;
+  font-weight: 800;
+  color: #475569;
 }
+.legend-name-blue { color: #3B82F6; }
+.legend-name-future { color: #94A3B8; }
+
+.legend-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.legend-value {
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #1E293B;
+}
+.legend-value-blue { color: #3B82F6; }
+.legend-value-future { color: #94A3B8; }
+
+.legend-pct {
+  font-size: 20rpx;
+  color: #94A3B8;
+  font-weight: 700;
+}
+.legend-pct-blue { color: #93C5FD; }
+.legend-pct-future { color: #D1D5DB; }
+
+/* ===== 底部安全区 ===== */
+.safe-bottom { height: 120rpx; }

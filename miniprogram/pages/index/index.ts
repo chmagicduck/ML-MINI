@@ -1,4 +1,4 @@
-// pages/index/index.ts — 鱼额宝首页
+// pages/index/index.ts — 领潮中心
 import {
   getSettings,
   getTodaySlackingSeconds,
@@ -9,8 +9,6 @@ import {
   setPendingLevelUp,
   getPendingLevelUp,
   clearPendingLevelUp,
-  getLastExitState,
-  clearLastExitState,
   hasShownInitialIdentity,
   setInitialIdentityShown,
   isOnboardingDone,
@@ -20,7 +18,6 @@ import {
   calcTodayEarnings,
   calcTodayWorkedEarnings,
   calcTodayWorkedSeconds,
-  calcWorkedSecondsBetween,
   calcMonthEarnings,
   getDailyWorkMinutes,
   getDaysToPayday,
@@ -30,6 +27,7 @@ import {
   isWorkingNow,
   formatMoney,
   formatDuration,
+  calcStatsBreakdown,
 } from '../../utils/calculator'
 import { getTodayStatusText, getTodayStatus } from '../../utils/holiday'
 import { UserSettings, MoyuLevel } from '../../utils/types'
@@ -50,6 +48,8 @@ let _settings: UserSettings | null = null
 
 // 累计收益缓存，避免 timer tick 频繁读 Storage
 let _baseTotalMoney = 0
+// moyuDaysMap 缓存，避免 _updateProgress 每秒读 Storage
+let _cachedMoyuDaysMap: Record<string, number> = {}
 // 上次 commit 时的摸鱼秒数，用于增量计算
 let _lastCommitSeconds = 0
 // 当前计时轮次的基准秒和起始时间（用于生成事件时间段）
@@ -113,10 +113,14 @@ Page({
     showCalcExplain: false,
     secondSalaryValue: '0.0000',
 
-    // 工时与进度
+    // 工时与进度（3 段式圆环）
     todayWorkedTimeStr: '00:00:00',
-    fishRatioStr: '0.0%',
+    workPctStr: '0.0%',
+    moyuPctStr: '0.0%',
+    futurePctStr: '0.0%',
+    hasFuture: true,
     offWorkPercent: 0,
+    offWorkCountdown: '',
 
     hasSettings: false,
     slogan: SLOGANS[0],
@@ -176,6 +180,7 @@ Page({
 
     // 等级 & 累计
     _baseTotalMoney = moyuStats.totalMoney
+    _cachedMoyuDaysMap = { ...moyuStats.moyuDaysMap }
     const level = getMoyuLevel(_baseTotalMoney)
     _lastLevelThreshold = level.threshold
 
@@ -214,11 +219,6 @@ Page({
       setTimeout(() => this._showLevelUpModal(pendingLevel as MoyuLevel), 600)
     }
 
-    // 离线收益弹窗
-    if (!this.data.isSlacking && _settings) {
-      this._checkOfflineEarnings()
-    }
-
     // 二级页返回时若计时仍开启，重启 timer
     if (this.data.isSlacking && _timer === null) {
       this._startTimer()
@@ -237,55 +237,46 @@ Page({
     this._pause()
   },
 
-  // ─────────── 离线收益弹窗 ──────────────────────────────
-  _checkOfflineEarnings() {
-    if (!_settings) return
-    const exitState = getLastExitState()
-    clearLastExitState()
-    if (!exitState) return
-
-    const nowMs = Date.now()
-    const elapsed = nowMs - exitState.ts
-    const hourMs = 3600000
-    if (elapsed < hourMs) return
-
-    const earnedSecs = calcWorkedSecondsBetween(_settings, exitState.ts, nowMs)
-    if (earnedSecs <= 0.001) return
-
-    const offlineEarnings = earnedSecs * getSecondSalary(_settings)
-    setTimeout(() => {
-      wx.showModal({
-        title: '🐟 你不在的时候...',
-        content: `鱼额宝偷偷帮你从老板兜里掏走了\n${formatMoney(offlineEarnings)}\n\n打卡上班，继续薅！`,
-        confirmText: '收下！',
-        showCancel: false,
-      })
-    }, 800)
-  },
-
-  // ─────────── 进度条和工时显示 ─────────────────────────────
+  // ─────────── 进度条和工时显示（3 段式圆环） ─────────────────
   _updateProgress() {
     if (!_settings) return
 
     const workedSecs = calcTodayWorkedSeconds(_settings)
     const totalWorkSeconds = Math.max(1, getDailyWorkMinutes(_settings) * 60)
-    const slackingSecs = this.data.slackingSeconds
 
-    // 下班进度百分比
+    // 退潮倒计时百分比
     const offWorkPercent = Math.min(100, Math.round((workedSecs / totalWorkSeconds) * 100))
 
-    // 摸鱼率
-    const fishRatio = workedSecs > 0 ? slackingSecs / workedSecs : 0
-    const fishRatioStr = `${(fishRatio * 100).toFixed(1)}%`
+    // 用缓存的 moyuDaysMap + 当前 live 秒数构建圆环数据（避免每秒读 Storage）
+    const todayKey = dayKeyByTimestamp()
+    const actualTodaySecs = this.data.slackingSeconds
+    const moyuDaysMap = { ..._cachedMoyuDaysMap }
+    if (actualTodaySecs > (moyuDaysMap[todayKey] || 0)) {
+      moyuDaysMap[todayKey] = actualTodaySecs
+    }
 
-    // 鱼缸计时器用的进度样式：摸鱼部分用蓝色环
-    const fishVisualDegree = ((slackingSecs % 3600) / 3600) * 360
-    const style = `background: conic-gradient(#3B82F6 ${fishVisualDegree}deg, #E2E8F0 ${fishVisualDegree}deg 260deg, #F1F5F9 260deg)`
+    // 3 段式时间分布（与洋流情报页一致）
+    const breakdown = calcStatsBreakdown(_settings, moyuDaysMap, 'day')
+    const total = breakdown.totalSeconds || 1
+
+    const workPct = (breakdown.workSeconds / total) * 100
+    const moyuPct = (breakdown.moyuSeconds / total) * 100
+    const futurePct = (breakdown.futureSeconds / total) * 100
+
+    // conic-gradient: 工作(#CBD5E1) → 摸鱼(#3B82F6) → 未到(#F1F5F9)
+    const d1 = (workPct / 100) * 360
+    const d2 = d1 + (moyuPct / 100) * 360
+    const progressStyle = `background: conic-gradient(#CBD5E1 0deg ${d1}deg, #3B82F6 ${d1}deg ${d2}deg, #F1F5F9 ${d2}deg 360deg)`
+
+    const hasFuture = breakdown.futureSeconds > 0
 
     this.setData({
-      progressStyle: style,
+      progressStyle,
       todayWorkedTimeStr: formatDuration(workedSecs),
-      fishRatioStr,
+      workPctStr: `${workPct.toFixed(1)}%`,
+      moyuPctStr: `${moyuPct.toFixed(1)}%`,
+      futurePctStr: hasFuture ? `${futurePct.toFixed(1)}%` : '--',
+      hasFuture,
       offWorkPercent,
     })
   },
@@ -298,11 +289,24 @@ Page({
     const em = Number(parts[1]) || 0
     const now = new Date()
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eh, em, 0, 0)
-    const remaining = endOfDay.getTime() - now.getTime()
+    const remainingMs = endOfDay.getTime() - now.getTime()
 
-    if (remaining <= 0) {
-      this.setData({ offWorkPercent: 100 })
+    if (remainingMs <= 0) {
+      this.setData({ offWorkPercent: 100, offWorkCountdown: '' })
+      return
     }
+
+    // 计算剩余时间并格式化为"距离下班还有 X小时Y分钟"
+    const remainingMinutes = Math.floor(remainingMs / 60000)
+    const hours = Math.floor(remainingMinutes / 60)
+    const minutes = remainingMinutes % 60
+
+    let countdown = '距离下班还有 '
+    if (hours > 0) countdown += `${hours}小时`
+    if (minutes > 0) countdown += `${minutes}分钟`
+    if (hours === 0 && minutes === 0) countdown = '即将下班!'
+
+    this.setData({ offWorkCountdown: countdown })
   },
 
   // ─────────── 刷新 ────────────────────────────
@@ -414,6 +418,8 @@ Page({
       if (committed) {
         _baseTotalMoney += deltaMoney
         _lastCommitSeconds = seconds
+        // 同步更新缓存，避免 _updateProgress 每秒读 Storage
+        _cachedMoyuDaysMap[dayKey] = (_cachedMoyuDaysMap[dayKey] || 0) + deltaSeconds
       }
     }
 
@@ -514,6 +520,8 @@ Page({
         if (committed) {
           _baseTotalMoney += deltaMoney
           _lastCommitSeconds = currentSeconds
+          const todayKey = dayKeyByTimestamp()
+          _cachedMoyuDaysMap[todayKey] = (_cachedMoyuDaysMap[todayKey] || 0) + deltaSeconds
         }
       }
       _timerBaseSeconds = 0

@@ -306,6 +306,44 @@ export function getNextMoyuLevel(totalMoney: number): MoyuLevel | null {
 }
 
 /**
+ * 计算从入职日期到今天（含）的工作日总数
+ * 代表用户"坚持摸鱼"的天数
+ */
+export function calcWorkingDaysSinceJoin(settings: UserSettings): number {
+  const parts = settings.joinDate.split('-')
+  const startYear = Number(parts[0]) || 2020
+  const startMonth = (Number(parts[1]) || 1) - 1
+  const startDay = Number(parts[2]) || 1
+
+  const now = new Date()
+  const todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const startMs = new Date(startYear, startMonth, startDay).getTime()
+  if (startMs > todayMs) return 0
+
+  // 按月批量计算以优化性能（避免逐天遍历数千天）
+  let count = 0
+  const cursor = new Date(startYear, startMonth, 1)
+
+  while (cursor.getTime() <= todayMs) {
+    const y = cursor.getFullYear()
+    const m = cursor.getMonth()
+    const daysInMonth = new Date(y, m + 1, 0).getDate()
+
+    // 确定本月有效范围
+    const firstDay = (y === startYear && m === startMonth) ? startDay : 1
+    const lastDay = (y === now.getFullYear() && m === now.getMonth()) ? now.getDate() : daysInMonth
+
+    for (let d = firstDay; d <= lastDay; d++) {
+      if (isWorkingDay(y, m, d, settings.workdayMode)) count++
+    }
+
+    cursor.setMonth(cursor.getMonth() + 1)
+  }
+
+  return count
+}
+
+/**
  * 判断当前时刻是否处于工作时间内
  * 仅检查时间区间，不检查节假日（节假日由调用方决定是否额外限制）
  */
@@ -319,5 +357,127 @@ export function isWorkingNow(settings: UserSettings): boolean {
   const startSec = parseTimeToMinutes(settings.workStartTime) * 60
   const endSec = parseTimeToMinutes(settings.workEndTime) * 60
   return currentSec >= startSec && currentSec <= endSec
+}
+
+// ─────────── 洋流情报：时间分布统计 ────────────────────────────
+
+/** 时间分布统计结果（用于洋流情报甜甜圈图） */
+export interface StatsBreakdown {
+  workSeconds: number    // 净工作时间（已扣除摸鱼）
+  moyuSeconds: number    // 摸鱼时间
+  idleSeconds: number    // 空余时间（午休等已过去的非工作段）
+  futureSeconds: number  // 尚未过去的时间
+  totalSeconds: number   // 总时间跨度
+}
+
+export type StatsDimension = 'day' | 'week' | 'month' | 'year'
+
+/**
+ * 计算指定维度的时间分布统计
+ * 以净工时（扣除午休）为基准，拆分为：净工作、摸鱼、未到
+ * totalSeconds = workSeconds + moyuSeconds + futureSeconds
+ */
+export function calcStatsBreakdown(
+  settings: UserSettings,
+  moyuDaysMap: Record<string, number>,
+  dimension: StatsDimension,
+): StatsBreakdown {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const todayKeyStr = toDateKey(now.getFullYear(), now.getMonth(), now.getDate())
+  const effectiveWorkSecs = getDailyWorkMinutes(settings) * 60
+
+  const days = getDaysForDimension(now, dimension)
+
+  let totalWork = 0
+  let totalMoyu = 0
+  let totalFuture = 0
+  let totalSpan = 0
+
+  for (const dayKey of days) {
+    const parts = dayKey.split('-')
+    const y = Number(parts[0])
+    const m = Number(parts[1]) - 1
+    const d = Number(parts[2])
+
+    // 非工作日不计入
+    if (!isWorkingDay(y, m, d, settings.workdayMode)) continue
+
+    totalSpan += effectiveWorkSecs
+
+    const dayDate = new Date(y, m, d)
+    const isFutureDay = dayDate.getTime() > today.getTime()
+    const isToday = dayKey === todayKeyStr
+
+    if (isFutureDay) {
+      // 未来工作日：全部为"未到"
+      totalFuture += effectiveWorkSecs
+    } else if (isToday) {
+      // 今天：实时计算
+      const worked = calcTodayWorkedSeconds(settings)
+      const moyu = Math.min(moyuDaysMap[dayKey] || 0, worked)
+
+      totalMoyu += moyu
+      totalWork += worked - moyu
+      totalFuture += Math.max(0, effectiveWorkSecs - worked)
+    } else {
+      // 过去的工作日
+      const moyu = Math.min(moyuDaysMap[dayKey] || 0, effectiveWorkSecs)
+      totalMoyu += moyu
+      totalWork += effectiveWorkSecs - moyu
+    }
+  }
+
+  return {
+    workSeconds: totalWork,
+    moyuSeconds: totalMoyu,
+    idleSeconds: 0,
+    futureSeconds: totalFuture,
+    totalSeconds: totalSpan,
+  }
+}
+
+/** 获取指定维度内的所有日期 key 列表 */
+function getDaysForDimension(now: Date, dimension: StatsDimension): string[] {
+  const y = now.getFullYear()
+  const m = now.getMonth()
+  const d = now.getDate()
+
+  switch (dimension) {
+    case 'day':
+      return [toDateKey(y, m, d)]
+
+    case 'week': {
+      // 周一到周日（中国习惯：周一为一周起始）
+      const dow = now.getDay() || 7
+      const monday = new Date(y, m, d - dow + 1)
+      const result: string[] = []
+      for (let i = 0; i < 7; i++) {
+        const dd = new Date(monday.getTime() + i * 86400000)
+        result.push(toDateKey(dd.getFullYear(), dd.getMonth(), dd.getDate()))
+      }
+      return result
+    }
+
+    case 'month': {
+      const daysInMonth = new Date(y, m + 1, 0).getDate()
+      const result: string[] = []
+      for (let i = 1; i <= daysInMonth; i++) {
+        result.push(toDateKey(y, m, i))
+      }
+      return result
+    }
+
+    case 'year': {
+      const result: string[] = []
+      for (let month = 0; month < 12; month++) {
+        const daysInMonth = new Date(y, month + 1, 0).getDate()
+        for (let i = 1; i <= daysInMonth; i++) {
+          result.push(toDateKey(y, month, i))
+        }
+      }
+      return result
+    }
+  }
 }
 

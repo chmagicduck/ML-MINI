@@ -1,0 +1,45 @@
+<!--pages/data-manage/index.wxml — 数据管理-->
+<view class="page">
+
+  <!-- 存储用量概览 -->
+  <view class="usage-card">
+    <view class="usage-header">
+      <text class="usage-title">存储空间</text>
+      <text class="usage-detail">{{totalUsedKB}}KB / {{totalLimitKB}}KB</text>
+    </view>
+    <view class="usage-bar-bg">
+      <view class="usage-bar-fill" style="width: {{usageBarWidth}}"></view>
+    </view>
+    <text class="usage-hint">已使用 {{usagePercent}}%</text>
+  </view>
+
+  <!-- 模块分类列表 -->
+  <view class="modules-card">
+    <text class="modules-title">存储分类</text>
+    <view class="module-item" wx:for="{{modules}}" wx:key="name">
+      <view class="module-info">
+        <text class="module-name">{{item.name}}</text>
+        <text class="module-size">约 {{item.estimatedKB}}KB · {{item.keyCount}} 条记录</text>
+      </view>
+      <view class="module-action"
+            wx:if="{{item.clearable && item.keyCount > 0}}"
+            bindtap="onClearModule" data-index="{{index}}">
+        <text class="module-clear-text">清除</text>
+      </view>
+      <view class="module-action-disabled"
+            wx:elif="{{item.keyCount === 0}}">
+        <text class="module-empty-text">无数据</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 全量重置 -->
+  <view class="reset-section">
+    <view class="reset-btn" bindtap="onResetAll">
+      <text class="reset-btn-text">重置所有数据</text>
+    </view>
+    <text class="reset-hint">此操作不可恢复，请谨慎操作</text>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>
